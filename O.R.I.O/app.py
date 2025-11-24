@@ -1,178 +1,191 @@
-import flask  #importar flask
-from flask import Flask, request, jsonify, render_template  #importar funciones de flask
-import psycopg2  #importar psycopg2 para conectar a la base de datos PostgreSQL
-from psycopg2.extras import RealDictCursor  #importar RealDictCursor para obtener resultados en formato diccionario
-import os  #importar os para manejar variables de entorno
-from datetime import datetime  #importar datetime para manejar fechas y horas
+import flask
+from flask import Flask, request, jsonify, render_template
+import psycopg2
+from psycopg2.extras import RealDictCursor
+import os
+from datetime import datetime
 
 # Configuración de la aplicación
 app = Flask(__name__)
 
 DB_CONFIG = {
     'host': 'localhost',
-    'database': 'posgres',
+    'database': 'postgres',
     'user': 'postgres',
-    'password': '123456',
+    'password': 'S0lut3c2012*',
     'port': '5432'
 }
 
-def conectar_db():  #crea una función para conectar con mi base de datos
+
+# -------------------------
+# CONEXIÓN A LA BASE DE DATOS
+# -------------------------
+def conectar_db():
     try:
-        # Forzar codificación cliente a UTF-8 para evitar UnicodeDecodeError desde libpq
         os.environ.setdefault('PGCLIENTENCODING', 'utf8')
 
-        # pasar la opción a libpq también (asegura que libpq use UTF8)
-        conexion = psycopg2.connect(options='-c client_encoding=UTF8', **DB_CONFIG)
+        conexion = psycopg2.connect(
+            options='-c client_encoding=UTF8',
+            **DB_CONFIG
+        )
         return conexion
+
     except UnicodeDecodeError as e:
-        # Mensaje más útil para depuración
         raise RuntimeError(
             "UnicodeDecodeError durante la conexión a PostgreSQL. "
-            "Verifique que las credenciales y variables de entorno estén en UTF-8 "
-            "y pruebe a exportar PGCLIENTENCODING=utf8 antes de ejecutar la app."
+            "Revisa que la base de datos, usuario y tablas no tengan tildes."
         ) from e
-    except psycopg2.Error as e:
-        print("Error al conectar:", e)  #Si ocurre un error lo muestra en consola
-        return None  #retorna None si falla la conexión
 
-#Crear la tabla Usuario
+    except psycopg2.Error as e:
+        print("Error al conectar:", e)
+        return None
+
+
+# -------------------------------------
+# TABLA PAISES
+# -------------------------------------
 def crear_tabla_Paises():
-    conexion = conectar_db()  #conectar a la base de datos
-    #Crear la tabla Países
-def crear_tabla_pPises():
-    conexion = conectar_db()  #conectar a la base de datos
+    conexion = conectar_db()
     if conexion:
-        cursor = conexion.cursor()  #crear cursor para ejecutar consultas
+        cursor = conexion.cursor()
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS "Países" (
+            CREATE TABLE IF NOT EXISTS public."Paises"(
                 "ID_PAIS" TEXT NOT NULL,
                 "NOMBRE" TEXT NOT NULL,
                 PRIMARY KEY ("ID_PAIS")
             );
-        """)  #crear la tabla Países si no existe
-        conexion.commit()  #guardar cambios
-        cursor.close()  #cerrar cursor
-        conexion.close()  #cerrar conexión
+        """)
+        conexion.commit()
+        cursor.close()
+        conexion.close()
 
+
+# -------------------------------------
+# TABLA DEPARTAMENTOS
+# -------------------------------------
 def crear_tabla_Departamentos():
-    conexion = conectar_db()  #conectar a la base de datos
-    #Crear la tabla Departamentos
-def crear_tabla_Departamentos():
-    conexion = conectar_db()  #conectar a la base de datos
+    conexion = conectar_db()
     if conexion:
-        cursor = conexion.cursor()  #crear cursor para ejecutar consultas
+        cursor = conexion.cursor()
         cursor.execute("""
-         CREATE TABLE IF NOT EXISTS public."Departamentos"(
-            "ID_DEPARTAMENTO" text COLLATE pg_catalog."default" NOT NULL,
-            "NOMBRE" text COLLATE pg_catalog."default" NOT NULL,
-            "ID_PAIS" text COLLATE pg_catalog."default",
-            CONSTRAINT "Departamentos_pkey" PRIMARY KEY ("ID_DEPARTAMENTO"),
-            CONSTRAINT "ID_PAIS" FOREIGN KEY ("ID_PAIS")
-            REFERENCES public."Países" ("ID_PAIS") MATCH SIMPLE
-            ON UPDATE NO ACTION
-            ON DELETE NO ACTION
+            CREATE TABLE IF NOT EXISTS public."Departamentos"(
+                "ID_DEPARTAMENTO" TEXT NOT NULL,
+                "NOMBRE" TEXT NOT NULL,
+                "ID_PAIS" TEXT,
+                PRIMARY KEY ("ID_DEPARTAMENTO"),
+                FOREIGN KEY ("ID_PAIS")
+                    REFERENCES public."Paises" ("ID_PAIS")
             );
-        """)  #crear la tabla Departamento si no existe
-        conexion.commit()  #guardar cambios
-        cursor.close()  #cerrar cursor
-        conexion.close()  #cerrar conexión
+        """)
+        conexion.commit()
+        cursor.close()
+        conexion.close()
 
+
+# -------------------------------------
+# TABLA CIUDADES
+# -------------------------------------
 def crear_tabla_Ciudades():
-    conexion = conectar_db()  #conectar a la base de datos
-    #Crear la tabla 
-def crear_tabla_Ciudades():
-    conexion = conectar_db()  #conectar a la base de datos
+    conexion = conectar_db()
     if conexion:
-        cursor = conexion.cursor()  #crear cursor para ejecutar consultas
+        cursor = conexion.cursor()
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS public."Ciudades"(
-                "ID_CIUDAD" text COLLATE pg_catalog."default" NOT NULL,
-                "NOMBRE" text COLLATE pg_catalog."default" NOT NULL,
-                "ID_DEPARTAMENTO" text COLLATE pg_catalog."default" NOT NULL,
-                CONSTRAINT "Ciudad_pkey" PRIMARY KEY ("ID_CIUDAD"),
-                CONSTRAINT "ID_DEPARTAMENTOS" FOREIGN KEY ("ID_DEPARTAMENTO")
-                REFERENCES public."Departamentos" ("ID_DEPARTAMENTO") MATCH SIMPLE
-                ON UPDATE NO ACTION
-                ON DELETE NO ACTION
-);
-        """)  #crear la tabla si no existe
-        conexion.commit()  #guardar cambios
-        cursor.close()  #cerrar cursor
-        conexion.close()  #cerrar conexión
-    
+                "ID_CIUDAD" TEXT NOT NULL,
+                "NOMBRE" TEXT NOT NULL,
+                "ID_DEPARTAMENTO" TEXT NOT NULL,
+                PRIMARY KEY ("ID_CIUDAD"),
+                FOREIGN KEY ("ID_DEPARTAMENTO")
+                    REFERENCES public."Departamentos" ("ID_DEPARTAMENTO")
+            );
+        """)
+        conexion.commit()
+        cursor.close()
+        conexion.close()
 
-#Ruta principal del sitio web
+
+# -----------------------------
+# RUTA PRINCIPAL
+# -----------------------------
 @app.route('/')
 def inicio():
-    return render_template('index.html')  #retorna el template index.html
+    return render_template('index.html')
 
-#ruta para guardar los datos de un usuario
+
+# -----------------------------
+# GUARDAR USUARIO
+# -----------------------------
 @app.route('/guardar_usuario', methods=['POST'])
 def guardar_usuario():
     try:
-        conexion = conectar_db()  #conectar a la base de datos
+        conexion = conectar_db()
         if conexion is None:
             return jsonify({'mensaje': 'Error de conexión a la base de datos'}), 500
 
-        #obtiene los datos enviados en Json
-        datos = request.get_json()  #obtener datos en formato JSON
-        nombre = datos.get('nombre')  #obtener nombre
-        email = datos.get('email')  #obtener email
-        fecha_creacion = datetime.now()  #obtener fecha y hora actual
+        datos = request.get_json()
+        nombre = datos.get('nombre')
+        email = datos.get('email')
+        fecha_creacion = datetime.now()
 
-        #validar datos obligatorios
         if not nombre or not email:
             return jsonify({'mensaje': 'El nombre y el correo son obligatorios'}), 400
 
-        #crear cursor para ejecutar consultas
         cursor = conexion.cursor()
 
         sql_insert = """
             INSERT INTO Usuario (nombre, email, fecha_creacion)
             VALUES (%s, %s, %s)
             RETURNING id;
-        """  #consulta SQL para insertar usuario
+        """
 
         cursor.execute(sql_insert, (nombre, email, fecha_creacion))
-        usuario_id = cursor.fetchone()[0]  #obtener id generado
+        usuario_id = cursor.fetchone()[0]
 
-        conexion.commit()  #guardar cambios
-        cursor.close()  #cerrar cursor
-        conexion.close()  #cerrar conexión
+        conexion.commit()
+        cursor.close()
+        conexion.close()
 
-        return jsonify({'mensaje': 'Usuario guardado exitosamente', 'usuario_id': usuario_id})
+        return jsonify({
+            'mensaje': 'Usuario guardado exitosamente',
+            'usuario_id': usuario_id
+        })
 
     except Exception as e:
         return jsonify({'mensaje': 'Error al guardar el usuario', 'error': str(e)}), 500
 
-#Ruta para consultar lo guardado
+
+# -----------------------------
+# CONSULTAR USUARIOS
+# -----------------------------
 @app.route('/usuarios', methods=['GET'])
 def obtener_usuarios():
     try:
-        conexion = conectar_db()  #conectar a la base de datos
+        conexion = conectar_db()
         if conexion is None:
             return jsonify({'mensaje': 'Error de conexión a la base de datos'}), 500
 
-        cursor = conexion.cursor(cursor_factory=RealDictCursor)  #obtener resultados como diccionario
-        cursor.execute("SELECT * FROM Usuario ORDER BY id DESC;")  #consulta usuarios
+        cursor = conexion.cursor(cursor_factory=RealDictCursor)
+        cursor.execute("SELECT * FROM Usuario ORDER BY id DESC;")
+        usuarios = cursor.fetchall()
 
-        usuarios = cursor.fetchall()  #obtener registros
-
-        #Formatear la fecha de creación para que sea legible
         for u in usuarios:
             if u['fecha_creacion']:
                 u['fecha_creacion'] = u['fecha_creacion'].strftime('%Y-%m-%d %H:%M:%S')
 
-        cursor.close()  #cerrar cursor
-        conexion.close()  #cerrar conexión
+        cursor.close()
+        conexion.close()
 
         return jsonify(usuarios), 200
 
     except Exception as e:
         return jsonify({'mensaje': 'Error al obtener los usuarios', 'error': str(e)}), 500
 
-#inicializar servidor
+
+# -----------------------------
+# INICIAR SERVIDOR
+# -----------------------------
 if __name__ == "__main__":
-    crear_tabla_Paises()  #crear tabla si no existeeeeee
-    crear_tabla_Departamentos
+    crear_tabla_Paises()
+    crear_tabla_Departamentos()
+    crear_tabla_Ciudades()
     app.run(debug=True)
