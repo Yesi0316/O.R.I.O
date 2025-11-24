@@ -173,6 +173,6 @@ def obtener_usuarios():
 
 #inicializar servidor
 if __name__ == "__main__":
-    crear_tabla_Paises()  #crear tabla si no existe
+    crear_tabla_Paises()  #crear tabla si no existeeeeee
     crear_tabla_Departamentos
     app.run(debug=True)
