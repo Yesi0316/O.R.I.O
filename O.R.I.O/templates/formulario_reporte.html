@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario O.R.I.O</title>
+
+    <!-- Tipografías Baskerville y Bodoni -->
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --blue-bg: #3C507D;      /* Azul medio fuerte */
+            --gold: #E0C58F;         /* Dorado/beige */
+            --white: #ffffff;        /* Botones */
+            --font-title: 'Libre Baskerville', serif;
+            --font-body: 'Bodoni Moda', serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--blue-bg);
+            font-family: var(--font-body);
+            color: var(--gold);
+            display: flex;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 18px;
+            width: 100%;
+            max-width: 750px;
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(224, 197, 143, 0.4);
+        }
+
+        h1 {
+            text-align: center;
+            font-family: var(--font-title);
+            color: var(--gold);
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-top: 12px;
+            font-size: 15px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid var(--gold);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--gold);
+            margin-top: 6px;
+            font-family: var(--font-body);
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: rgba(224, 197, 143, 0.7);
+        }
+
+        textarea {
+            min-height: 110px;
+        }
+
+        .btn-area {
+            margin-top: 22px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button {
+            padding: 10px 18px;
+            border-radius: 12px;
+            border: 2px solid var(--gold);
+            background: var(--white);
+            color: var(--blue-bg);
+            font-weight: bold;
+            font-family: var(--font-body);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.03);
+            background: var(--gold);
+            color: var(--blue-bg);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h1>Registro de Objetos Perdidos </h1>
+
+        <form action="/submit" method="POST" enctype="multipart/form-data">
+
+            <label>Usuario (ID o código SENA)</label>
+            <input type="text" name="usuario" maxlength="12" required>
+
+            <label>Nombre del objeto</label>
+            <input type="text" name="nombre_objeto" maxlength="66" required>
+
+            <label>Estado del objeto</label>
+            <select name="estado" required>
+                <option value="Bueno">Bueno</option>
+                <option value="Regular">Regular</option>
+                <option value="Malo">Malo</option>
+            </select>
+
+            <label>Color dominante</label>
+            <input type="text" name="color" maxlength="22" required>
+
+            <label>Lugar donde se perdió</label>
+            <input type="text" name="lugar" required>
+
+            <label>Fecha de pérdida</label>
+            <input type="date" name="fecha" required>
+
+            <label>Ficha del aprendiz</label>
+            <input type="number" name="ficha" required>
+
+            <label>Categoría</label>
+            <select name="categoria" required>
+                <option value="Documentos">Documentos</option>
+                <option value="Tecnología">Tecnología</option>
+                <option value="Accesorios">Accesorios</option>
+                <option value="Ropa">Ropa</option>
+                <option value="Llaves">Llaves</option>
+                <option value="Otros">Otros</option>
+            </select>
+
+            <label>Imagen del objeto (opcional)</label>
+            <input type="file" name="imagen" accept="image/*">
+
+            <label>Comentario (opcional)</label>
+            <textarea name="comentario" maxlength="1000" placeholder="Detalles adicionales..."></textarea>
+
+            <div class="btn-area">
+                <button type="submit">Publicar</button>
+                <button type="reset">Limpiar</button>
+            </div>
+        </form>
+
+    </div>
+
+</body>
+</html>
