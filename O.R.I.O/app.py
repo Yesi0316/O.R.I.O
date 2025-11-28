@@ -8,6 +8,11 @@ from datetime import datetime
 # Configuración de la aplicación
 app = Flask(__name__)
 
+UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# -------------------------
+# CONFIGURACIÓN DE LA BASE DE DATOS
+
 DB_CONFIG = {
     'host': 'localhost',
     'database': 'postgres',
@@ -81,6 +86,25 @@ def crear_tabla_Departamentos():
         cursor.close()
         conexion.close()
 
+# -------------------------------------
+# TABLA ESTADOS
+# -------------------------------------
+
+def crear_tabla_Estados():
+    conexion = conectar_db()
+    if conexion:
+        cursor = conexion.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS public."Estados"(
+                "ID_ESTADO" text COLLATE pg_catalog."default" NOT NULL,
+                "NOMBRE" text COLLATE pg_catalog."default" NOT NULL,
+                CONSTRAINT "Estados_pkey" PRIMARY KEY ("ID_ESTADO")
+            );
+        """)
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+
 
 # -------------------------------------
 # TABLA CIUDADES
@@ -103,6 +127,111 @@ def crear_tabla_Ciudades():
         cursor.close()
         conexion.close()
 
+# -------------------------------------
+# TABLA USUARIOS
+# -------------------------------------
+
+def crear_tabla_Usuario():
+    conexion = conectar_db()
+    if conexion:
+        cursor = conexion.cursor()
+        cursor.execute("""
+           CREATE TABLE IF NOT EXISTS public."Usuarios"(
+            "NOMBRE1" text COLLATE pg_catalog."default" NOT NULL,
+            "NOMBRE2" text COLLATE pg_catalog."default",
+            "APELLIDO1" text COLLATE pg_catalog."default" NOT NULL,
+            "APELLIDO2" text COLLATE pg_catalog."default",
+            "FECHA DE NACIMIENTO" date NOT NULL,
+            "ID_CIUDAD" text COLLATE pg_catalog."default" NOT NULL,
+            "ID_ROL" integer NOT NULL,
+            "ID_USUARIO" text COLLATE pg_catalog."default" NOT NULL,
+            CONSTRAINT "Usuarios_pkey" PRIMARY KEY ("ID_USUARIO"),
+            CONSTRAINT "ID_CIUDAD" FOREIGN KEY ("ID_CIUDAD")
+            REFERENCES public."Ciudades" ("ID_CIUDAD") MATCH SIMPLE
+            ON UPDATE NO ACTION
+            ON DELETE NO ACTION,
+            CONSTRAINT "ID_ROL" FOREIGN KEY ("ID_ROL")
+            REFERENCES public."Roles" ("ID_ROL") MATCH SIMPLE
+            ON UPDATE NO ACTION
+            ON DELETE NO ACTION
+
+            );
+        """)
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+
+# -------------------------------------
+# TABLA ROLES
+# -------------------------------------
+
+def crear_tabla_Roles():
+    conexion = conectar_db()
+    if conexion:
+        cursor = conexion.cursor()
+        cursor.execute("""
+           CREATE TABLE IF NOT EXISTS public."Roles"(
+            "ID_ROL" integer NOT NULL,
+            "NOMBRE" text COLLATE pg_catalog."default" NOT NULL,
+            CONSTRAINT "Roles_pkey" PRIMARY KEY ("ID_ROL")
+            );
+        """)
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+
+# -------------------------------------
+# TABLA REPORTES
+# -------------------------------------
+
+def crear_tabla_Reportes():
+    conexion = conectar_db()
+    if conexion:
+        cursor = conexion.cursor()
+        cursor.execute("""
+          CREATE TABLE IF NOT EXISTS public."Reportes"(
+            "FECHA" date,
+            "LUGAR ENCONTRADO" text COLLATE pg_catalog."default" NOT NULL,
+            "OBSERVACIONES" text COLLATE pg_catalog."default",
+            "ID_OBJETO" text COLLATE pg_catalog."default" NOT NULL,
+            "ID_USUARIO" text COLLATE pg_catalog."default" NOT NULL,
+            "ID_REPORTE" text COLLATE pg_catalog."default" NOT NULL,
+            CONSTRAINT "Reportes_pkey" PRIMARY KEY ("ID_REPORTE"),
+            CONSTRAINT "ID_OBJETO" FOREIGN KEY ("ID_OBJETO")
+            REFERENCES public."Objetos" ("ID_OBJETO") MATCH SIMPLE
+            ON UPDATE NO ACTION
+            ON DELETE NO ACTION
+            );
+        """)
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+
+# -------------------------------------
+# TABLA OBJETOS
+# -------------------------------------
+
+def crear_tabla_Objetos():
+    conexion = conectar_db()
+    if conexion:
+        cursor = conexion.cursor()
+        cursor.execute("""
+         CREATE TABLE IF NOT EXISTS public."Objetos"(
+            "ID_OBJETO" text COLLATE pg_catalog."default" NOT NULL,
+            "NOMBRE" text COLLATE pg_catalog."default" NOT NULL,
+            "COLOR" text COLLATE pg_catalog."default",
+            "ID_ESTADO" text COLLATE pg_catalog."default" NOT NULL,
+            "ID_LUGAR_ENCONTRADO" text COLLATE pg_catalog."default" NOT NULL,
+            CONSTRAINT "Objetos_pkey" PRIMARY KEY ("ID_OBJETO"),
+            CONSTRAINT "ID_ESTADO" FOREIGN KEY ("ID_ESTADO")
+            REFERENCES public."Estados" ("ID_ESTADO") MATCH SIMPLE
+            ON UPDATE NO ACTION
+            ON DELETE NO ACTION
+            );
+        """)
+        conexion.commit()
+        cursor.close()
+        conexion.close()
 
 # -----------------------------
 # RUTA PRINCIPAL
@@ -111,6 +240,30 @@ def crear_tabla_Ciudades():
 def inicio():
     return render_template('index.html')
 
+# -------------------------------------
+# RUTA FORMULARIO REPORTE
+# -------------------------------------
+@app.route('/formulario_reporte')
+def formulario_reporte():
+    return render_template('formulario_reporte.html')
+def submit():
+    name = request.form.get('name')
+    nombre_objeto = request.form.get('nombre_objeto')
+    estado = request.form.get('estado')
+    color_dominante = request.form.get('color_dominante')
+    lugar = request.form.get('lugar')
+    fecha = request.form.get('fecha')
+    ficha = request.form.get('ficha')
+    categoria = request.form.get('categoria')
+    comentario = request.form.get('comentario')
+
+    # Archivo
+    imagen = request.files.get('imagen')
+    if imagen:
+        save_path = os.path.join(UPLOAD_FOLDER, imagen.filename)
+        imagen.save(save_path)
+
+    return jsonify({"mensaje": "Recibido correctamente"}), 200
 
 # -----------------------------
 # GUARDAR USUARIO
@@ -184,8 +337,27 @@ def obtener_usuarios():
 # -----------------------------
 # INICIAR SERVIDOR
 # -----------------------------
+# ...existing code...
 if __name__ == "__main__":
-    crear_tabla_Paises()
-    crear_tabla_Departamentos()
-    crear_tabla_Ciudades()
-    app.run(debug=True)
+    try:
+        # Orden de creación respetando dependencias:
+        # Paises -> Departamentos -> Ciudades -> Roles -> Estados -> Usuarios -> Objetos -> Reportes
+        crear_tabla_Paises()
+        crear_tabla_Departamentos()
+        crear_tabla_Ciudades()
+        crear_tabla_Roles()
+        crear_tabla_Estados()
+        crear_tabla_Usuario()
+        crear_tabla_Objetos()
+        crear_tabla_Reportes()
+
+        print("Tablas verificadas/creadas correctamente. Iniciando servidor...")
+        app.run(debug=True)
+
+    except Exception as e:
+        # Mostrar error claro en consola para depuración
+        import traceback
+        print("Error al crear tablas o iniciar la aplicación:")
+        traceback.print_exc()
+        # No forzar exit silencioso; dejar que el desarrollador vea el stacktrace
+# ...existing code...

@@ -11,8 +11,8 @@
 
     <style>
         :root {
-            --blue-bg: #3C507D;      /* Azul medio fuerte */
-            --gold: #E0C58F;         /* Dorado/beige */
+            --blue-bg: #112250;      /* Azul medio fuerte */
+            --gold: #E0C58F;         /* Amarrillo tirando a dorado */
             --white: #ffffff;        /* Botones */
             --font-title: 'Libre Baskerville', serif;
             --font-body: 'Bodoni Moda', serif;
@@ -65,7 +65,8 @@
         }
 
         input::placeholder,
-        textarea::placeholder {
+        textarea::placeholder
+         {
             color: rgba(224, 197, 143, 0.7);
         }
 
@@ -96,64 +97,95 @@
             background: var(--gold);
             color: var(--blue-bg);
         }
-
+        .desplegable {
+            font-family: var(--font-body);
+            color: black;
+            text-size-adjust: 25px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="form-container">
-        <h1>Registro de Objetos Perdidos </h1>
-
-        <form action="/submit" method="POST" enctype="multipart/form-data">
+        <form id="reportForm" action="/submit" method="POST" enctype="multipart/form-data">
 
             <label>Usuario (ID o código SENA)</label>
-            <input type="text" name="usuario" maxlength="12" required>
+        <input type="text" id="name" name="name" maxlength="12" required>
 
-            <label>Nombre del objeto</label>
-            <input type="text" name="nombre_objeto" maxlength="66" required>
+        <label>Nombre del objeto</label>
+        <input type="text" id="nombre_objeto" name="nombre_objeto" maxlength="66" required> 
 
-            <label>Estado del objeto</label>
-            <select name="estado" required>
-                <option value="Bueno">Bueno</option>
-                <option value="Regular">Regular</option>
-                <option value="Malo">Malo</option>
-            </select>
+        <label class="multiple">Estado del objeto</label>
+        <select id="estado" name="estado" required>
+            <option value="Bueno" class="desplegable">Bueno</option>
+            <option value="Regular" class="desplegable">Regular</option>
+            <option value="Malo" class="desplegable">Malo</option>
+        </select>
 
             <label>Color dominante</label>
-            <input type="text" name="color" maxlength="22" required>
+            <input type="text" id="color_dominante" name="color_dominante" maxlength="22" required>
 
             <label>Lugar donde se perdió</label>
-            <input type="text" name="lugar" required>
+            <input type="text" id="lugar" name="lugar" required>
 
             <label>Fecha de pérdida</label>
-            <input type="date" name="fecha" required>
+            <input type="date" id="fecha" name="fecha" required>
 
-            <label>Ficha del aprendiz</label>
-            <input type="number" name="ficha" required>
+           <label>Ficha del aprendiz</label>
+            <input type="number" id="ficha" name="ficha" required>
 
-            <label>Categoría</label>
+            <label class="multiple" >Categoría</label>
             <select name="categoria" required>
-                <option value="Documentos">Documentos</option>
-                <option value="Tecnología">Tecnología</option>
-                <option value="Accesorios">Accesorios</option>
-                <option value="Ropa">Ropa</option>
-                <option value="Llaves">Llaves</option>
-                <option value="Otros">Otros</option>
-            </select>
+                <option value="Documentos" class="desplegable">Documentos</option>
+                <option value="Tecnología" class="desplegable">Tecnología</option>
+                <option value="Accesorios" class="desplegable">Accesorios</option>
+                <option value="Ropa" class="desplegable">Ropa</option>
+                <option value="Llaves" class="desplegable">Llaves</option>
+                <option value="Otros" class="desplegable">Otros</option>
+             </select>
 
             <label>Imagen del objeto (opcional)</label>
-            <input type="file" name="imagen" accept="image/*">
+            <input type="file" id="imagen" name="imagen" accept="image/*">
 
             <label>Comentario (opcional)</label>
-            <textarea name="comentario" maxlength="1000" placeholder="Detalles adicionales..."></textarea>
+            <textarea id="comentario" name="comentario" maxlength="1000" placeholder="Detalles adicionales"></textarea>
 
             <div class="btn-area">
                 <button type="submit">Publicar</button>
                 <button type="reset">Limpiar</button>
             </div>
+            <div id="MensajeAlerta" style="margin-top:12px;"></div>
         </form>
 
     </div>
+
+    <script>
+        const form = document.getElementById('reportForm');
+
+        form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        // Enviar FormData permite incluir archivos (imagen)
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch('/submit', {
+                method: 'POST',
+                body: formData // NO establecer Content-Type: el navegador lo hace
+            });
+
+            const result = await response.json();
+            const mensajeAlerta = document.getElementById('MensajeAlerta');
+            mensajeAlerta.innerHTML = result.mensaje || "Datos enviados correctamente";
+            mensajeAlerta.style.color = "green";
+
+        } catch (error) {
+            const mensajeAlerta = document.getElementById('MensajeAlerta');
+            mensajeAlerta.innerHTML = "Error al enviar los datos";
+            mensajeAlerta.style.color = "red";
+            console.error(error);
+        }
+        });
+</script>
 
 </body>
 </html>
