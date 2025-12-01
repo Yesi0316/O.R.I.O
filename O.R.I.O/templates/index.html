@@ -122,19 +122,20 @@
     button {
       width: 100%;
       padding: 10px;
-      background: #112250;
+      background: #E0C58F;
       border: none;
       border-radius: 8px;
-      color: #F5F0E9;
+      color: #112250;
       font-size: 18px;
       cursor: pointer;
       margin-left: 10px;
       margin-top: 10px;
       transition: 0.3s;
+      font-family: "Bodoni Moda", serif;
     }
 
     button:hover {
-      background: #3C507D;
+      background: #8a7140;
       letter-spacing: 1px;
     }
 
@@ -184,7 +185,7 @@
     }
 
     .campo:nth-child(2) {
-      width: 35%; 
+      width: 45%; 
     }
 
 
@@ -213,11 +214,12 @@
     }
 
     .campo4.tipo-id {
+        padding: 10px;
         width: 35%;
     }
 
     .campo4.numero {
-        width: 20%;
+        width: 30%;
     }
 
     .campo4 input,
@@ -246,7 +248,7 @@
 
     .tarjeta {
       width: 260px;              
-      height: 150px;
+      height: 250px;
       background: #E0C58F;
       border-radius: 12px;
       padding: 20px;
@@ -280,6 +282,13 @@
       0% { transform: translateY(40px); opacity: 0; }
       100% { transform: translateY(0); opacity: 1; }
     }
+    .tarjeta img {
+      width: 67px;
+      height: 60px;
+      border-radius: 50%;
+      border: 2px solid #E0C58F;
+      animation: float 4s ease-in-out infinite;
+    }
   </style>
 </head>
 <body>
@@ -301,8 +310,10 @@
         Navega, publica o consulta nuestros registros y únete a nuestra comunidad de personas que ayudan a devolver lo perdido a sus dueños. 
         ¡Porque cada objeto tiene su historia y merece volver a su hogar
       </p>
-       <div class="tarjetas-container">
+      <div class="tarjetas-container">
         <div class="tarjeta">
+          <img src="O.R.I.O/static/ubicacion.png" alt="Logo" />
+
           <div class="icono"></div>
           <h3>Encuentra</h3>
           <p>Encuentra el objeto q perdiste.</p>
@@ -362,7 +373,8 @@
                   <option value="TI">Tarjeta de identidad</option>
                   <option value="CC">Cédula de ciudadanía</option>
                   <option value="CE">Cédula de extranjería</option>
-                  <option value="PEP">Permiso especial de permanencia</option>
+                  <option value="PEP">Permiso especial de permanencia (PEP)</option>
+                  <option value="PPT">Permiso por proteccion temporal (PPT)</option>
               </select>
           </div>
 
@@ -383,7 +395,7 @@
 
         <button>Crear Cuenta</button>
 
-        <p>¿Ya tienes cuenta? <a href="/inicio">Inicia sesión</a></p>
+        <p>¿Ya tienes cuenta? <a href="/inicio" style="color:#E0C58F;"">Inicia sesión</a></p>
         <a href="/formulario_reporte">Ir al formulario</a>
 
 
