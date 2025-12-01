@@ -21,7 +21,7 @@
         body {
             margin: 0;
             padding: 0;
-            background: var(--blue-bg);
+            background: -var(-blue-bg);
             font-family: var(--font-body);
             color: var(--gold);
             display: flex;
@@ -66,7 +66,7 @@
 
         input::placeholder,
         textarea::placeholder
-         {
+        {
             color: rgba(224, 197, 143, 0.7);
         }
 
@@ -104,12 +104,11 @@
         }
     </style>
 </head>
-<body>
+<body id="malasPracticas">
+    <form id="reportForm" action="/submit" method="POST" enctype="multipart/form-data">
 
-        <form id="reportForm" action="/submit" method="POST" enctype="multipart/form-data">
-
-            <label>Usuario (ID o código SENA)</label>
-        <input type="text" id="name" name="name" maxlength="12" required>
+            <label>Identificación</label>
+        <input type="text" id="identificacion" name="identificacion" maxlength="12" required>
 
         <label>Nombre del objeto</label>
         <input type="text" id="nombre_objeto" name="nombre_objeto" maxlength="66" required> 
@@ -130,18 +129,18 @@
             <label>Fecha de pérdida</label>
             <input type="date" id="fecha" name="fecha" required>
 
-           <label>Ficha del aprendiz</label>
-            <input type="number" id="ficha" name="ficha" required>
+        <label>Ficha del aprendiz</label>
+            <input type="integer" id="ficha" name="ficha" required>
 
             <label class="multiple" >Categoría</label>
-            <select name="categoria" required>
-                <option value="Documentos" class="desplegable">Documentos</option>
-                <option value="Tecnología" class="desplegable">Tecnología</option>
-                <option value="Accesorios" class="desplegable">Accesorios</option>
-                <option value="Ropa" class="desplegable">Ropa</option>
-                <option value="Llaves" class="desplegable">Llaves</option>
-                <option value="Otros" class="desplegable">Otros</option>
-             </select>
+            <select name="categoria">
+                <option value="1">Tecnología</option>
+                <option value="2">Ropa</option>
+                <option value="3">Accesorios</option>
+                <option value="4">Herramientas</option>
+            </select>
+
+            </select>
 
             <label>Imagen del objeto (opcional)</label>
             <input type="file" id="imagen" name="imagen" accept="image/*">
@@ -155,28 +154,44 @@
             </div>
             <div id="MensajeAlerta" style="margin-top:12px;"></div>
         </form>
+        
 
-    </div>
 
-    <script>
-        const form = document.getElementById('reportForm');
+<script>
+    const form = document.getElementById('reportForm');
 
-        form.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Enviar FormData permite incluir archivos (imagen)
         const formData = new FormData(form);
 
         try {
             const response = await fetch('/submit', {
                 method: 'POST',
-                body: formData // NO establecer Content-Type: el navegador lo hace
+                body: formData
             });
 
-            const result = await response.json();
+            // 1️⃣ Leemos todo como texto SIEMPRE
+            const text = await response.text();
+
+            // 2️⃣ Intentamos convertir a JSON
+            let result;
+            try {
+                result = JSON.parse(text);
+            } catch (err) {
+                console.error("El servidor devolvió HTML en vez de JSON:", text);
+                throw new Error("Error 500: La respuesta NO es JSON.");
+            }
+
+            // 3️⃣ Si llegamos aquí, TODO está bien
             const mensajeAlerta = document.getElementById('MensajeAlerta');
             mensajeAlerta.innerHTML = result.mensaje || "Datos enviados correctamente";
             mensajeAlerta.style.color = "green";
+
+            const body = document.querySelector("#malasPracticas");
+            const imgg = document.createElement("img");
+            imgg.src = result.ruta;
+            body.appendChild(imgg);
 
         } catch (error) {
             const mensajeAlerta = document.getElementById('MensajeAlerta');
@@ -184,7 +199,7 @@
             mensajeAlerta.style.color = "red";
             console.error(error);
         }
-        });
+    });
 </script>
 
 </body>
