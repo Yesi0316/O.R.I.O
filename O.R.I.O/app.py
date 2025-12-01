@@ -1,12 +1,15 @@
 import flask
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, session, redirect
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
 from datetime import datetime
+import random
 
 # Configuración de la aplicación
 app = Flask(__name__)
+
+app.secret_key= "ffggfghgjfghgfhfghfghfgh"
 
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -15,7 +18,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 DB_CONFIG = {
     'host': 'localhost',
-    'database': 'postgres',
+    'database': 'ORIO_DB',
     'user': 'postgres',
     'password': '123456',
     'port': '5432'
@@ -136,7 +139,7 @@ def crear_tabla_Usuario():
     if conexion:
         cursor = conexion.cursor()
         cursor.execute("""
-           CREATE TABLE IF NOT EXISTS public."Usuarios"(
+        CREATE TABLE IF NOT EXISTS public."Usuarios"(
             "NOMBRE1" text COLLATE pg_catalog."default" NOT NULL,
             "NOMBRE2" text COLLATE pg_catalog."default",
             "APELLIDO1" text COLLATE pg_catalog."default" NOT NULL,
@@ -170,7 +173,7 @@ def crear_tabla_Roles():
     if conexion:
         cursor = conexion.cursor()
         cursor.execute("""
-           CREATE TABLE IF NOT EXISTS public."Roles"(
+        CREATE TABLE IF NOT EXISTS public."Roles"(
             "ID_ROL" integer NOT NULL,
             "NOMBRE" text COLLATE pg_catalog."default" NOT NULL,
             CONSTRAINT "Roles_pkey" PRIMARY KEY ("ID_ROL")
@@ -189,13 +192,14 @@ def crear_tabla_Reportes():
     if conexion:
         cursor = conexion.cursor()
         cursor.execute("""
-          CREATE TABLE IF NOT EXISTS public."Reportes"(
+        CREATE TABLE IF NOT EXISTS public."Reportes"(
             "FECHA" date,
-            "LUGAR ENCONTRADO" text COLLATE pg_catalog."default" NOT NULL,
             "OBSERVACIONES" text COLLATE pg_catalog."default",
             "ID_OBJETO" text COLLATE pg_catalog."default" NOT NULL,
             "ID_USUARIO" text COLLATE pg_catalog."default" NOT NULL,
             "ID_REPORTE" text COLLATE pg_catalog."default" NOT NULL,
+            "FICHA" integer,
+            "ID_CATEGORIA" integer NOT NULL,
             CONSTRAINT "Reportes_pkey" PRIMARY KEY ("ID_REPORTE"),
             CONSTRAINT "ID_OBJETO" FOREIGN KEY ("ID_OBJETO")
             REFERENCES public."Objetos" ("ID_OBJETO") MATCH SIMPLE
@@ -216,18 +220,44 @@ def crear_tabla_Objetos():
     if conexion:
         cursor = conexion.cursor()
         cursor.execute("""
-         CREATE TABLE IF NOT EXISTS public."Objetos"(
+        CREATE TABLE IF NOT EXISTS public."Objetos"(
             "ID_OBJETO" text COLLATE pg_catalog."default" NOT NULL,
             "NOMBRE" text COLLATE pg_catalog."default" NOT NULL,
-            "COLOR" text COLLATE pg_catalog."default",
+            "COLOR" text COLLATE pg_catalog."default" NOT NULL,
             "ID_ESTADO" text COLLATE pg_catalog."default" NOT NULL,
-            "ID_LUGAR_ENCONTRADO" text COLLATE pg_catalog."default" NOT NULL,
+            "LUGAR_ENCONTRADO" text COLLATE pg_catalog."default" NOT NULL,
+            "ID_CATEGORIA" text COLLATE pg_catalog."default" NOT NULL,
+            "IMAGEN" text COLLATE pg_catalog."default",
             CONSTRAINT "Objetos_pkey" PRIMARY KEY ("ID_OBJETO"),
+            CONSTRAINT "ID_CATEGORIA" FOREIGN KEY ("ID_CATEGORIA")
+            REFERENCES public."Categorias" ("ID_CATEGORIA") MATCH SIMPLE
+            ON UPDATE NO ACTION
+            ON DELETE NO ACTION
+            NOT VALID,
             CONSTRAINT "ID_ESTADO" FOREIGN KEY ("ID_ESTADO")
             REFERENCES public."Estados" ("ID_ESTADO") MATCH SIMPLE
             ON UPDATE NO ACTION
             ON DELETE NO ACTION
-            );
+        );
+        """)
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+
+# -------------------------------------
+# TABLA CATEGORIAS
+# -------------------------------------
+
+def crear_tabla_Categorias():
+    conexion = conectar_db()
+    if conexion:
+        cursor = conexion.cursor()
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS public."Categorias"(
+            "ID_CATEGORIA" text COLLATE pg_catalog."default" NOT NULL,
+            "NOMBRE" text COLLATE pg_catalog."default" NOT NULL,
+        CONSTRAINT "Categorias_pkey" PRIMARY KEY ("ID_CATEGORIA")
+        );
         """)
         conexion.commit()
         cursor.close()
@@ -237,8 +267,12 @@ def crear_tabla_Objetos():
 # RUTA PRINCIPAL
 # -----------------------------
 @app.route('/')
-def inicio():
+def index():
     return render_template('index.html')
+
+@app.route('/inicio')
+def inicio():
+    return render_template('inicio.html')
 
 # -------------------------------------
 # RUTA FORMULARIO REPORTE
@@ -246,8 +280,14 @@ def inicio():
 @app.route('/formulario_reporte')
 def formulario_reporte():
     return render_template('formulario_reporte.html')
+
+@app.route("/submit", methods=["GET","POST"])
 def submit():
-    name = request.form.get('name')
+    if request.method != "POST":
+        return jsonify({"mensaje": "Metodo no admitido"})
+    id_objeto=str(random.randint(100000,999999))
+    id_reporte=str(random.randint(100000,999999))
+    identificacion = request.form.get('identificacion')
     nombre_objeto = request.form.get('nombre_objeto')
     estado = request.form.get('estado')
     color_dominante = request.form.get('color_dominante')
@@ -259,11 +299,27 @@ def submit():
 
     # Archivo
     imagen = request.files.get('imagen')
+    ruta=None
     if imagen:
         save_path = os.path.join(UPLOAD_FOLDER, imagen.filename)
+        print(save_path)
         imagen.save(save_path)
+        ruta=f"""static\{imagen.filename}"""
+    bd=conectar_db()
+    cursor=bd.cursor()
+    cursor.execute("""INSERT INTO "Objetos" ("FECHA", "OBSERVACIONES", "ID_OBJETO", "ID_USUARIO", "ID_REPORTE", "FICHA", "ID_CATEGORIA")VALUES (%s,%s,%s,%s,%s,%s,%s)""", (fecha, comentario, id_objeto, identificacion, id_reporte, ficha, categoria))
+    cursor.execute("""INSERT INTO "Reportes" ("FECHA", "OBSERVACIONES", "ID_OBJETO", "ID_USUARIO", "ID_REPORTE", "FICHA") VALUES (%s,%s,%s,%s,%s,%s)""", (fecha, comentario,id_objeto, identificacion, id_reporte, ficha ))
+    cursor.close()
+    bd.commit()
+    bd.close()
+    session["img"]=ruta
+    return jsonify({"mensaje": "Recibido correctamente", "ruta":ruta}), 200
 
-    return jsonify({"mensaje": "Recibido correctamente"}), 200
+# -----------------------------
+
+
+
+
 
 # -----------------------------
 # GUARDAR USUARIO
@@ -289,7 +345,7 @@ def guardar_usuario():
             INSERT INTO Usuario (nombre, email, fecha_creacion)
             VALUES (%s, %s, %s)
             RETURNING id;
-        """
+        """ 
 
         cursor.execute(sql_insert, (nombre, email, fecha_creacion))
         usuario_id = cursor.fetchone()[0]
@@ -337,7 +393,7 @@ def obtener_usuarios():
 # -----------------------------
 # INICIAR SERVIDOR
 # -----------------------------
-# ...existing code...
+
 if __name__ == "__main__":
     try:
         # Orden de creación respetando dependencias:
@@ -359,5 +415,4 @@ if __name__ == "__main__":
         import traceback
         print("Error al crear tablas o iniciar la aplicación:")
         traceback.print_exc()
-        # No forzar exit silencioso; dejar que el desarrollador vea el stacktrace
-# ...existing code...
+        # No forzar exit silencioso; dejar que el desarrollador vea el stacktr  
