@@ -270,9 +270,21 @@ def crear_tabla_Categorias():
 def index():
     return render_template('index.html')
 
+# -------------------------------------
+# RUTA INICIO DE SESIÓN
+# -------------------------------------
+
 @app.route('/inicio')
-def inicio():
+def inicio_sesion():
     return render_template('inicio.html')
+
+# -------------------------------------
+# RUTA REGISTRO
+# -------------------------------------
+
+@app.route('/registro')
+def registro():
+    return render_template('registro.html')
 
 # -------------------------------------
 # RUTA FORMULARIO REPORTE
@@ -281,12 +293,25 @@ def inicio():
 def formulario_reporte():
     return render_template('formulario_reporte.html')
 
+@app.route('/formulario_reporte2')
+def formulario_reporte2():
+    bd = conectar_db()
+    cursor = bd.cursor(cursor_factory=RealDictCursor)
+    cursor.execute('SELECT "ID_ESTADO" FROM "Estados"')
+    estados = cursor.fetchall()
+    cursor.close()
+    bd.close()
+    return render_template('formulario_reporte.html', estados=estados)
+
+
 @app.route("/submit", methods=["GET","POST"])
 def submit():
     if request.method != "POST":
         return jsonify({"mensaje": "Metodo no admitido"})
-    id_objeto=str(random.randint(100000,999999))
-    id_reporte=str(random.randint(100000,999999))
+
+    id_objeto = str(random.randint(100000, 999999))
+    id_reporte = str(random.randint(100000, 999999))
+
     identificacion = request.form.get('identificacion')
     nombre_objeto = request.form.get('nombre_objeto')
     estado = request.form.get('estado')
@@ -299,25 +324,27 @@ def submit():
 
     # Archivo
     imagen = request.files.get('imagen')
-    ruta=None
+    ruta = None
     if imagen:
         save_path = os.path.join(UPLOAD_FOLDER, imagen.filename)
         print(save_path)
         imagen.save(save_path)
-        ruta=f"""static\{imagen.filename}"""
-    bd=conectar_db()
-    cursor=bd.cursor()
-    cursor.execute("""INSERT INTO "Objetos" ("FECHA", "OBSERVACIONES", "ID_OBJETO", "ID_USUARIO", "ID_REPORTE", "FICHA", "ID_CATEGORIA")VALUES (%s,%s,%s,%s,%s,%s,%s)""", (fecha, comentario, id_objeto, identificacion, id_reporte, ficha, categoria))
-    cursor.execute("""INSERT INTO "Reportes" ("FECHA", "OBSERVACIONES", "ID_OBJETO", "ID_USUARIO", "ID_REPORTE", "FICHA") VALUES (%s,%s,%s,%s,%s,%s)""", (fecha, comentario,id_objeto, identificacion, id_reporte, ficha ))
+        ruta = f"static/{imagen.filename}"
+
+    bd = conectar_db()
+    cursor = bd.cursor()
+
+    cursor.execute("""INSERT INTO "Objetos" ("ID_OBJETO", "NOMBRE", "COLOR", "ID_ESTADO", "LUGAR_ENCONTRADO", "ID_CATEGORIA", "IMAGEN") VALUES (%s, %s, %s, %s, %s, %s, %s)""", (id_objeto, nombre_objeto, color_dominante, estado, lugar, categoria, ruta))
+    cursor.execute("""INSERT INTO "Reportes" ("FECHA", "OBSERVACIONES", "ID_OBJETO", "ID_USUARIO", "ID_REPORTE", "FICHA", "ID_CATEGORIA")VALUES (%s, %s, %s, %s, %s, %s, %s) """, (fecha, comentario, id_objeto, identificacion, id_reporte, ficha, categoria))
+
+    bd.commit()
     cursor.close()
     bd.commit()
     bd.close()
-    session["img"]=ruta
-    return jsonify({"mensaje": "Recibido correctamente", "ruta":ruta}), 200
 
-# -----------------------------
+    session["img"] = ruta
 
-
+    return jsonify('/formulari_reporte')
 
 
 
