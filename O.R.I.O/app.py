@@ -147,18 +147,21 @@ def crear_tabla_Usuario():
             "FECHA DE NACIMIENTO" date NOT NULL,
             "ID_CIUDAD" text COLLATE pg_catalog."default" NOT NULL,
             "ID_ROL" integer NOT NULL,
+
+            -- EL CORREO ES EL ID_USUARIO
             "ID_USUARIO" text COLLATE pg_catalog."default" NOT NULL,
+            "CONTRASENA" text COLLATE pg_catalog."default" NOT NULL,
+
             CONSTRAINT "Usuarios_pkey" PRIMARY KEY ("ID_USUARIO"),
             CONSTRAINT "ID_CIUDAD" FOREIGN KEY ("ID_CIUDAD")
-            REFERENCES public."Ciudades" ("ID_CIUDAD") MATCH SIMPLE
-            ON UPDATE NO ACTION
-            ON DELETE NO ACTION,
+                REFERENCES public."Ciudades" ("ID_CIUDAD")
+                ON UPDATE NO ACTION
+                ON DELETE NO ACTION,
             CONSTRAINT "ID_ROL" FOREIGN KEY ("ID_ROL")
-            REFERENCES public."Roles" ("ID_ROL") MATCH SIMPLE
-            ON UPDATE NO ACTION
-            ON DELETE NO ACTION
-
-            );
+                REFERENCES public."Roles" ("ID_ROL")
+                ON UPDATE NO ACTION
+                ON DELETE NO ACTION
+        );
         """)
         conexion.commit()
         cursor.close()
@@ -273,25 +276,37 @@ def index():
 # -------------------------------------
 # RUTA INICIO DE SESIÓN
 # -------------------------------------
-
-@app.route('/inicio')
+@app.route('/inicio', methods=['GET', 'POST'])
 def inicio_sesion():
-    return render_template('inicio.html')
+    if request.method == 'POST':
+        usuario = request.form.get('ID_USUARIO')
+        contrasena = request.form.get('CONTRASENA')
 
+        print("Usuario recibido:", usuario)
+        print("Contraseña recibida:", contrasena)
+
+        return redirect('/')
+
+    return render_template('inicio.html')
 # -------------------------------------
 # RUTA REGISTRO
 # -------------------------------------
-
 @app.route('/registro')
 def registro():
     return render_template('registro.html')
 
 # -------------------------------------
+# RUTA MENU
+# -------------------------------------
+@app.route('/menu')
+def menu():
+    return render_template('menu.html')
+# -------------------------------------
 # RUTA FORMULARIO REPORTE
 # -------------------------------------
 @app.route('/formulario_reporte')
 def formulario_reporte():
-    return render_template('formulario_reporte.html')
+    return render_template('reportes_principal.html')
 
 @app.route('/formulario_reporte2')
 def formulario_reporte2():
@@ -301,7 +316,7 @@ def formulario_reporte2():
     estados = cursor.fetchall()
     cursor.close()
     bd.close()
-    return render_template('formulario_reporte.html', estados=estados)
+    return render_template('reportes_principal.html', estados=estados)
 
 
 @app.route("/submit", methods=["GET","POST"])
@@ -346,7 +361,19 @@ def submit():
 
     return jsonify('/formulari_reporte')
 
+# -----------------------------
+# FORMULARIO REPORTE DE OBJETO PERDIDO
+# -----------------------------
+@app.route('/formulario_objeto_perdido')
+def formulario_objeto_perdido():
+    return render_template('form_perdido.html')
 
+# -----------------------------
+# FORMULARIO REPORTE DE OBJETO ENCONTRADO
+# -----------------------------
+@app.route('/formulario_objeto_encontrado')
+def formulario_objeto_encontrado():
+    return render_template('form_encontrado.html')
 
 # -----------------------------
 # GUARDAR USUARIO
