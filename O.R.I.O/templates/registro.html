@@ -63,10 +63,17 @@
       padding-right: 50px;
       border-radius: 12px;
       font-family: "Bodoni Moda", serif;
-      border: 1px solid #112250;
       box-shadow: 0 0 20px rgba(0,0,0,0.3);
       animation: slideIn 1.2s ease;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* CONTENEDOR PARA CENTRAR */
+    .formulario-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
     }
 
     .formulario:hover {
@@ -246,6 +253,12 @@
       z-index: 5;
     }
 
+    /* RESPONSIVE */
+    @media (max-width: 600px) {
+      .form-row {
+        flex-direction: column;
+      }
+    }
   </style>
 </head>
 
@@ -311,85 +324,66 @@
   </div>
 
   <header>
-    <img src="O.R.I.O/static/logo.jpg" alt="Logo" />
-    <h1>O.R.I.O.</h1>
+      <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Logo" />
+      <h1>O.R.I.O.</h1>
   </header>
 
-    </div>
+  </div>
+  <div class="formulario-container"></div>
     <div class="formulario">
-
-        <h2>Registro</h2>
-
-        <div class="fila">
-
-            <div class="campo">
-                <label>Rol</label>
-                <select class="select-rol" required>
-                    <option value="" disabled selected>Selecciona tu rol</option>
-                    <option value="Instructor">Instructor</option>
-                    <option value="Aprendiz">Aprendiz</option>
-                    <option value="Visitante">Visitante</option>
-                </select>
-            </div>
-
-            <div class="campo">
-                <label>Usuario</label>
-                <input type="text" class="usuario-input" placeholder="Ej: usuario1234" required />
-            </div>
-
+      <h2>Registro</h2>
+      <div class="fila">
+        <div class="campo">
+          <label>Rol</label>
+          <select class="select-rol" required>
+            <option value="" disabled selected>Selecciona tu rol</option>
+            <option value="Instructor">Instructor</option>
+            <option value="Aprendiz">Aprendiz</option>
+            <option value="Visitante">Visitante</option>
+          </select>
         </div>
-        <div class="fila-cuatro">
 
-          <div class="campo4 nombre">
-              <label>Nombre</label>
-              <input type="text" placeholder="Ej: Juan" required>
-          </div>
-
-          <div class="campo4 apellido">
-              <label>Apellido</label>
-              <input type="text" placeholder="Ej: Pérez" required>
-          </div>
-
-          <div class="campo4 tipo-id">
-              <label>Tipo de identificación</label>
-              <select required>
-                  <option value="" disabled selected>Selecciona</option>
-                  <option value="TI">Tarjeta de identidad</option>
-                  <option value="CC">Cédula de ciudadanía</option>
-                  <option value="CE">Cédula de extranjería</option>
-                  <option value="PEP">Permiso especial de permanencia (PEP)</option>
-                  <option value="PPT">Permiso por proteccion temporal (PPT)</option>
-              </select>
-          </div>
-
-          <div class="campo4 numero">
-              <label>Número</label>
-              <input type="text" placeholder="Ej: 1032456789" required>
-          </div>
-        </div>
-        
-        <label>Email</label>
-        <input type="email" placeholder="tuemail@gmail.com" required />
-
-        <label>Contraseña</label>
-        <input type="password" required />
-
-        <label>Repetir Contraseña</label>
-        <input type="password" required />
-
-        <button>Crear Cuenta</button>
-
-        <p>¿Ya tienes cuenta? <a href="/inicio" style="color:#E0C58F;"">Inicia sesión</a></p>
-        <a href="/formulario_reporte">Ir al formulario</a>
-
-
+      <div class="campo">
+        <label>Usuario</label>
+        <input type="text" class="usuario-input" placeholder="Ej: usuario1234" required />
+      </div>
     </div>
-    
-</div>
-
-<footer style="text-align:center; margin-top:40px; color:#E0C58F; font-family:'Bodoni Moda', serif;">
+    <div class="fila-cuatro">
+      <div class="campo4 nombre">
+        <label>Nombre</label>
+        <input type="text" placeholder="Ej: Juan" required>
+      </div>
+      <div class="campo4 apellido">
+        <label>Apellido</label>
+        <input type="text" placeholder="Ej: Pérez" required>
+      </div>
+      <div class="campo4 tipo-id">
+        <label>Tipo de identificación</label>
+        <select required>
+          <option value="" disabled selected>Selecciona</option>
+          <option value="TI">Tarjeta de identidad</option>
+          <option value="CC">Cédula de ciudadanía</option>
+          <option value="CE">Cédula de extranjería</option>
+          <option value="PEP">Permiso especial de permanencia (PEP)</option>
+          <option value="PPT">Permiso por proteccion temporal (PPT)</option>
+        </select>
+      </div>
+      <div class="campo4 numero">
+        <label>Número</label>
+        <input type="text" placeholder="Ej: 1032456789" required>
+      </div>
+    </div>
+    <label>Email</label>
+    <input type="email" placeholder="tuemail@gmail.com" required />
+    <label>Contraseña</label>
+    <input type="password" required />
+    <label>Repetir Contraseña</label>
+    <input type="password" required />
+    <button>Crear Cuenta</button>
+    <p>¿Ya tienes cuenta? <a href="/inicio" style="color:#E0C58F;">Inicia sesión</a></p>
+  </div>
+  <footer style="text-align:center; margin-top:40px; color:#E0C58F; font-family:'Bodoni Moda', serif;">
     © 2025 O.R.I.O. Todos los derechos reservados.
-</footer>
-
+  </footer>
 </body>
 </html>
