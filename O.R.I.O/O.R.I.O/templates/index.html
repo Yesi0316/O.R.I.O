@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bienvenido | O.R.I.O</title>
+
+<style>
+  :root {
+    --sapphire: #3C507D;
+    --royal-blue: #112250;
+    --quicksand: #E0C58F;
+    --swan-wing: #F5F0E9;
+    --shellstone: #D9CBC2;
+  }
+
+  /* GENERALES */
+  body {
+    margin: 0;
+    font-family: 'Bodoni Moda', serif;
+    background: linear-gradient(to bottom, var(--royal-blue), #000);
+    color: var(--swan-wing);
+  }
+
+  /* HEADER */
+  header {
+    position: fixed;
+    top: 0;
+    right: 0;
+    padding: 20px;
+    display: flex;
+    gap: 25px;
+    z-index: 10;
+  }
+
+  header a {
+    color: var(--quicksand);
+    text-decoration: none;
+    font-size: 1.25rem;
+    transition: 0.3s ease;
+  }
+
+  header a:hover {
+    transform: translateY(-3px);
+  }
+
+  /* HERO --------- */
+  .hero {
+    height: 60vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    padding-top: 20vh; /* pedazo 2 */
+    animation: fadeIn 2s ease;
+  }
+
+    .hero h1 {
+        font-size: 4rem;
+        margin: 0;
+        color: var(--swan-wing);
+        letter-spacing: 2px;
+        text-shadow: 0 0 15px rgba(255,255,255,0.2);
+    }
+
+    .hero p {
+        max-width: 650px;
+        font-size: 1.4rem;
+        margin-top: 20px;
+        opacity: 0.9;
+    }
+
+    .btn-empezar {
+        margin-top: 40px;
+        padding: 15px 40px;
+        background: var(--quicksand);
+        color: var(--royal-blue);
+        border: none;
+        border-radius: 15px;
+        font-size: 1.3rem;
+        cursor: pointer;
+        transition: 0.3s ease;
+        box-shadow: 0 0 10px rgba(224,197,143,0.3);
+    }
+
+    .btn-empezar:hover {
+        transform: scale(1.06);
+        background: var(--shellstone);
+    }
+
+    /* ANIMACIÓN */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(25px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* CÍRCULOS DECORATIVOS */
+    .circle {
+        position: absolute;
+        border-radius: 50%;
+        background: var(--quicksand);
+        opacity: 0.7;
+        filter: blur(1px);
+        animation: float 7s ease-in-out infinite;
+        z-index: 0;
+    }
+
+    .c1 { width: 150px; height: 150px; top: 8%; left: 6%; }
+    .c2 { width: 90px; height: 90px; bottom: 20%; right: 12%; }
+    .c3 { width: 60px; height: 60px; top: 55%; right: 28%; }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-18px); }
+    }
+
+    /* DIVISIÓN */
+    .divider {
+        width: 90%;
+        margin: -10vh auto 0; 
+        height: 1px;
+        background: linear-gradient(to right, transparent, var(--shellstone), transparent);
+    }
+
+    /* INFO --------- */
+    .info {
+        position: relative;
+        margin-top: -10vh;
+        padding: 160px 20px 80px; 
+        background: white;
+        border-radius: 30px 30px 0 0;
+        color: var(--royal-blue);
+
+        display: flex;          
+        justify-content: center;
+        gap: 30px;
+        flex-wrap: wrap;       
+    }
+
+    /* TARJETAS */
+    .info .card {
+        width: 300px;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        position: relative;
+        top: -18vh; 
+        padding: 25px;
+        text-align: center;
+    }
+
+    .card h2 {
+        margin-bottom: 10px;
+        font-size: 1.6rem;
+    }
+
+    /* Imágenes */
+    .lupa {
+        width: 190px;
+        height: 190px;
+    }
+
+    .persona {
+        width: 190px;
+        height: 190px;
+    }
+
+    .personas {
+        width: 190px;
+        height: 180px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+        .info {
+            flex-direction: column;
+            align-items: center;
+            padding-top: 200px;
+        }
+
+        .info .card {
+            width: 90%;
+            max-width: 400px;
+        }
+    }
+
+</style>
+</head>
+
+<body>
+  <header>
+    <a href="/registro">Registrarse</a>
+    <a href="/inicio">Iniciar sesión</a>
+  </header>
+
+  <div class="circle c1"></div>
+  <div class="circle c2"></div>
+  <div class="circle c3"></div>
+  
+  <section class="hero">
+    <h1>Bienvenido a O.R.I.O</h1>
+    <p>La plataforma donde puedes reportar, buscar y encontrar objetos perdidos. Rápido, confiable y pensado para todos.</p>
+    <a href="/menu" class="btn-empezar">Empezar</a>
+  </section>
+  
+  <div class="divider"></div>
+
+  <section class="info">
+    <div class="card">
+      <h2>¿Qué hacemos?</h2>
+      <p>Unimos a personas que han perdido algo con quienes lo encuentran.
+      Aquí puedes registrar objetos perdidos o hallados para facilitar que regresen a su dueño de forma rápida y segura.</p>
+      <img src="https://st.depositphotos.com/2007325/4954/v/450/depositphotos_49543831-stock-illustration-businessman-with-doubts.jpg" class="persona" />
+    </div>
+
+    <div class="card">
+      <h2>¿Cómo funciona?</h2>
+      <p>Registras el objeto con una descripción y, si quieres, una foto. 
+      El sistema lo compara con otros reportes y te muestra coincidencias. Así puedes contactar a quien tenga información.</p>
+      <img src="https://static.vecteezy.com/system/resources/previews/008/470/302/non_2x/magnifying-glass-anime-cute-character-cartoon-model-emotion-illustration-clipart-drawing-kawaii-manga-design-idea-art-free-png.png" class="lupa" />
+    </div>
+
+    <div class="card">
+      <h2>Comunidad</h2>
+      <p>Somos un grupo de usuarios que se ayuda mutuamente para recuperar objetos. 
+      Valoramos la honestidad, la colaboración y el apoyo entre todos.</p>
+      <img src="https://media.istockphoto.com/id/1321230821/es/vector/ilustraci%C3%B3n-de-golpe-de-pu%C3%B1o-la-protuberancia-del-pu%C3%B1o-es-un-saludo-que-toca-pu%C3%B1os-y-pu%C3%B1os.jpg?s=612x612&w=0&k=20&c=qahdhXpdN128Vqsavi6TzL91V-mSmtlzDz6fnvzC36g=" class="personas" />
+    </div>
+  </section>
+  <footer style="text-align:center; margin-top:40px; color:#E0C58F; font-family:'Bodoni Moda', serif;">
+    © 2025 O.R.I.O. Todos los derechos reservados.
+  </footer>
+</body>
+</html>
