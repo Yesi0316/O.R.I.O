@@ -138,8 +138,8 @@
 <body>
 
 <header>
-    <img src="C:\Users\SENA\Desktop\orio lauren y luis\O.R.I.O\static\logo.jpg" alt="Logo" />
-    <h1>O.R.I.O.</h1>
+  <img src="{{ url_for('static', filename='logo.jpeg') }}">
+  <h1>O.R.I.O.</h1>
 </header>
 
 <div class="container">
@@ -157,9 +157,8 @@
         <p style="margin-top:15px; text-align:center;">¿No tienes cuenta? <a href="/registro" style="color:#E0C58F;">Regístrate</a></p>
     </div>
 </div>
-
-<footer>
-  2025 O.R.I.O. Todos los derechos reservados.
+<footer style="text-align:center; margin-top:40px; color:#E0C58F; font-family:'Bodoni Moda', serif;">
+    © 2025 O.R.I.O. Todos los derechos reservados.
 </footer>
 
 </body>
