@@ -1,164 +1,244 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Iniciar Sesión</title>
-  <link href="https://fonts.googleapis.com/css2?family=Baskerville&family=Bodoni+Moda:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      font-family: "Baskerville", serif;
-      background: linear-gradient(to bottom, #3C507D, #000);
-      color: #F5F0E9;
-      overflow-x: hidden;
-    }
+<meta charset="UTF-8">
+<title>Iniciar Sesión | O.R.I.O.</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 50px;
-      background: rgba(0,0,0,0.3);
-      backdrop-filter: blur(4px);
-      animation: fadeDown 1.2s ease;
-    }
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;600&display=swap" rel="stylesheet">
 
-    header h1 {
-      font-family: "Bodoni Moda", serif;
-      font-size: 32px;
-      letter-spacing: 2px;
-      margin: 0;
-      color: #E0C58F;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: radial-gradient(circle at top,#3C5B8F, #000);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-    header img {
-      width: 67px;
-      height: 60px;
-      border-radius: 50%;
-      border: 2px solid #E0C58F;
-      animation: float 4s ease-in-out infinite;
-    }
+/* ===== ESTRELLAS ===== */
+.estrellas, .estrellas2, .estrellas3 {
+  position: fixed;
+  width: 200%;
+  height: 200%;
+  top: 0;
+  left: 0;
+  background-repeat: repeat;
+  animation: moverEstrellas 120s linear infinite;
+  z-index: -1;
+}
 
-    @keyframes float {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-      100% { transform: translateY(0); }
-    }
+.estrellas {
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, white, transparent),
+    radial-gradient(2px 2px at 200px 120px, white, transparent),
+    radial-gradient(2px 2px at 400px 220px, white, transparent);
+  opacity: 0.6;
+}
 
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+.estrellas2 {
+  background-image:
+    radial-gradient(1px 1px at 100px 60px, white, transparent),
+    radial-gradient(1px 1px at 300px 200px, white, transparent);
+  animation-duration: 180s;
+  opacity: 0.4;
+}
 
-    .container {
-      display: flex;
-      justify-content: center;
-      padding: 60px;
-      animation: fadeUp 1.2s ease;
-    }
+.estrellas3 {
+  background-image:
+    radial-gradient(3px 3px at 150px 90px, white, transparent),
+    radial-gradient(3px 3px at 350px 280px, white, transparent);
+  animation-duration: 240s;
+  opacity: 0.2;
+}
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+@keyframes moverEstrellas {
+  from { transform: translateY(0); }
+  to { transform: translateY(-1200px); }
+}
 
-    .login-card {
-      width: 380px;
-      background: rgba(255,255,255,0.15);
-      padding: 80px;
-      padding-right: 110px;
-      border-radius: 12px;
-      border: 1px solid #112250;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
-      font-family: "Bodoni Moda", serif;
-      animation: slideIn 1.2s ease;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
+/* ===== HEADER ===== */
+header {
+  padding: 25px 80px;
+  display: flex;
+  align-items: center;
+  background: rgba(0,0,0,0.4);
+}
 
-    .login-card:hover {
-      transform: scale(1.03);
-      box-shadow: 0 0 30px rgba(0,0,0,0.5);
-    }
+.logo-placeholder {
+  width: 60px;
+  height: 60px;
+  border: 2px dashed #E0C58F;
+  border-radius: 10px;
+  opacity: 0.7;
+}
 
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(40px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
+header h1 {
+  font-family: "Bodoni Moda", serif;
+  color: #E0C58F;
+  margin-left: 40px;
+  letter-spacing: 6px;
+  animation: latir 3s infinite;
+}
 
-    .login-card h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #E0C58F;
-    }
+@keyframes latir {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
 
-    label {
-      font-size: 16px;
-    }
+/* ===== CONTENEDOR ===== */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 70px;
+}
 
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0 20px 0;
-      border: none;
-      border-radius: 8px;
-      background: #F5F0E9;
-      font-size: 16px;
-    }
+/* ===== TARJETA LOGIN ===== */
+.login-card {
+  width: 420px;
+  background: white;
+  padding: 50px;
+  border-radius: 22px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+  animation: flotar 4s ease-in-out infinite, aparecer 1.2s ease;
+}
 
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #112250;
-      border: none;
-      border-radius: 8px;
-      color: #F5F0E9;
-      font-size: 18px;
-      cursor: pointer;
-      margin-top: 10px;
-      margin-left: 10px;
-      transition: 0.3s;
-    }
+@keyframes flotar {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
 
-    button:hover {
-      background: #3C507D;
-      letter-spacing: 1px;
-    }
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(60px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
 
-    footer {
-      text-align: center;
-      padding: 110px;
-      margin-top: 50px;
-      color: #D9CBC2;
-      font-size: 14px;
-      animation: fadeUp 1.5s ease;
-    }
-  </style>
+.login-card h2 {
+  text-align: center;
+  margin-bottom: 35px;
+  font-family: "Bodoni Moda", serif;
+  font-size: 28px;
+  color: #112250;
+}
+
+/* ===== CAMPOS ===== */
+.campo {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 22px;
+}
+
+.campo label {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 6px;
+  color: #112250;
+}
+
+.campo input {
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  background: #f9f9f9;
+  transition: 0.4s;
+}
+
+.campo input:focus {
+  outline: none;
+  border-color: #E0C58F;
+  box-shadow: 0 0 12px #E0C58F;
+  transform: scale(1.05);
+  background: white;
+}
+
+/* ===== BOTÓN ===== */
+button {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  font-size: 18px;
+  background: #E0C58F;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: "Bodoni Moda", serif;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #b49b63;
+  letter-spacing: 2px;
+  transform: scale(1.07);
+  box-shadow: 0 0 15px #E0C58F;
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.login-link a {
+  color: #3C507D;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+
+footer {
+  text-align: center;
+  padding: 30px;
+  color: #E0C58F;
+  margin-top: 60px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 500px) {
+  .login-card { width: 90%; }
+  header { padding: 25px 30px; }
+}
+</style>
 </head>
+
 <body>
 
+<div class="estrellas"></div>
+<div class="estrellas2"></div>
+<div class="estrellas3"></div>
+
 <header>
-  <img src="{{ url_for('static', filename='logo.jpeg') }}">
+  <div class="logo-placeholder"></div>
   <h1>O.R.I.O.</h1>
 </header>
 
 <div class="container">
-    <div class="login-card">
-        <h2>Iniciar Sesión</h2>
+  <div class="login-card">
 
-        <label>Usuario o Email</label>
-        <input type="text" placeholder="Ingresa tu usuario o correo" required />
+    <h2>Iniciar Sesión</h2>
 
-        <label>Contraseña</label>
-        <input type="password" placeholder="Ingresa tu contraseña" required />
-
-        <button>Entrar</button>
-
-        <p style="margin-top:15px; text-align:center;">¿No tienes cuenta? <a href="/registro" style="color:#E0C58F;">Regístrate</a></p>
+    <div class="campo">
+      <label>Usuario o Email</label>
+      <input type="text" placeholder="Ingresa tu usuario o correo" required>
     </div>
+
+    <div class="campo">
+      <label>Contraseña</label>
+      <input type="password" placeholder="Ingresa tu contraseña" required>
+    </div>
+
+    <button>Entrar</button>
+
+    <div class="login-link">
+      ¿No tienes cuenta? <a href="/registro">Regístrate</a>
+    </div>
+
+  </div>
 </div>
-<footer style="text-align:center; margin-top:40px; color:#E0C58F; font-family:'Bodoni Moda', serif;">
-    © 2025 O.R.I.O. Todos los derechos reservados.
+
+<footer>
+© 2025 O.R.I.O. Todos los derechos reservados.
 </footer>
 
 </body>

@@ -526,6 +526,13 @@ def obtener_usuarios():
     except Exception as e:
         return jsonify({'mensaje': 'Error al obtener los usuarios', 'error': str(e)}), 500
 
+# -----------------------------
+# RUTA MOTOR DE BUSQUEDAS
+# -----------------------------
+@app.route('/buscar_objetos')
+def buscaar_objeto():
+    return render_template('busquedas.html')
+
 
 # -----------------------------
 # INICIAR SERVIDOR

@@ -1,357 +1,281 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Página de Registro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Baskerville&family=Bodoni+Moda:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      font-family: "Baskerville", serif;
-      background: linear-gradient(to bottom, #3C507D, #000);
-      color: #F5F0E9;
-      overflow-x: hidden;
-    }
+<meta charset="UTF-8">
+<title>Registro | O.R.I.O.</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px 50px;
-      background: rgba(0,0,0,0.3);
-      backdrop-filter: blur(4px);
-      animation: fadeDown 1.2s ease;
-    }
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;600&display=swap" rel="stylesheet">
 
-    header h1 {
-      font-family: "Bodoni Moda", serif;
-      font-size: 32px;
-      letter-spacing: 2px;
-      margin: 0;
-      color: #E0C58F;
-    }
-
-    header img {
-      width: 67px;
-      height: 60px;
-      border-radius: 50%;
-      border: 2px solid #E0C58F;
-      animation: float 4s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-      100% { transform: translateY(0); }
-    }
-
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .formulario {
-      width: 40%;
-      background: rgba(255,255,255,0.15);
-      padding: 30px;
-      padding-right: 50px;
-      border-radius: 12px;
-      font-family: "Bodoni Moda", serif;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
-      animation: slideIn 1.2s ease;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    /* CONTENEDOR PARA CENTRAR */
-    .formulario-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
-    }
-
-    .formulario:hover {
-      transform: scale(1.03);
-      box-shadow: 0 0 30px rgba(0,0,0,0.5);
-    }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(40px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    .formulario h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #E0C58F;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 8px;
-      background: #F5F0E9;
-      font-size: 16px;
-    }
-
-    button {
-      width: 100%;
-      padding: 10px;
-      background: #E0C58F;
-      border: none;
-      border-radius: 8px;
-      color: #112250;
-      font-size: 18px;
-      cursor: pointer;
-      margin-left: 10px;
-      margin-top: 10px;
-      transition: 0.3s;
-      font-family: "Bodoni Moda", serif;
-    }
-
-    button:hover {
-      background: #8a7140;
-      letter-spacing: 1px;
-    }
-
-    footer {
-      text-align: center;
-      padding: 20px;
-      margin-top: 40px;
-      color: #D9CBC2;
-      font-size: 14px;
-      animation: fadeUp 1.5s ease;
-    }
-
-    .select-rol {
-      width: 45%;
-      padding: 10px;
-      margin: 10px 0 20px 0;
-      border: none;
-      border-radius: 8px;
-      background: #F5F0E9;      
-      font-size: 16px;
-      font-family: "Bodoni Moda", serif;  
-      cursor: pointer;
-      transition: 0.3s ease;
-    }
-
-    .select-rol:hover {
-      background: #D9D2C8;       
-    }
-
-    .usuario-input {
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .fila {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .fila {
-      display: flex;
-      gap: 20px;
-    }
-
-    .campo:nth-child(1) {
-      width: 45%;  
-    }
-
-    .campo:nth-child(2) {
-      width: 45%; 
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: radial-gradient(circle at top,#3C5B8F, #000);
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: #112250;
+}
 
 
-    .campo select,
-    .campo input {
-      width: 100%;
-    }
+.estrellas, .estrellas2, .estrellas3 {
+  position: fixed;
+  width: 200%;
+  height: 200%;
+  background-repeat: repeat;
+  top: 0;
+  left: 0;
+  animation: moverEstrellas 120s linear infinite;
+  z-index: -1;
+}
 
-    .fila-cuatro {
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
-      align-items: flex-start; 
-    }
+.estrellas {
+  background-image:
+    radial-gradient(2px 2px at 20px 30px, white, transparent),
+    radial-gradient(2px 2px at 80px 120px, white, transparent),
+    radial-gradient(2px 2px at 200px 220px, white, transparent),
+    radial-gradient(2px 2px at 350px 70px, white, transparent),
+    radial-gradient(2px 2px at 500px 160px, white, transparent),
+    radial-gradient(2px 2px at 650px 240px, white, transparent);
+  opacity: 0.5;
+}
 
-    .campo4 {
-        display: flex;
-        flex-direction: column;
-        gap: 5px; 
-    }
+.estrellas2 {
+  background-image:
+    radial-gradient(1px 1px at 100px 60px, white, transparent),
+    radial-gradient(1px 1px at 300px 200px, white, transparent),
+    radial-gradient(1px 1px at 600px 100px, white, transparent),
+    radial-gradient(1px 1px at 800px 300px, white, transparent),
+    radial-gradient(1px 1px at 1000px 50px, white, transparent);
+  animation-duration: 180s;
+  opacity: 0.3;
+}
 
-    /* Anchos */
-    .campo4.nombre,
-    .campo4.apellido {
-        width: 25%;
-    }
+.estrellas3 {
+  background-image:
+    radial-gradient(3px 3px at 150px 90px, white, transparent),
+    radial-gradient(3px 3px at 450px 280px, white, transparent),
+    radial-gradient(3px 3px at 750px 150px, white, transparent);
+  animation-duration: 240s;
+  opacity: 0.15;
+}
 
-    .campo4.tipo-id {
-        padding: 10px;
-        width: 35%;
-    }
+@keyframes moverEstrellas {
+  from { transform: translateY(0); }
+  to { transform: translateY(-1200px); }
+}
 
-    .campo4.numero {
-        width: 30%;
-    }
+/* ========= HEADER ========= */
+header {
+  width: 100%;
+  padding: 25px 80px;
+  display: flex;
+  align-items: center;
+  background: rgba(0,0,0,0.4);
+}
 
-    .campo4 input,
-    .campo4 select {
-        width: 100%;
-        padding: 12px;
-        border: none;
-        border-radius: 8px;
-        background: #F5F0E9;
-        font-size: 16px;
-        font-family: "Bodoni Moda", serif;
-        box-sizing: border-box;
-    }
+.logo-placeholder {
+  width: 60px;
+  height: 60px;
+  border: 2px dashed #E0C58F;
+  border-radius: 10px;
+  opacity: 0.6;
+}
 
-    .campo4 select:hover {
-      background: #D9D2C8;
-    }
+header h1 {
+  font-family: "Bodoni Moda", serif;
+  color: #E0C58F;
+  letter-spacing: 6px;
+  margin-left: 40px;
+  animation: latir 3s infinite;
+}
 
-    .estrellas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 0;
-    }
+@keyframes latir {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
 
-    .star {
-      position: absolute;
-      background: white;
-      border-radius: 50%;
-      animation-name: twinkle;
-      animation-iteration-count: infinite;
-      animation-timing-function: ease-in-out;
-    }
+/* ========= FORMULARIO ========= */
+.contenedor-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 60px;
+}
 
-    @keyframes twinkle {
-      0% { opacity: 0.2; }
-      50% { opacity: 1; }
-      100% { opacity: 0.2; }
-    }
+.formulario {
+  background: white;
+  width: 520px;
+  padding: 45px;
+  border-radius: 22px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+  animation: flotar 4s ease-in-out infinite, aparecer 1.2s ease;
+}
 
-    /* Asegura que tu contenido quede encima */
-    header, .container, footer {
-      position: relative;
-      z-index: 5;
-    }
+@keyframes flotar {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
 
-    /* RESPONSIVE */
-    @media (max-width: 600px) {
-      .form-row {
-        flex-direction: column;
-      }
-    }
-  </style>
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(60px) scale(0.9); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.formulario h2 {
+  text-align: center;
+  margin-bottom: 35px;
+  font-family: "Bodoni Moda", serif;
+  font-size: 30px;
+}
+
+/* ========= CAMPOS ========= */
+.fila {
+  display: flex;
+  gap: 25px;
+  margin-bottom: 25px;
+}
+
+.campo {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.campo label {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.campo input {
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  background: #f9f9f9;
+  transition: 0.4s;
+}
+
+.campo input:focus {
+  outline: none;
+  border-color: #E0C58F;
+  box-shadow: 0 0 12px #E0C58F;
+  transform: scale(1.06);
+  background: white;
+}
+
+/* ========= BOTÓN ========= */
+button {
+  width: 100%;
+  margin-top: 30px;
+  padding: 14px;
+  font-size: 18px;
+  background: #E0C58F;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: "Bodoni Moda", serif;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #b49b63;
+  letter-spacing: 2px;
+  transform: scale(1.08);
+  box-shadow: 0 0 15px #E0C58F;
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.login-link a {
+  color: #3C507D;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+footer {
+  text-align: center;
+  padding: 25px;
+  color: #E0C58F;
+}
+
+/* RESPONSIVE */
+@media (max-width: 620px) {
+  .formulario { width: 90%; }
+  .fila { flex-direction: column; }
+  header { padding: 25px 30px; }
+}
+</style>
 </head>
 
 <body>
-  <div class="estrellas">
-    <div class="star" style="top:5%; left:5%; width:2px; height:2px; animation-duration:1.5s;"></div>
-    <div class="star" style="top:10%; left:20%; width:1.5px; height:1.5px; animation-duration:2s;"></div>
-    <div class="star" style="top:15%; left:35%; width:2.5px; height:2.5px; animation-duration:2.2s;"></div>
-    <div class="star" style="top:20%; left:50%; width:1.8px; height:1.8px; animation-duration:1.8s;"></div>
-    <div class="star" style="top:25%; left:65%; width:2.2px; height:2.2px; animation-duration:1.9s;"></div>
-    <div class="star" style="top:30%; left:80%; width:2px; height:2px; animation-duration:2.5s;"></div>
-    <div class="star" style="top:35%; left:10%; width:1.7px; height:1.7px; animation-duration:2.1s;"></div>
-    <div class="star" style="top:40%; left:25%; width:2.3px; height:2.3px; animation-duration:2.2s;"></div>
-    <div class="star" style="top:45%; left:40%; width:2px; height:2px; animation-duration:2.3s;"></div>
-    <div class="star" style="top:50%; left:55%; width:1.5px; height:1.5px; animation-duration:1.7s;"></div>
-    <div class="star" style="top:55%; left:70%; width:2px; height:2px; animation-duration:2s;"></div>
-    <div class="star" style="top:60%; left:85%; width:2.5px; height:2.5px; animation-duration:2.1s;"></div>
-    <div class="star" style="top:65%; left:5%; width:1.8px; height:1.8px; animation-duration:2.4s;"></div>
-    <div class="star" style="top:70%; left:20%; width:2.2px; height:2.2px; animation-duration:2.3s;"></div>
-    <div class="star" style="top:75%; left:35%; width:2px; height:2px; animation-duration:1.8s;"></div>
-    <div class="star" style="top:80%; left:50%; width:1.5px; height:1.5px; animation-duration:1.9s;"></div>
-    <div class="star" style="top:85%; left:65%; width:2.3px; height:2.3px; animation-duration:2.2s;"></div>
-    <div class="star" style="top:90%; left:80%; width:2px; height:2px; animation-duration:2.5s;"></div>
-    <div class="star" style="top:7%; left:10%; width:1.8px; height:1.8px; animation-duration:1.7s;"></div>
-    <div class="star" style="top:12%; left:30%; width:2px; height:2px; animation-duration:2.1s;"></div>
-    <div class="star" style="top:18%; left:45%; width:1.5px; height:1.5px; animation-duration:1.9s;"></div>
-    <div class="star" style="top:22%; left:60%; width:2.2px; height:2.2px; animation-duration:2.2s;"></div>
-    <div class="star" style="top:28%; left:75%; width:2px; height:2px; animation-duration:2.3s;"></div>
-    <div class="star" style="top:33%; left:90%; width:1.7px; height:1.7px; animation-duration:1.8s;"></div>
-    <div class="star" style="top:37%; left:15%; width:2.3px; height:2.3px; animation-duration:2s;"></div>
-    <div class="star" style="top:42%; left:35%; width:2px; height:2px; animation-duration:2.1s;"></div>
-    <div class="star" style="top:48%; left:50%; width:1.5px; height:1.5px; animation-duration:2.4s;"></div>
-    <div class="star" style="top:52%; left:65%; width:2.2px; height:2.2px; animation-duration:2.3s;"></div>
-    <div class="star" style="top:58%; left:80%; width:2px; height:2px; animation-duration:1.9s;"></div>
-    <div class="star" style="top:63%; left:5%; width:1.8px; height:1.8px; animation-duration:2.2s;"></div>
-    <div class="star" style="top:68%; left:25%; width:2.3px; height:2.3px; animation-duration:2.1s;"></div>
-    <div class="star" style="top:73%; left:40%; width:2px; height:2px; animation-duration:2.4s;"></div>
-    <div class="star" style="top:78%; left:55%; width:1.5px; height:1.5px; animation-duration:2s;"></div>
-    <div class="star" style="top:83%; left:70%; width:2px; height:2px; animation-duration:2.3s;"></div>
-    <div class="star" style="top:88%; left:85%; width:2.5px; height:2.5px; animation-duration:2.2s;"></div>
-    <div class="star" style="top:93%; left:10%; width:1.7px; height:1.7px; animation-duration:1.8s;"></div>
-    <div class="star" style="top:5%; left:40%; width:2.2px; height:2.2px; animation-duration:2.1s;"></div>
-    <div class="star" style="top:15%; left:60%; width:2px; height:2px; animation-duration:2.4s;"></div>
-    <div class="star" style="top:25%; left:80%; width:1.5px; height:1.5px; animation-duration:1.9s;"></div>
-    <div class="star" style="top:35%; left:5%; width:2px; height:2px; animation-duration:2.3s;"></div>
-    <div class="star" style="top:45%; left:25%; width:2.3px; height:2.3px; animation-duration:2s;"></div>
-    <div class="star" style="top:55%; left:45%; width:1.8px; height:1.8px; animation-duration:2.1s;"></div>
-    <div class="star" style="top:65%; left:65%; width:2px; height:2px; animation-duration:2.4s;"></div>
-    <div class="star" style="top:75%; left:85%; width:2.5px; height:2.5px; animation-duration:2.3s;"></div>
-    <div class="star" style="top:85%; left:20%; width:1.7px; height:1.7px; animation-duration:1.9s;"></div>
-    <div class="star" style="top:90%; left:40%; width:2px; height:2px; animation-duration:2.2s;"></div>
-    <div class="star" style="top:10%; left:70%; width:2.3px; height:2.3px; animation-duration:2s;"></div>
-    <div class="star" style="top:2%; left:75%; width:1.8px; height:1.8px; animation-duration:1.7s;"></div>
-    <div class="star" style="top:5%; left:80%; width:2px; height:2px; animation-duration:2s;"></div>
-    <div class="star" style="top:7%; left:85%; width:2.3px; height:2.3px; animation-duration:2.2s;"></div>
-    <div class="star" style="top:10%; left:90%; width:1.5px; height:1.5px; animation-duration:1.9s;"></div>
-    <div class="star" style="top:12%; left:95%; width:2px; height:2px; animation-duration:2.3s;"></div>
-    <div class="star" style="top:3%; left:78%; width:2.2px; height:2.2px; animation-duration:2s;"></div>
-    <div class="star" style="top:8%; left:88%; width:1.7px; height:1.7px; animation-duration:2.1s;"></div>
-    <div class="star" style="top:6%; left:92%; width:2px; height:2px; animation-duration:2.2s;"></div>
-    <div class="star" style="top:4%; left:83%; width:2.5px; height:2.5px; animation-duration:2.4s;"></div>
-    <div class="star" style="top:9%; left:97%; width:1.8px; height:1.8px; animation-duration:2s;"></div>
-  </div>
 
-  <header>
-      <img src="{{ url_for('static', filename='logo.jpeg') }}">
-      <h1>O.R.I.O.</h1>
-  </header>
-</div>
+<div class="estrellas"></div>
+<div class="estrellas2"></div>
+<div class="estrellas3"></div>
 
-<form id="form-registro" class="formulario" method="POST" action="/guardar_usuario">
+<header>
+  <div class="logo-placeholder"></div>
+  <h1>O.R.I.O.</h1>
+</header>
 
-    <h2>Registro</h2>
+<div class="contenedor-form">
+  <form id="form-registro" class="formulario">
 
-    <div class="campo">
+    <h2>Crear Cuenta</h2>
+
+    <div class="fila">
+      <div class="campo">
         <label>Usuario</label>
-        <input type="text" class="usuario-input" name="usuario" placeholder="Ej: usuario1234" required />
-    </div>
-
-    <div class="campo">
+        <input type="text" required>
+      </div>
+      <div class="campo">
         <label>Contraseña</label>
-        <input name="contrasena" id="contrasena" type="password" required />
+        <input type="password" id="pass1" required>
+      </div>
+    </div>
+
+    <div class="fila">
+      <div class="campo">
+        <label>Repetir Contraseña</label>
+        <input type="password" id="pass2" required>
+      </div>
+      <div class="campo">
+        <label>Pregunta 1</label>
+        <input type="text" required>
+      </div>
+    </div>
+
+    <div class="fila">
+      <div class="campo">
+        <label>Respuesta 1</label>
+        <input type="text" required>
+      </div>
+      <div class="campo">
+        <label>Pregunta 2</label>
+        <input type="text" required>
+      </div>
     </div>
 
     <div class="campo">
-        <label>Repetir Contraseña</label>
-        <input name="contrasena_repetida" id="contrasena_repetida" type="password" required />
+      <label>Respuesta 2</label>
+      <input type="text" required>
     </div>
 
     <button>Crear Cuenta</button>
 
-    <p>¿Ya tienes cuenta? <a href="/inicio" style="color:#E0C58F;">Inicia sesión</a></p>
+    <div class="login-link">
+      ¿Ya tienes cuenta? <a href="/inicio">Inicia sesión</a>
+    </div>
 
-</form>
+  </form>
+</div>
+
 
 <footer style="text-align:center; margin-top:40px; color:#E0C58F; font-family:'Bodoni Moda', serif;">
     © 2025 O.R.I.O. Todos los derechos reservados.
