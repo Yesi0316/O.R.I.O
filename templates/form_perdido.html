@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulario O.R.I.O</title>
-
-    <!-- Tipografías Baskerville y Bodoni -->
     <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville&display=swap" rel="stylesheet">
 
@@ -31,7 +29,6 @@
             background:  linear-gradient(to bottom, #3C507D, #000);
         }
 
-        /* Estrellas doradas dispersas */
         .star {
             position: absolute;
             background-color: var(--gold);
@@ -46,7 +43,6 @@
             100% { opacity: 0.2; }
         }
 
-        /* Contenedor del formulario */
         .form-container {
             position: relative;
             z-index: 2;
@@ -59,7 +55,7 @@
             border: 1px solid rgba(224, 197, 143, 0.4);
         }
 
-        /* Encabezado con imagen y título */
+
         .form-header {
             display: flex;
             align-items: center;
@@ -161,7 +157,6 @@
             width: 100%;
         }
 
-        /* Flecha especial y tamaño de select igual al resto */
         .select-wrap::after {
             content: "▾";
             position: absolute;
@@ -191,7 +186,6 @@
             box-sizing: border-box;
         }
 
-        /* Color del texto desplegable al seleccionar */
         select option {
             color: black;
             font-size: 15px;
@@ -199,8 +193,7 @@
     </style>
 </head>
 
-<!-- Estrellas doradas dispersas -->
-<!-- Generé 50 estrellas aleatorias manualmente -->
+
 <div class="star" style="top:5%; left:5%; width:2px; height:2px; animation-duration:1.5s;"></div>
 <div class="star" style="top:10%; left:20%; width:1.5px; height:1.5px; animation-duration:2s;"></div>
 <div class="star" style="top:15%; left:35%; width:2.5px; height:2.5px; animation-duration:2.2s;"></div>
@@ -267,7 +260,7 @@
             <h1>Registro de Objetos Perdidos</h1>
         </div>
 
-        <form action="/submit" method="POST" enctype="multipart/form-data">
+        <form action="/submit_per" method="POST" enctype="multipart/form-data">
             <div class="form-columns">
                 <div class="left-column">
                     <label>Usuario (ID o código SENA)</label>

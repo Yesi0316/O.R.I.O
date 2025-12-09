@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bienvenidos a O.R.I.O</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --sapphire: #3C507D;
+    --royal-blue: #112250;
+    --quicksand: #E0C58F;
+    --swan-wing: #F5F0E9;
+    --shellstone: #D9CBC2;
+    --gold: #E0C58F;
+}
+
+body {
+    font-family: "Open Sans", sans-serif;
+    background: radial-gradient(circle at top,#3C5B8F, #000);
+    color: var(--royal-blue);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* === TÍTULO CON IMÁGENES === */
+.titulo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+    margin-top: 50px;
+}
+
+.titulo-container img {
+    width: 110px;
+    height: 110px;
+    object-fit: contain;
+}
+
+h1 {
+    font-size: 3.2em;
+    color: var(--quicksand);
+    font-family: "Playfair Display", serif;
+    text-shadow: 2px 2px 6px rgba(17, 34, 80, 0.3);
+    margin: 0;
+}
+
+p {
+    text-align: center;
+    color: var(--quicksand);
+    font-size: 1.3em;
+    margin-top: 15px;
+    margin-bottom: 40px;
+    font-weight: 500;
+}
+
+/* === CUERPO PRINCIPAL === */
+.contenedor {
+    width: 70%;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: var(--swan-wing);
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0px 8px 20px rgba(17, 34, 80, 0.3);
+}
+
+.bloque {
+    text-align: center;
+    margin-bottom: 40px;
+    background-color: var(--shellstone);
+    border: 2px solid var(--royal-blue);
+    border-radius: 10px;
+    padding: 30px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;        /* ← agregar */
+    flex-direction: column; /* ← agregar */
+    align-items: center;  /* ← agregar */
+}
+
+.bloque:hover {
+    transform: scale(1.03);
+    box-shadow: 0px 6px 18px rgba(17, 34, 80, 0.25);
+}
+
+h2 {
+    color: var(--sapphire);
+    font-size: 1.6em;
+    margin-bottom: 15px;
+}
+
+/* === BOTÓN UIVERSE === */
+.btn-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  font-family: inherit;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 17px;
+
+  padding: 0.8em 1.3em;
+  color: white;
+
+  background: linear-gradient(90deg, var(--royal-blue), var(--sapphire));
+
+  border: none;
+  letter-spacing: 0.05em;
+  border-radius: 16px;
+  margin-top: 15px;
+
+  transition: all 0.3s ease-in-out;
+}
+
+.btn-form svg {
+  margin-right: 3px;
+  transform: rotate(30deg);
+  transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.btn-form span {
+  transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.btn-form:hover svg {
+  transform: translateX(5px) rotate(90deg);
+}
+
+.btn-form:hover span {
+  transform: translateX(7px);
+}
+.star {
+            position: absolute;
+            background-color: var(--gold);
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: twinkle 2s infinite alternate;
+}
+
+/* === FOOTER === */
+footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+
+    text-align: center;
+    color: var(--swan-wing);
+    font-size: 0.9em;
+    padding: 20px;
+    background: linear-gradient(90deg, var(--sapphire), var(--royal-blue));
+}
+@keyframes twinkle {
+    0% { opacity: 0.1; transform: scale(1); }
+    100% { opacity: 0.5; transform: scale(1.5); }
+}
+
+
+/* === RESPONSIVO === */
+@media (max-width: 768px) {
+    .titulo-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .titulo-container img {
+        width: 60px;
+        height: 60px;
+    }
+
+    h1 {
+        font-size: 2.4em;
+    }
+
+    p {
+        font-size: 1.1em;
+    }
+
+    .contenedor {
+        width: 90%;
+        padding: 25px;
+    }
+}
+</style>
+</head>
+
+<body>
+<!--ESTRELLAS-->
+<div class="star" style="top:5%; left:5%; width:2px; height:2px; animation-duration:1.5s;"></div>
+<div class="star" style="top:10%; left:20%; width:1.5px; height:1.5px; animation-duration:2s;"></div>
+<div class="star" style="top:15%; left:35%; width:2.5px; height:2.5px; animation-duration:2.2s;"></div>
+<div class="star" style="top:20%; left:50%; width:1.8px; height:1.8px; animation-duration:1.8s;"></div>
+<div class="star" style="top:25%; left:65%; width:2.2px; height:2.2px; animation-duration:1.9s;"></div>
+<div class="star" style="top:30%; left:80%; width:2px; height:2px; animation-duration:2.5s;"></div>
+<div class="star" style="top:35%; left:10%; width:1.7px; height:1.7px; animation-duration:2.1s;"></div>
+<div class="star" style="top:40%; left:25%; width:2.3px; height:2.3px; animation-duration:2.2s;"></div>
+<div class="star" style="top:45%; left:40%; width:2px; height:2px; animation-duration:2.3s;"></div>
+<div class="star" style="top:50%; left:55%; width:1.5px; height:1.5px; animation-duration:1.7s;"></div>
+<div class="star" style="top:55%; left:70%; width:2px; height:2px; animation-duration:2s;"></div>
+<div class="star" style="top:60%; left:85%; width:2.5px; height:2.5px; animation-duration:2.1s;"></div>
+<div class="star" style="top:65%; left:5%; width:1.8px; height:1.8px; animation-duration:2.4s;"></div>
+<div class="star" style="top:70%; left:20%; width:2.2px; height:2.2px; animation-duration:2.3s;"></div>
+<div class="star" style="top:75%; left:35%; width:2px; height:2px; animation-duration:1.8s;"></div>
+<div class="star" style="top:80%; left:50%; width:1.5px; height:1.5px; animation-duration:1.9s;"></div>
+<div class="star" style="top:85%; left:65%; width:2.3px; height:2.3px; animation-duration:2.2s;"></div>
+<div class="star" style="top:90%; left:80%; width:2px; height:2px; animation-duration:2.5s;"></div>
+<div class="star" style="top:7%; left:10%; width:1.8px; height:1.8px; animation-duration:1.7s;"></div>
+<div class="star" style="top:12%; left:30%; width:2px; height:2px; animation-duration:2.1s;"></div>
+<div class="star" style="top:18%; left:45%; width:1.5px; height:1.5px; animation-duration:1.9s;"></div>
+<div class="star" style="top:22%; left:60%; width:2.2px; height:2.2px; animation-duration:2.2s;"></div>
+<div class="star" style="top:28%; left:75%; width:2px; height:2px; animation-duration:2.3s;"></div>
+<div class="star" style="top:33%; left:90%; width:1.7px; height:1.7px; animation-duration:1.8s;"></div>
+<div class="star" style="top:37%; left:15%; width:2.3px; height:2.3px; animation-duration:2s;"></div>
+<div class="star" style="top:42%; left:35%; width:2px; height:2px; animation-duration:2.1s;"></div>
+<div class="star" style="top:48%; left:50%; width:1.5px; height:1.5px; animation-duration:2.4s;"></div>
+<div class="star" style="top:52%; left:65%; width:2.2px; height:2.2px; animation-duration:2.3s;"></div>
+<div class="star" style="top:58%; left:80%; width:2px; height:2px; animation-duration:1.9s;"></div>
+<div class="star" style="top:63%; left:5%; width:1.8px; height:1.8px; animation-duration:2.2s;"></div>
+<div class="star" style="top:68%; left:25%; width:2.3px; height:2.3px; animation-duration:2.1s;"></div>
+<div class="star" style="top:73%; left:40%; width:2px; height:2px; animation-duration:2.4s;"></div>
+<div class="star" style="top:78%; left:55%; width:1.5px; height:1.5px; animation-duration:2s;"></div>
+<div class="star" style="top:83%; left:70%; width:2px; height:2px; animation-duration:2.3s;"></div>
+<div class="star" style="top:88%; left:85%; width:2.5px; height:2.5px; animation-duration:2.2s;"></div>
+<div class="star" style="top:93%; left:10%; width:1.7px; height:1.7px; animation-duration:1.8s;"></div>
+<div class="star" style="top:5%; left:40%; width:2.2px; height:2.2px; animation-duration:2.1s;"></div>
+<div class="star" style="top:15%; left:60%; width:2px; height:2px; animation-duration:2.4s;"></div>
+<div class="star" style="top:25%; left:80%; width:1.5px; height:1.5px; animation-duration:1.9s;"></div>
+<div class="star" style="top:35%; left:5%; width:2px; height:2px; animation-duration:2.3s;"></div>
+<div class="star" style="top:45%; left:25%; width:2.3px; height:2.3px; animation-duration:2s;"></div>
+<div class="star" style="top:55%; left:45%; width:1.8px; height:1.8px; animation-duration:2.1s;"></div>
+<div class="star" style="top:65%; left:65%; width:2px; height:2px; animation-duration:2.4s;"></div>
+<div class="star" style="top:75%; left:85%; width:2.5px; height:2.5px; animation-duration:2.3s;"></div>
+<div class="star" style="top:85%; left:20%; width:1.7px; height:1.7px; animation-duration:1.9s;"></div>
+<div class="star" style="top:90%; left:40%; width:2px; height:2px; animation-duration:2.2s;"></div>
+<div class="star" style="top:10%; left:70%; width:2.3px; height:2.3px; animation-duration:2s;"></div>
+<div class="star" style="top:2%; left:75%; width:1.8px; height:1.8px; animation-duration:1.7s;"></div>
+<div class="star" style="top:5%; left:80%; width:2px; height:2px; animation-duration:2s;"></div>
+<div class="star" style="top:7%; left:85%; width:2.3px; height:2.3px; animation-duration:2.2s;"></div>
+<div class="star" style="top:10%; left:90%; width:1.5px; height:1.5px; animation-duration:1.9s;"></div>
+<div class="star" style="top:12%; left:95%; width:2px; height:2px; animation-duration:2.3s;"></div>
+<div class="star" style="top:3%; left:78%; width:2.2px; height:2.2px; animation-duration:2s;"></div>
+<div class="star" style="top:8%; left:88%; width:1.7px; height:1.7px; animation-duration:2.1s;"></div>
+<div class="star" style="top:6%; left:92%; width:2px; height:2px; animation-duration:2.2s;"></div>
+<div class="star" style="top:4%; left:83%; width:2.5px; height:2.5px; animation-duration:2.4s;"></div>
+<div class="star" style="top:9%; left:97%; width:1.8px; height:1.8px; animation-duration:2s;"></div>
+
+  <!-- ===== TÍTULO CON IMÁGENES ===== -->
+  <div class="titulo-container">
+    <img src="logo.jpeg" alt="Logo Izquierdo" class="logo-izquierdo">
+    <h1>REGISTROS DE FORMULARIOS O.R.I.O</h1>
+    <img src="img3.jpeg" alt="Logo Derecho" class="logo-derecho">
+  </div>
+
+  <p>Selecciona el formulario que deseas completar:</p>
+
+  <div class="contenedor">
+
+    <!-- ===== BLOQUE 1 ===== -->
+    <div class="bloque">
+      <h2>Formulario del reporte de pérdidas de objetos:</h2>
+
+      <button class="btn-form" onclick="location.href='#'">
+        <svg height="24" width="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 0h24v24H0z" fill="none"></path>
+          <path
+            d="M5 13c0-5.088 2.903-9.436 7-11.182C16.097 3.564 19 7.912 19 13c0 .823-.076 1.626-.22 2.403l1.94 1.832a.5.5 0 0 1 .095.603l-2.495 4.575a.5.5 0 0 1-.793.114l-2.234-2.234a1 1 0 0 0-.707-.293H9.414a1 1 0 0 0-.707.293l-2.234 2.234a.5.5 0 0 1-.793-.114l-2.495-4.575a.5.5 0 0 1 .095-.603l1.94-1.832C5.077 14.626 5 13.823 5 13zm1.476 6.696l.817-.817A3 3 0 0 1 9.414 18h5.172a3 3 0 0 1 2.121.879l.817.817.982-1.8-1.1-1.04a2 2 0 0 1-.593-1.82c.124-.664.187-1.345.187-2.036 0-3.87-1.995-7.3-5-8.96C8.995 5.7 7 9.13 7 13c0 .691.063 1.372.187 2.037a2 2 0 0 1-.593 1.82l-1.1 1.039.982 1.8zM12 13a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"
+            fill="currentColor"></path>
+        </svg>
+        <span>Ir al formulario 1</span>
+      </button>
+    </div>
+
+    <!-- ===== BLOQUE 2 ===== -->
+    <div class="bloque">
+      <h2>Formulario del reporte de objetos encontrados:</h2>
+
+      <button class="btn-form" onclick="location.href='#'">
+        <svg height="24" width="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 0h24v24H0z" fill="none"></path>
+          <path
+            d="M5 13c0-5.088 2.903-9.436 7-11.182C16.097 3.564 19 7.912 19 13c0 .823-.076 1.626-.22 2.403l1.94 1.832a.5.5 0 0 1 .095.603l-2.495 4.575a.5.5 0 0 1-.793.114l-2.234-2.234a1 1 0 0 0-.707-.293H9.414a1 1 0 0 0-.707.293l-2.234 2.234a.5.5 0 0 1-.793-.114l-2.495-4.575a.5.5 0 0 1 .095-.603l1.94-1.832C5.077 14.626 5 13.823 5 13zm1.476 6.696l.817-.817A3 3 0 0 1 9.414 18h5.172a3 3 0 0 1 2.121.879l.817.817.982-1.8-1.1-1.04a2 2 0 0 1-.593-1.82c.124-.664.187-1.345.187-2.036 0-3.87-1.995-7.3-5-8.96C8.995 5.7 7 9.13 7 13c0 .691.063 1.372.187 2.037a2 2 0 0 1-.593 1.82l-1.1 1.039.982 1.8zM12 13a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"
+            fill="currentColor"></path>
+        </svg>
+        <span>Ir al formulario 2</span>
+      </button>
+    </div>
+
+  </div>
+
+  <footer style="text-align:center; margin-top:40px; color:#E0C58F; font-family:'Bodoni Moda', serif;">
+    © 2025 O.R.I.O. Todos los derechos reservados.
+  </footer>
+
+</body>
+</html>

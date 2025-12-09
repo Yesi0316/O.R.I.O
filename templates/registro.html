@@ -25,7 +25,7 @@ body {
   background-repeat: repeat;
   top: 0;
   left: 0;
-  animation: moverEstrellas 120s linear infinite;
+  animation: moverEstrellas 90s linear infinite;
   z-index: -1;
 }
 
@@ -37,7 +37,7 @@ body {
     radial-gradient(2px 2px at 350px 70px, white, transparent),
     radial-gradient(2px 2px at 500px 160px, white, transparent),
     radial-gradient(2px 2px at 650px 240px, white, transparent);
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
 .estrellas2 {
@@ -47,8 +47,8 @@ body {
     radial-gradient(1px 1px at 600px 100px, white, transparent),
     radial-gradient(1px 1px at 800px 300px, white, transparent),
     radial-gradient(1px 1px at 1000px 50px, white, transparent);
-  animation-duration: 180s;
-  opacity: 0.3;
+  animation-duration: 120s;
+  opacity: 0.25;
 }
 
 .estrellas3 {
@@ -56,22 +56,22 @@ body {
     radial-gradient(3px 3px at 150px 90px, white, transparent),
     radial-gradient(3px 3px at 450px 280px, white, transparent),
     radial-gradient(3px 3px at 750px 150px, white, transparent);
-  animation-duration: 240s;
-  opacity: 0.15;
+  animation-duration: 160s;
+  opacity: 0.12;
 }
 
 @keyframes moverEstrellas {
   from { transform: translateY(0); }
-  to { transform: translateY(-1200px); }
+  to { transform: translateY(-600px); }
 }
 
-/* ========= HEADER ========= */
+
 header {
   width: 100%;
   padding: 25px 80px;
   display: flex;
   align-items: center;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0,0,0,0.35);
 }
 
 .logo-placeholder {
@@ -87,15 +87,14 @@ header h1 {
   color: #E0C58F;
   letter-spacing: 6px;
   margin-left: 40px;
-  animation: latir 3s infinite;
+  animation: latir 4s ease-in-out infinite;
 }
 
 @keyframes latir {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.08); }
+  50% { transform: scale(1.05); }
 }
 
-/* ========= FORMULARIO ========= */
 .contenedor-form {
   display: flex;
   justify-content: center;
@@ -106,34 +105,33 @@ header h1 {
 .formulario {
   background: white;
   width: 520px;
-  padding: 45px;
+  padding: 50px;
   border-radius: 22px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.5);
-  animation: flotar 4s ease-in-out infinite, aparecer 1.2s ease;
-}
-
-@keyframes flotar {
-  0%,100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  box-shadow: 0 15px 40px rgba(0,0,0,0.45);
+  animation: aparecer 0.9s ease forwards;
 }
 
 @keyframes aparecer {
-  from { opacity: 0; transform: translateY(60px) scale(0.9); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .formulario h2 {
   text-align: center;
-  margin-bottom: 35px;
+  margin-bottom: 40px;
   font-family: "Bodoni Moda", serif;
-  font-size: 30px;
+  font-size: 32px;
 }
 
-/* ========= CAMPOS ========= */
+
+.bloque {
+  margin-bottom: 30px;
+}
+
 .fila {
   display: flex;
   gap: 25px;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
 }
 
 .campo {
@@ -154,21 +152,21 @@ header h1 {
   border: 1px solid #ccc;
   font-size: 14px;
   background: #f9f9f9;
-  transition: 0.4s;
+  transition: 0.35s ease;
 }
 
 .campo input:focus {
   outline: none;
   border-color: #E0C58F;
-  box-shadow: 0 0 12px #E0C58F;
-  transform: scale(1.06);
+  box-shadow: 0 0 10px #E0C58F;
+  transform: scale(1.04);
   background: white;
 }
 
-/* ========= BOTÓN ========= */
+
 button {
   width: 100%;
-  margin-top: 30px;
+  margin-top: 20px;
   padding: 14px;
   font-size: 18px;
   background: #E0C58F;
@@ -176,19 +174,19 @@ button {
   border-radius: 10px;
   cursor: pointer;
   font-family: "Bodoni Moda", serif;
-  transition: 0.3s;
+  transition: 0.3s ease;
 }
 
 button:hover {
   background: #b49b63;
-  letter-spacing: 2px;
-  transform: scale(1.08);
+  letter-spacing: 1px;
+  transform: scale(1.06);
   box-shadow: 0 0 15px #E0C58F;
 }
 
 .login-link {
   text-align: center;
-  margin-top: 20px;
+  margin-top: 25px;
   font-size: 14px;
 }
 
@@ -202,9 +200,9 @@ footer {
   text-align: center;
   padding: 25px;
   color: #E0C58F;
+  font-family: "Bodoni Moda", serif;
 }
 
-/* RESPONSIVE */
 @media (max-width: 620px) {
   .formulario { width: 90%; }
   .fila { flex-direction: column; }
@@ -229,45 +227,50 @@ footer {
 
     <h2>Crear Cuenta</h2>
 
-    <div class="fila">
+
+    <div class="bloque">
       <div class="campo">
         <label>Usuario</label>
         <input type="text" required>
       </div>
+    </div>
+
+    <div class="fila">
       <div class="campo">
         <label>Contraseña</label>
-        <input type="password" id="pass1" required>
+        <input type="password" name="contrasena" id="contrasena" required>
       </div>
-    </div>
-
-    <div class="fila">
       <div class="campo">
         <label>Repetir Contraseña</label>
-        <input type="password" id="pass2" required>
-      </div>
-      <div class="campo">
-        <label>Pregunta 1</label>
-        <input type="text" required>
+        <input type="password" name="contrasena_repetida" id="contrasena_repetida" required>
       </div>
     </div>
+
+ 
+    <div class="fila">
+      <div class="campo">
+        <label>Pregunta 1</label>
+        <input type="text" name="pregunta1" id="pregunta1" required>
+      </div>
+      <div class="campo">
+        <label>Respuesta 1</label>
+        <input type="text" name="respuesta1" id="respuesta1" required>
+      </div>
+    </div>
+
 
     <div class="fila">
       <div class="campo">
-        <label>Respuesta 1</label>
-        <input type="text" required>
+        <label>Pregunta 2</label>
+        <input type="text" name="pregunta2" id="pregunta2" required>
       </div>
       <div class="campo">
-        <label>Pregunta 2</label>
-        <input type="text" required>
+        <label>Respuesta 2</label>
+        <input type="text" name="respuesta2" id="respuesta2" required>
       </div>
     </div>
 
-    <div class="campo">
-      <label>Respuesta 2</label>
-      <input type="text" required>
-    </div>
-
-    <button>Crear Cuenta</button>
+    <button type="submit">Crear Cuenta</button>
 
     <div class="login-link">
       ¿Ya tienes cuenta? <a href="/inicio">Inicia sesión</a>
@@ -276,21 +279,21 @@ footer {
   </form>
 </div>
 
-
-<footer style="text-align:center; margin-top:40px; color:#E0C58F; font-family:'Bodoni Moda', serif;">
-    © 2025 O.R.I.O. Todos los derechos reservados.
+<footer>
+  © 2025 O.R.I.O. Todos los derechos reservados.
 </footer>
 
 <script>
 document.getElementById("form-registro").addEventListener("submit", function(event) {
-    let pass1 = document.getElementById("contrasena").value;
-    let pass2 = document.getElementById("contrasena_repetida").value;
+    let contrasena = document.getElementById("contrasena").value;
+    let contrasena_repetida = document.getElementById("contrasena_repetida").value;
 
-    if (pass1 !== pass2) {
-        event.preventDefault(); /* NO enviar formulario*/
+    if (contrasena !== contrasena_repetida) {
+        event.preventDefault();
         alert("Las contraseñas NO coinciden.");
     }
 });
 </script>
+
 </body>
 </html>

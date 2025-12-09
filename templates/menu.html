@@ -6,8 +6,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-<!-- TIPOGRAFIAS -->  
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville&display=swap" rel="stylesheet">
 
@@ -35,7 +33,7 @@
   overflow:hidden;
   }
 
-  /* LOGOS */
+
   .logo-top{
   position:fixed;
   top:20px;
@@ -57,7 +55,6 @@
   pointer-events:none;
   }
 
-  /* ⭐ ESTRELLAS NUEVAS PEQUEÑAS Y PARPADEANTES */
   .stars{
     position:fixed;
     top:0; left:0;
@@ -142,7 +139,6 @@
   gap:28px;
   }
 
-  /* CONTENEDOR GRANDE SIN HOVER */
   .hero{
   background:white;
   padding:45px;
@@ -151,7 +147,6 @@
   transition:.4s;
   }
 
-  /* CONTENEDORES PEQUEÑOS */
   .stat{
   background:white;
   padding:20px;
@@ -220,15 +215,47 @@
     font-family:'Libre Baskerville', serif;
   }
 
+.btn-superior {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  background: rgba(255, 255, 255, 0.35);
+  border: 2px solid #E0C58F;
+  backdrop-filter: blur(18px);
+
+  padding: 18px;
+  border-radius: 18px;
+  color: white;
+  font-size: 20px;
+  font-weight: 600;
+  text-decoration: none;
+
+  transition: .35s ease;
+  box-shadow: 0 0 25px rgba(0, 0, 0, .25);
+}
+
+.btn-superior i {
+  font-size: 22px;
+}
+
+.btn-superior:hover {
+  background: #E0C58F;
+  color: #112250;
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 0 35px #E0C58F;
+}
 </style>
 </head>
 
 <body>
 
-<div class="logo-top">O.R.I.O</div>
-<div class="logo-bg">O.R.I.O</div>
+<div class="logo-top">
+  <img src="{{ url_for('static', filename='img/logo2.png') }}" alt="Logo">
+</div>
 
-<!-- ⭐ MUCHAS ESTRELLAS PEQUEÑAS Y PARPADEANTES -->
+
 <div class="stars">
 
 <span style="top:8%;left:15%;"></span>
@@ -257,17 +284,18 @@
 </div>
 
 <nav class="menu-glass">
-<a href="/buscar_objetos"><i class="fas fa-search"></i><span>Buscar</span></a>
 <a href="#"><i class="fas fa-plus-circle"></i><span>Perdido</span></a>
 <a href="#"><i class="fas fa-check-circle"></i><span>Encontrado</span></a>
 <a href="#"><i class="fas fa-folder"></i><span>Reportes</span></a>
 <a href="#"><i class="fas fa-user"></i><span>Cuenta</span></a>
 <a href="#"><i class="fas fa-right-from-bracket"></i><span>Salir</span></a>
 </nav>
-
+ 
 <main class="content">
   <div class="main-panel">
-
+    <a href="/buscar_objetos" class="btn-superior">
+      <i class="fas fa-search"></i> Buscar objetos
+    </a>
     <section class="hero">
       <h1>Hola usuario </h1>
       <p>Bienvenido a tu panel principal de O.R.I.O</p>
@@ -281,7 +309,6 @@
     </section>
 
     <section class="accesos">
-      <div class="acceso"><i class="fas fa-search"></i><p>Buscar</p></div>
       <div class="acceso"><i class="fas fa-plus"></i><p>Perdido</p></div>
       <div class="acceso"><i class="fas fa-check"></i><p>Encontrado</p></div>
       <div class="acceso"><i class="fas fa-folder"></i><p>Mis Reportes</p></div>

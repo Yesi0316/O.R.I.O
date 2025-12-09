@@ -25,7 +25,6 @@ DB_CONFIG = {
     'port': '5432'
 }
 
-
 # -------------------------
 # CONEXIÓN A LA BASE DE DATOS
 # -------------------------
@@ -49,7 +48,6 @@ def conectar_db():
         print("Error al conectar:", e)
         return None
 
-
 # -------------------------------------
 # TABLA PAISES
 # -------------------------------------
@@ -67,7 +65,6 @@ def crear_tabla_Paises():
         conexion.commit()
         cursor.close()
         conexion.close()
-
 
 # -------------------------------------
 # TABLA DEPARTAMENTOS
@@ -93,7 +90,6 @@ def crear_tabla_Departamentos():
 # -------------------------------------
 # TABLA ESTADOS
 # -------------------------------------
-
 def crear_tabla_Estados():
     conexion = conectar_db()
     if conexion:
@@ -147,8 +143,6 @@ def crear_tabla_Tipo_identificaciones():
         cursor.close()
         conexion.close()
 
-
-
 # -------------------------------------
 # TABLA USUARIOS
 # -------------------------------------
@@ -169,13 +163,17 @@ def crear_tabla_Usuario():
             "ID_TIPO_IDENTIFICACION" text COLLATE pg_catalog."default",
             "USUARIO" text COLLATE pg_catalog."default" NOT NULL,
             "CORREO" text COLLATE pg_catalog."default",
+            "PREGUNTA_1" text COLLATE pg_catalog."default" NOT NULL,
+            "PREGUNTA_2" text COLLATE pg_catalog."default" NOT NULL,
+            "REPUESTA_1" text COLLATE pg_catalog."default" NOT NULL,
+            "REPUESTA_2" text COLLATE pg_catalog."default" NOT NULL,
             CONSTRAINT "Usuarios_pkey" PRIMARY KEY ("USUARIO"),
             CONSTRAINT "ID_CIUDAD" FOREIGN KEY ("ID_CIUDAD")
                 REFERENCES public."Ciudades" ("ID_CIUDAD") MATCH SIMPLE
                 ON UPDATE NO ACTION
                 ON DELETE NO ACTION,
             CONSTRAINT "ID_IDENTIFICACION" FOREIGN KEY ("ID_TIPO_IDENTIFICACION")
-                REFERENCES public."Tipos_identificaciones" ("ID_IDENTIFICACIOIN") MATCH SIMPLE
+                REFERENCES public."Tipos_identificaciones" ("ID_IDENTIFICACION") MATCH SIMPLE
                 ON UPDATE NO ACTION
                 ON DELETE NO ACTION
                 NOT VALID,
@@ -317,7 +315,6 @@ def crear_tabla_Objetos():
         cursor.close()
         conexion.close()
 
-
 # -----------------------------
 # RUTA PRINCIPAL
 # -----------------------------
@@ -356,9 +353,12 @@ def menu():
 # -------------------------------------
 # RUTA FORMULARIO REPORTE
 # -------------------------------------
-@app.route('/formulario_perdido')
-def formulario_reporte():
+@app.route('/formulario_perdido', methods=['GET', 'POST'])
+def formulario_perdido():
+    if request.method == 'POST':
+        return redirect('/buscar_objetos')
     return render_template('form_perdido.html')
+
 
 @app.route('/formulario_reporte2')
 def formulario_reporte2():
@@ -415,9 +415,12 @@ def submit_per():
 # -----------------------------     
 # FORMULARIO REPORTE DE OBJETO ENCONTRADO
 # -----------------------------
-@app.route('/formulario_objeto_encontrado')
+@app.route('/formulario_objeto_encontrado', methods=['GET', 'POST'])
 def formulario_objeto_encontrado():
+    if request.method == 'POST':
+        return redirect('/buscar_objetos')
     return render_template('form_encontrado.html')
+
 
 @app.route('/formulario_reporte3')
 def formulario_reporte3():
@@ -428,7 +431,6 @@ def formulario_reporte3():
     cursor.close()
     bd.close()
     return render_template('reportes_principal.html', estados=estados)
-
 
 @app.route("/submit_enc", methods=["GET","POST"])
 def submit_enc():
@@ -471,8 +473,6 @@ def submit_enc():
 
     return jsonify('/formulario_objeto_encontrado')
 
-
-
 # -----------------------------
 # GUARDAR USUARIO
 # -----------------------------
@@ -482,6 +482,10 @@ def guardar_usuario():
         usuario = request.form.get('usuario')
         contraseña = request.form.get('contrasena')
         contraseña_repetida = request.form.get('contrasena_repetida')
+        pregunta1 = request.form.get('pregunta1')
+        respuesta1 = request.form.get('respuesta1')
+        pregunta2 = request.form.get('pregunta2')
+        respuesta2 = request.form.get('respuesta2')
 
         if not usuario or not contraseña:
             return jsonify({'mensaje': 'Usuario y contraseña obligatorios'}), 400
@@ -492,16 +496,15 @@ def guardar_usuario():
         conexion = conectar_db()
         cursor = conexion.cursor()
 
-        cursor.execute("""INSERT INTO "Usuarios" ("USUARIO", "CONTRASENA") VALUES (%s, %s)""", (usuario, contraseña))
+        cursor.execute("""INSERT INTO "Usuarios" ("USUARIO", "CONTRASENA", "PREGUNTA_1", "PREGUNTA_2"  ,"RESPUESTA_1", "RESPUESTA_2") VALUES (%s, %s, %s, %s, %s, %s)""", (usuario, contraseña,pregunta1,pregunta2,respuesta1,respuesta2))
         conexion.commit()
         cursor.close()
         conexion.close()
 
         return jsonify({'mensaje': 'Usuario creado correctamente'})
 
-    except Exception as e:
+    except Exception as e:  
         return jsonify({'mensaje': 'Error al guardar el usuario', 'error': str(e)}), 500
-
 
 # -----------------------------
 # CONSULTAR USUARIOS
@@ -533,11 +536,9 @@ def obtener_usuarios():
 def buscaar_objeto():
     return render_template('busquedas.html')
 
-
 # -----------------------------
 # INICIAR SERVIDOR
 # -----------------------------
-
 if __name__ == "__main__":
     try:
         # Orden de creación respetando dependencias:
