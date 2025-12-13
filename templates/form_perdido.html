@@ -260,13 +260,10 @@
             <h1>Registro de Objetos Perdidos</h1>
         </div>
 
-        <form action="/submit_per" method="POST" enctype="multipart/form-data">
+        <form id="reportForm" enctype="multipart/form-data">
             <div class="form-columns">
                 <div class="left-column">
-                    <label>Usuario (ID o código SENA)</label>
-
-                    <input type="text" id="identificacion" name="identificacion" maxlength="12" required>
-
+                    
                     <label>Nombre del objeto</label>
 
                      <input type="text" id="nombre_objeto" name="nombre_objeto" maxlength="66" required>
@@ -318,10 +315,11 @@
 
             <div id="MensajeAlerta" style="margin-top:12px;"></div>
 
-        </form>
+        </form> 
     </div>
 
 <script>
+
     const form = document.getElementById('reportForm');
 
     form.addEventListener('submit', async (e) => {
@@ -330,7 +328,7 @@
         const formData = new FormData(form);
 
         try {
-            const response = await fetch('/submit', {
+            const response = await fetch('/submit_per', {
                 method: 'POST',
                 body: formData
             });
@@ -352,10 +350,6 @@
             mensajeAlerta.innerHTML = result.mensaje || "Datos enviados correctamente";
             mensajeAlerta.style.color = "green";
 
-            const body = document.querySelector("#malasPracticas");
-            const imgg = document.createElement("img");
-            imgg.src = result.ruta;
-            body.appendChild(imgg);
 
         } catch (error) {
             const mensajeAlerta = document.getElementById('MensajeAlerta');

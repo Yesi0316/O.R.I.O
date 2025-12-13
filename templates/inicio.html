@@ -234,17 +234,34 @@ footer {
 
     <h2>Iniciar Sesión</h2>
 
-    <div class="campo">
-      <label>Usuario o Email</label>
-      <input type="text" placeholder="Ingresa tu usuario o correo" required>
-    </div>
+    <form id="form-login">
 
-    <div class="campo">
-      <label>Contraseña</label>
-      <input type="password" placeholder="Ingresa tu contraseña" required>
-    </div>
+      <div class="campo">
+        <label>ID Usuario</label>
+        <input
+          type="text"
+          name="id_usuario"
+          placeholder="Ingresa tu ID de usuario"
+          required
+        >
+      </div>
 
-    <button>Entrar</button>
+      <div class="campo">
+        <label>Contraseña</label>
+        <input
+          type="password"
+          name="contrasena"
+          placeholder="Ingresa tu contraseña"
+          required
+        >
+      </div>
+
+      <button type="submit">Entrar</button>
+      <div id="mensaje" style="margin-top:15px; text-align:center;"></div>
+      <div id="olvido" style="text-align:center; margin-top:10px;"></div>
+
+
+    </form>
 
     <div class="login-link">
       ¿No tienes cuenta? <a href="/registro">Regístrate</a>
@@ -256,6 +273,44 @@ footer {
 <footer>
 © 2025 O.R.I.O. Todos los derechos reservados.
 </footer>
+
+<script>
+const formLogin = document.getElementById("form-login")
+const mensaje = document.getElementById("mensaje")
+const olvido = document.getElementById("olvido")
+
+formLogin.addEventListener("submit", async (e) => {
+    e.preventDefault()
+
+    const datos = new FormData(formLogin)
+
+    const res = await fetch("/inicio", {
+        method: "POST",
+        body: datos
+    })
+
+    const data = await res.json()
+
+    // mostrar el mensaje de estado
+    mensaje.innerText = data.mensaje
+    mensaje.style.color = data.ok ? "green" : "red"
+
+    // mostrar "Olvidaste tu contraseña" solo si la contraseña es incorrecta
+    if (!data.ok && data.mensaje === "Contraseña incorrecta") {
+        olvido.innerHTML = '<a href="/recuperar" style="color:#3C507D; font-weight:bold;">¿Olvidaste tu contraseña?</a>'
+    } else {
+        olvido.innerHTML = '' // ocultar el link en otros casos
+    }
+
+    // ir al menu si el inicio fue exitoso
+    if (data.ok) {
+        setTimeout(() => {
+            window.location.href = "/menu"
+        }, 800)
+    }
+})
+</script>
+
 
 </body>
 </html> 

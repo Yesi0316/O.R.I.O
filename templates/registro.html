@@ -230,8 +230,17 @@ footer {
 
     <div class="bloque">
       <div class="campo">
-        <label>Usuario</label>
-        <input type="text" required>
+        <label>ID de Usuario</label>
+        <input type="text" name="id_usuario" required
+          pattern="[a-zA-Z0-9_]+"
+          title="Solo letras, números y guiones bajos">
+      </div>
+    </div>
+
+    <div class="bloque">
+      <div class="campo">
+        <label>Nombre visible</label>
+        <input type="text" name="nombre" required>
       </div>
     </div>
 
@@ -246,7 +255,8 @@ footer {
       </div>
     </div>
 
- 
+    <h3>Preguntas para recuperacion de contraseña por olvido (OBLIGATORIAS)</h3>
+
     <div class="fila">
       <div class="campo">
         <label>Pregunta 1</label>
@@ -257,7 +267,6 @@ footer {
         <input type="text" name="respuesta1" id="respuesta1" required>
       </div>
     </div>
-
 
     <div class="fila">
       <div class="campo">
@@ -275,7 +284,7 @@ footer {
     <div class="login-link">
       ¿Ya tienes cuenta? <a href="/inicio">Inicia sesión</a>
     </div>
-
+    <div id="mensaje"></div>
   </form>
 </div>
 
@@ -284,16 +293,40 @@ footer {
 </footer>
 
 <script>
-document.getElementById("form-registro").addEventListener("submit", function(event) {
-    let contrasena = document.getElementById("contrasena").value;
-    let contrasena_repetida = document.getElementById("contrasena_repetida").value;
+const formularioRegistro = document.getElementById("form-registro")
+
+formularioRegistro.addEventListener("submit", async function(event) {
+    event.preventDefault()
+
+    let contrasena = document.getElementById("contrasena").value
+    let contrasena_repetida = document.getElementById("contrasena_repetida").value
 
     if (contrasena !== contrasena_repetida) {
-        event.preventDefault();
-        alert("Las contraseñas NO coinciden.");
+        alert("Las contraseñas NO coinciden.")
+        return
     }
-});
+
+    const datosFormulario = new FormData(formularioRegistro)
+
+    const res = await fetch("/guardar_usuario", {
+        method: "POST",
+        body: datosFormulario
+    })
+
+    const mensaje = await res.json()
+
+    const mensajeArea = document.getElementById("mensaje")
+    mensajeArea.innerHTML = mensaje.mensaje
+
+    // aqui redirige el usuario al menu si el se ha registrado
+    if (mensaje.ok) {
+        setTimeout(() => {
+            window.location.href = "/menu"
+        }, 800)
+    }
+})
 </script>
+
 
 </body>
 </html>

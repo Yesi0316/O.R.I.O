@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Recuperar Contraseña | O.R.I.O.</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: radial-gradient(circle at top,#3C5B8F, #000);
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: #112250;
+}
+.contenedor-form { display: flex; justify-content:center; align-items:center; margin-top:60px; }
+.formulario { background: white; width: 520px; padding:50px; border-radius:22px; box-shadow:0 15px 40px rgba(0,0,0,0.45); }
+.formulario h2 { text-align:center; margin-bottom:40px; font-family:"Bodoni Moda", serif; font-size:32px; }
+.campo { margin-bottom:20px; display:flex; flex-direction:column; }
+.campo input { padding:12px; border-radius:10px; border:1px solid #ccc; font-size:14px; background:#f9f9f9; }
+button { width:100%; padding:14px; font-size:18px; background:#E0C58F; border:none; border-radius:10px; cursor:pointer; font-family:"Bodoni Moda", serif; margin-top:10px; }
+#mensaje { margin-top:15px; text-align:center; color:red; }
+</style>
+</head>
+<body>
+
+<div class="contenedor-form">
+  <form id="form-recuperar" class="formulario">
+    <h2>Reestablecer Contraseña</h2>
+
+    <div id="paso1">
+      <div class="campo">
+        <input type="text" id="id_usuario" placeholder="Ingresa tu nombre de usuario unico" required>
+      </div>
+      <button type="button" id="btn_verificar">Continuar</button>
+    </div>
+
+    <div id="paso2" style="display:none;">
+      <div class="campo">
+        <p id="pregunta1_text"></p>
+        <input type="text" id="respuesta1" placeholder="Respuesta 1" required>
+      </div>
+      <div class="campo">
+        <p id="pregunta2_text"></p>
+        <input type="text" id="respuesta2" placeholder="Respuesta 2" required>
+      </div>
+      <div class="campo">
+        <input type="password" id="nueva_contrasena" placeholder="Nueva contraseña" required>
+      </div>
+      <div class="campo">
+        <input type="password" id="repetir_contrasena" placeholder="Repetir contraseña" required>
+      </div>
+      <button type="button" id="btn_cambiar">Cambiar Contraseña</button>
+    </div>
+
+    <div id="mensaje"></div>
+  </form>
+</div>
+
+<script>
+const btnVerificar = document.getElementById('btn_verificar')
+const btnCambiar = document.getElementById('btn_cambiar')
+const mensaje = document.getElementById('mensaje')
+
+// Paso 1: Verificar usuario
+btnVerificar.addEventListener('click', async () => {
+    const id_usuario = document.getElementById('id_usuario').value
+    const res = await fetch('/recuperar', {
+        method: 'POST',
+        body: new URLSearchParams({id_usuario})
+    })
+    const data = await res.json()
+    if (data.ok) {
+        document.getElementById('paso1').style.display = 'none'
+        document.getElementById('paso2').style.display = 'block'
+        document.getElementById('pregunta1_text').innerText = data.pregunta1
+        document.getElementById('pregunta2_text').innerText = data.pregunta2
+        mensaje.innerText = ''
+    } else {
+        mensaje.innerText = data.mensaje
+    }
+})
+
+// Paso 2: Validar respuestas y cambiar contraseña
+btnCambiar.addEventListener('click', async () => {
+    const respuesta1 = document.getElementById('respuesta1').value
+    const respuesta2 = document.getElementById('respuesta2').value
+    const nueva_contrasena = document.getElementById('nueva_contrasena').value
+    const repetir_contrasena = document.getElementById('repetir_contrasena').value
+
+    if(nueva_contrasena !== repetir_contrasena){
+        mensaje.innerText = "Las contraseñas no coinciden"
+        return
+    }
+
+    const res = await fetch('/recuperar_respuestas', {
+        method: 'POST',
+        body: new URLSearchParams({respuesta1, respuesta2, nueva_contrasena})
+    })
+    const data = await res.json()
+    if (data.ok) {
+        mensaje.style.color = 'green'
+        mensaje.innerText = data.mensaje
+        setTimeout(()=>{ window.location.href = '/inicio' }, 1200)
+    } else {
+        mensaje.style.color = 'red'
+        mensaje.innerText = data.mensaje
+    }
+})
+</script>
+
+</body>
+</html>

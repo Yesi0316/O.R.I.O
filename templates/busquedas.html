@@ -120,8 +120,8 @@
 <body>
 
 <header>
-  <img class="logo" src="{{ url_for('static', filename='logo.jpeg') }}">
-  <h1>O.R.I.O.</h1>
+<img class="logo" src="{{ url_for('static', filename='logo.jpeg') }}">
+<h1>O.R.I.O.</h1>
 </header>
 
 <h1 style="text-align:center; margin-top:20px; color:#E0C58F;">Motor de búsqueda</h1>
@@ -129,38 +129,45 @@
 <!-- Contenedor de búsqueda -->
 <div class="barra_busqueda">
     <form method="GET" action="/buscar">
-        <input type="text" name="q" placeholder="Buscar objeto..." value="{{ q }}">
+        <input type="text" id="Motor" placeholder="Buscar objeto...">
     </form>
 </div>
 
 <!-- Contenedor de tarjetas -->
 <div class="grid">
 
-{% if resultados %}
-
-    {% for item in resultados %}
-
-    <div class="tarjeta">
-        <img src="{{ item.IMAGEN }}" alt="Imagen del objeto">
-        <div class="contenido">
-            <div class="titulo">{{ item.NOMBRE }}</div>
-            <div class="categoria">Categoría: {{ item.CATEGORIA }}</div>
-            <div class="color">Color: {{ item.COLOR }}</div>
-            <a class="boton" href="detalles_reportes.html">Ver detalles</a>
-        </div>
-    </div>
-
-    {% endfor %}
-
-{% else %}
-
-<p style="padding: 30px; font-size: 18px; color:#817e7e;">
-    No se encontraron resultados
-</p>
-
-{% endif %}
-
 </div> 
 
 </body>
+<script>
+    const motor = document.getElementById("Motor")
+
+    motor.addEventListener("input", async ()=>{
+        const res= await fetch(`/busquedas/${motor.value}`)
+        const datos = await res.json()
+        const caja = document.querySelector(".grid")
+        caja.innerHTML= ""
+        if (datos["datos"]) {
+            const objetos = datos["datos"]
+            objetos.forEach(objeto => {
+                let html = `<div class="tarjeta" data-id-objeto="${objeto.ID_OBJETO}">
+                                <img src="${objeto.IMAGEN}" alt="Imagen del objeto">
+                                <div class="contenido">
+                                    <div class="titulo">${objeto.NOMBRE}</div>
+                                    <div class="categoria">Categoría: ${objeto.ID_CATEGORIA}</div>
+                                    <div class="color">Color: ${objeto.COLOR}</div>
+                                    <a class="boton" href="detalles_reportes.html">Ver detalles</a>
+                                </div>
+                            </div>` 
+                caja.insertAdjacentHTML("beforeend", html)
+            });
+
+
+        } else {
+            caja.innerHTML = datos["mensaje"]
+
+        }
+    })
+
+</script>
 </html>
