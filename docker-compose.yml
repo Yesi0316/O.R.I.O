@@ -1,0 +1,26 @@
+services:
+  db:
+    image: "postgres:16"
+    container_name: postgres_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: my_password
+      POSTGRES_DB: ORIO_DB
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    
+    mem_limit: 200M
+    cpus: "0.25"
+  
+
+volumes:
+  db_data:
