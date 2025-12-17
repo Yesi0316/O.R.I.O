@@ -38,7 +38,7 @@ if __name__ == "__main__":
         crear_tabla_Reportes_perdidos()
 
         print("Tablas verificadas/creadas correctamente. Iniciando servidor...")
-        app.run(debug=True)
+        app.run(host="0.0.0.0", port=5000, debug=True)
 
     except Exception as e:
         import traceback

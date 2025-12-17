@@ -64,8 +64,8 @@
         }
 
         .form-logo {
-            width: 100px;
-            height: 100px;
+            width: 50px;
+            height: 50px;
             object-fit: contain;
         }
 
@@ -256,7 +256,7 @@
 <body id="malasPracticas">
     <div class="form-container">
         <div class="form-header">
-            <img src="logo.jpeg" alt="Logo" class="form-logo">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="form-logo">
             <h1>Registro de Objetos Perdidos</h1>
         </div>
 
@@ -293,12 +293,13 @@
                     <label class="multiple">Categoría</label>
                     <div class="select-wrap">
                         <select name="categoria" required>
-                            <option value="Documentos">Documentos</option>
-                            <option value="Tecnología">Tecnología</option>
-                            <option value="Accesorios">Accesorios</option>
-                            <option value="Ropa">Ropa</option>
-                            <option value="Llaves">Llaves</option>
-                            <option value="Otros">Otros</option>
+                            {% if categorias %}
+                                {% for cat in categorias %}
+                                    <option value="{{ cat.ID_CATEGORIA }}">{{ cat.ID_CATEGORIA }}</option>
+                                {% endfor %}
+                            {% else %}
+                                <option value="">Sin categorías</option>
+                            {% endif %}
                         </select>
                     </div>
                     <label>Imagen del objeto (opcional)</label>

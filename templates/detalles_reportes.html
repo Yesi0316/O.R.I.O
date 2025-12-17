@@ -72,15 +72,25 @@
 
     <h1>Detalles del Objeto</h1>
 
-    <img class="imagen" src="{{ item.IMAGEN }}" alt="Imagen del objeto">
+    {% if item.IMAGEN %}
+        <img class="imagen" src="{{ item.IMAGEN }}" alt="Imagen del objeto">
+    {% else %}
+        <div class="info"><span class="label">Imagen:</span> No hay imagen del objeto</div>
+    {% endif %}
 
     <p class="info"><span class="label">Nombre:</span> {{ item.NOMBRE }}</p>
     <p class="info"><span class="label">Categoría:</span> {{ item.CATEGORIA }}</p>
     <p class="info"><span class="label">Color:</span> {{ item.COLOR }}</p>
     <p class="info"><span class="label">Fecha Reporte:</span> {{ item.FECHA }}</p>
-    <p class="info"> <span class="label"> Persona que reporto: </span>{{ item.ID_USUARIO}}</p>
+    <p class="info"> <span class="label"> Persona que reportó: </span>{{ item.NOMBRE_USUARIO if item.NOMBRE_USUARIO else 'No disponible' }}</p>
 
-    <p class="info"><span class="label">Observaciones:</span><br>{{ item.OBSERVACIONES }}</p>
+    <p class="info"><span class="label">Observaciones:</span><br>
+        {% if item.OBSERVACIONES %}
+            {{ item.OBSERVACIONES }}
+        {% else %}
+            No hay observaciones para este objeto
+        {% endif %}
+    </p>
 
     <a href="/buscar_objetos" class="btn-volver"> Volver</a>
 </div>

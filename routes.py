@@ -49,6 +49,42 @@ os.makedirs(STATIC_IMG_FOLDER, exist_ok=True)
 
 """RUTAS DE LA PAGINA"""
 def init_routes(app):
+    # -----------------------------
+    # RUTA DETALLES DE OBJETO
+    # -----------------------------
+    @app.route('/detalles/<id_objeto>')
+    def detalles_objeto(id_objeto):
+        db = conectar_db()
+        cursor = db.cursor(cursor_factory=RealDictCursor)
+        # Buscar objeto y su reporte (perdido o encontrado)
+        cursor.execute('''
+            SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", o."ID_CATEGORIA" as CATEGORIA,
+                   r."FECHA", r."OBSERVACIONES", r."ID_USUARIO", u."NOMBRE" as NOMBRE_USUARIO
+            FROM "Objetos" o
+            LEFT JOIN "Reportes_perdidos" r ON o."ID_OBJETO" = r."ID_OBJETO"
+            LEFT JOIN "Usuarios" u ON r."ID_USUARIO" = u."ID_USUARIO"
+            WHERE o."ID_OBJETO" = %s AND r."ID_USUARIO" IS NOT NULL
+            UNION
+            SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", o."ID_CATEGORIA" as CATEGORIA,
+                   r."FECHA", r."OBSERVACIONES", r."ID_USUARIO", u."NOMBRE" as NOMBRE_USUARIO
+            FROM "Objetos" o
+            LEFT JOIN "Reportes_encontrados" r ON o."ID_OBJETO" = r."ID_OBJETO"
+            LEFT JOIN "Usuarios" u ON r."ID_USUARIO" = u."ID_USUARIO"
+            WHERE o."ID_OBJETO" = %s AND r."ID_USUARIO" IS NOT NULL
+        ''', (id_objeto, id_objeto))
+        item = cursor.fetchone()
+        # Si no hay nombre visible, buscarlo manualmente
+        if item and (not item.get('NOMBRE_USUARIO') or item['NOMBRE_USUARIO'] is None) and item.get('ID_USUARIO'):
+            cursor.execute('SELECT "NOMBRE" FROM "Usuarios" WHERE "ID_USUARIO" = %s', (item['ID_USUARIO'],))
+            user = cursor.fetchone()
+            if user and user.get('NOMBRE'):
+                item['NOMBRE_USUARIO'] = user['NOMBRE']
+        cursor.close()
+        db.close()
+        if not item:
+            return render_template('detalles_reportes.html', item=None, error="No se encontró el objeto")
+        return render_template('detalles_reportes.html', item=item)
+    
 
     # CONFIGURAR CARPETAS DE SUBIDAS Y ESTATICAS    
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -72,6 +108,7 @@ def init_routes(app):
     # ----------------------------------
     # GUARDAR USUARIO AL REGISTRARSE
     # ----------------------------------
+
     @app.route('/guardar_usuario', methods=['POST'])
     def guardar_usuario():
         try:
@@ -85,8 +122,9 @@ def init_routes(app):
             pregunta2 = request.form.get('pregunta2')
             respuesta2 = request.form.get('respuesta2')
 
-            # validaciones básicas
-            
+            respuesta1_hash = generate_password_hash(respuesta1)
+            respuesta2_hash = generate_password_hash(respuesta2)
+
             if not id_usuario or not contrasena:
                 return jsonify({'mensaje': 'Usuario y contraseña obligatorios'}), 400
             if " " in id_usuario:
@@ -120,8 +158,8 @@ def init_routes(app):
                 hashed_password, 
                 pregunta1, 
                 pregunta2, 
-                respuesta1, 
-                respuesta2
+                respuesta1_hash, 
+                respuesta2_hash
                 ))
 
             conexion.commit()
@@ -136,6 +174,50 @@ def init_routes(app):
 
         except Exception as e:
             return jsonify({'mensaje': 'Error al guardar el usuario', 'error': str(e)}), 500
+
+    # -----------------------------
+    # RUTA MOTOR DE BUSQUEDAS
+    # -----------------------------
+    @app.route('/busquedas')
+    def buscar():
+        q = request.args.get('q', '').strip()
+        categoria = request.args.get('categoria', '').strip()
+        tipo = request.args.get('tipo', '').strip()
+
+        db = conectar_db()
+        cursor = db.cursor(cursor_factory=RealDictCursor)
+
+        # Selecciona la tabla según el tipo
+        if tipo == "perdido":
+            join = 'INNER JOIN "Reportes_perdidos" r ON o."ID_OBJETO" = r."ID_OBJETO"'
+        elif tipo == "encontrado":
+            join = 'INNER JOIN "Reportes_encontrados" r ON o."ID_OBJETO" = r."ID_OBJETO"'
+        else:
+            join = ''
+
+        query = f'SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", o."ID_CATEGORIA" FROM "Objetos" o {join} WHERE 1=1'
+        params = []
+
+        # Buscar por nombre o por categoría (nombre o id)
+        if q:
+            query += ' AND (o."NOMBRE" ILIKE %s OR o."ID_CATEGORIA" ILIKE %s)'
+            params.append(f'%{q}%')
+            params.append(f'%{q}%')
+        if categoria:
+            query += ' AND o."ID_CATEGORIA" = %s'
+            params.append(categoria)
+
+        query += ' ORDER BY o."NOMBRE" ASC'
+
+        cursor.execute(query, params)
+        objetos = cursor.fetchall()
+        cursor.close()
+        db.close()
+
+
+        if not objetos:
+            return jsonify({"datos": False, "mensaje": "No se encontraron resultados"})
+        return jsonify({"datos": objetos})
 
     # -----------------------------
     # CONSULTAR USUARIOS
@@ -243,7 +325,37 @@ def init_routes(app):
     def formulario_perdido():
         if request.method == 'POST':
             return redirect('/buscar_objetos')
-        return render_template('form_perdido.html')
+        # Obtener categorías y estados de la base de datos, y si no existen, insertarlos
+        db = conectar_db()
+        cursor = db.cursor(cursor_factory=RealDictCursor)
+        # Categorías
+        cursor.execute('SELECT "ID_CATEGORIA" FROM "Categorias"')
+        categorias = cursor.fetchall()
+        if not categorias:
+            categorias_default = [
+                'Documentos',
+                'Tecnología',
+                'Accesorios',
+                'Ropa',
+                'Llaves',
+                'Otros'
+            ]
+            for cat in categorias_default:
+                cursor.execute('INSERT INTO "Categorias" ("ID_CATEGORIA") VALUES (%s) ON CONFLICT DO NOTHING', (cat,))
+            db.commit()
+            cursor.execute('SELECT "ID_CATEGORIA" FROM "Categorias"')
+            categorias = cursor.fetchall()
+        # Estados
+        cursor.execute('SELECT "ID_ESTADO" FROM "Estados"')
+        estados = cursor.fetchall()
+        if not estados:
+            estados_default = ['Bueno', 'Regular', 'Malo']
+            for est in estados_default:
+                cursor.execute('INSERT INTO "Estados" ("ID_ESTADO") VALUES (%s) ON CONFLICT DO NOTHING', (est,))
+            db.commit()
+        cursor.close()
+        db.close()
+        return render_template('form_perdido.html', categorias=categorias)
 
 
     @app.route('/formulario_reporte2')
@@ -296,6 +408,28 @@ def init_routes(app):
         bd = conectar_db()
         cursor = bd.cursor()
 
+        # Asegurar que el estado existe
+        cursor.execute('SELECT 1 FROM "Estados" WHERE "ID_ESTADO" = %s', (estado,))
+        if not cursor.fetchone():
+            estados_default = ['Bueno', 'Regular', 'Malo']
+            for est in estados_default:
+                cursor.execute('INSERT INTO "Estados" ("ID_ESTADO") VALUES (%s) ON CONFLICT DO NOTHING', (est,))
+            bd.commit()
+        # Asegurar que la categoría existe
+        cursor.execute('SELECT 1 FROM "Categorias" WHERE "ID_CATEGORIA" = %s', (categoria,))
+        if not cursor.fetchone():
+            categorias_default = [
+                'Documentos',
+                'Tecnología',
+                'Accesorios',
+                'Ropa',
+                'Llaves',
+                'Otros'
+            ]
+            for cat in categorias_default:
+                cursor.execute('INSERT INTO "Categorias" ("ID_CATEGORIA") VALUES (%s) ON CONFLICT DO NOTHING', (cat,))
+            bd.commit()
+
         cursor.execute("""INSERT INTO "Objetos" ("ID_OBJETO", "NOMBRE", "COLOR", "ID_ESTADO", "LUGAR_ENCONTRADO", "ID_CATEGORIA", "IMAGEN") VALUES (%s, %s, %s, %s, %s, %s, %s)""", (id_objeto, nombre_objeto, color_dominante, estado, lugar, categoria, ruta))
         cursor.execute("""INSERT INTO "Reportes_perdidos" ("FECHA", "OBSERVACIONES", "ID_OBJETO", "ID_USUARIO", "ID_REPORTE", "FICHA", "ID_CATEGORIA")VALUES (%s, %s, %s, %s, %s, %s, %s) """, (fecha, comentario, id_objeto, id_usuario, id_reporte, ficha, categoria))
 
@@ -322,7 +456,15 @@ def init_routes(app):
     def formulario_objeto_encontrado():
         if request.method == 'POST':
             return redirect('/buscar_objetos')
-        return render_template('form_encontrado.html')
+        bd = conectar_db()
+        cursor = bd.cursor(cursor_factory=RealDictCursor)
+        cursor.execute('SELECT "ID_CATEGORIA" FROM "Categorias"')
+        categorias = cursor.fetchall()
+        cursor.close()
+        bd.close()
+
+        return render_template('form_encontrado.html', categorias=categorias)
+
 
 
     @app.route('/formulario_reporte3')
@@ -374,8 +516,29 @@ def init_routes(app):
         bd = conectar_db()
         cursor = bd.cursor()
 
-        cursor.execute("""INSERT INTO "Objetos" ("ID_OBJETO", "NOMBRE", "COLOR", "ID_ESTADO", "LUGAR_ENCONTRADO", "ID_CATEGORIA", "IMAGEN") VALUES (%s, %s, %s, %s, %s, %s, %s)""", (id_objeto, nombre_objeto, color_dominante, estado, lugar, categoria, ruta))
-        cursor.execute("""INSERT INTO "Reportes_encontrados" ("FECHA", "OBSERVACIONES", "ID_OBJETO", "ID_USUARIO", "ID_REPORTE", "FICHA", "ID_CATEGORIA")VALUES (%s, %s, %s, %s, %s, %s, %s) """, (fecha, comentario, id_objeto, id_usuario, id_reporte, ficha, categoria))
+        # Verificar si ya existe un reporte igual para este usuario y objeto
+        cursor.execute('''
+            SELECT 1 FROM "Reportes_encontrados" r
+            JOIN "Objetos" o ON r."ID_OBJETO" = o."ID_OBJETO"
+            WHERE r."ID_USUARIO" = %s AND o."NOMBRE" = %s AND o."COLOR" = %s AND o."ID_CATEGORIA" = %s
+        ''', (id_usuario, nombre_objeto, color_dominante, categoria))
+        existe = cursor.fetchone()
+        if existe:
+            cursor.close()
+            bd.close()
+            return jsonify({"mensaje": "Ya existe un reporte igual para este usuario.", "existe": true})
+
+        cursor.execute("""
+            INSERT INTO "Objetos"  
+            ("ID_OBJETO", "NOMBRE", "COLOR", "ID_ESTADO", "LUGAR_ENCONTRADO", "ID_CATEGORIA", "IMAGEN")    
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (id_objeto, nombre_objeto, color_dominante, estado, lugar, categoria, ruta))
+        cursor.execute("""
+            INSERT INTO "Reportes_encontrados"
+            ("FECHA", "OBSERVACIONES", "ID_OBJETO", "ID_USUARIO", "ID_REPORTE_ENC", "FICHA", "ID_CATEGORIA")
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (fecha, comentario, id_objeto, id_usuario, id_reporte, ficha, categoria))
+
 
         bd.commit()
         cursor.close()
@@ -385,27 +548,55 @@ def init_routes(app):
 
         return jsonify({
             "mensaje": "Reporte enviado correctamente",
-            "ruta": ruta
+            "ruta": ruta,
+            "existe": False
         })
 
     # -----------------------------
-    # RUTA MOTOR DE BUSQUEDAS
+    # RUTA DEBUG: LISTAR TODOS LOS OBJETOS
     # -----------------------------
-    @app.route('/buscar_objetos')
-    @login_required
-    def buscaar_objeto():
-        return render_template('busquedas.html')
-
-    @app.route('/busquedas/<busca>')
-    def buscar (busca):
-
-        db=conectar_db()
-        cursor=db.cursor(cursor_factory=RealDictCursor)
-        cursor.execute(""" SELECT "NOMBRE", "ID_OBJETO", "COLOR", "IMAGEN", "ID_CATEGORIA" FROM "Objetos" WHERE "NOMBRE" ILIKE %s OR "ID_CATEGORIA" LIKE %s """, (f'{busca}%', f'{busca}%'))
+    @app.route('/debug_objetos')
+    def debug_objetos():
+        db = conectar_db()
+        cursor = db.cursor(cursor_factory=RealDictCursor)
+        cursor.execute('SELECT * FROM "Objetos" ORDER BY "NOMBRE" ASC')
         objetos = cursor.fetchall()
-        if objetos == []:
-            return jsonify({"datos": False, "mensaje":"No se encontraron resultados"})
-        return jsonify({"datos": objetos}) 
+        cursor.close()
+        db.close()
+        return jsonify(objetos)
+
+    # -----------------------------
+    # RUTA MOTOR DE BUSQUEDAS CON FILTROS
+    # -----------------------------
+    @app.route('/buscar_objetos', methods=['GET'])
+    def buscar_objeto():
+        q = request.args.get('q', '')  # texto de búsqueda
+        categoria = request.args.get('categoria', '')
+        color = request.args.get('color', '')
+
+        db = conectar_db()
+        cursor = db.cursor(cursor_factory=RealDictCursor)
+
+        # Construir consulta dinámica según los filtros
+        query = 'SELECT "NOMBRE", "ID_OBJETO", "COLOR", "IMAGEN", "ID_CATEGORIA" FROM "Objetos" WHERE 1=1'
+        params = []
+
+        if q:
+            query += ' AND "NOMBRE" ILIKE %s'
+            params.append(f'%{q}%')
+        if categoria:
+            query += ' AND "ID_CATEGORIA" = %s'
+            params.append(categoria)
+        if color:
+            query += ' AND "COLOR" ILIKE %s'
+            params.append(f'%{color}%')
+
+        cursor.execute(query, params)
+        resultados = cursor.fetchall()
+        cursor.close()
+        db.close()
+
+        return render_template('busquedas.html', resultados=resultados, q=q, categoria=categoria, color=color)
 
     # -------------------------------------
     # RUTA RECUPERAR CONTRASEÑA - Formulario inicial (ID Usuario)
@@ -459,11 +650,12 @@ def init_routes(app):
             conexion.close()
             return jsonify({'ok': False, 'mensaje': 'Usuario no encontrado'}), 404
 
-        # Validar respuestas
-        if respuesta1.lower() != user['RESPUESTA_1'].lower() or respuesta2.lower() != user['RESPUESTA_2'].lower():
+        # Validar respuestas encriptadas
+        if not check_password_hash(user['RESPUESTA_1'], respuesta1) or not check_password_hash(user['RESPUESTA_2'], respuesta2):
             cursor.close()
             conexion.close()
             return jsonify({'ok': False, 'mensaje': 'Respuestas incorrectas'}), 401
+
 
         # Actualizar contraseña
         hashed_password = generate_password_hash(nueva_contrasena)
