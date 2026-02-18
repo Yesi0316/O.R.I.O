@@ -2,331 +2,415 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Registro | O.R.I.O.</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O.R.I.O - Registro</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: radial-gradient(circle at top,#3C5B8F, #000);
-  min-height: 100vh;
-  overflow-x: hidden;
-  color: #112250;
+
+/* ===== MISMA PALETA ===== */
+:root{
+    --royal-blue:#112250;
+    --sapphire:#3C507D;
+    --quicksand:#E0C58F;
+    --swan:#F5F0E9;
+    --shell:#D9CBC2;
 }
 
-
-.estrellas, .estrellas2, .estrellas3 {
-  position: fixed;
-  width: 200%;
-  height: 200%;
-  background-repeat: repeat;
-  top: 0;
-  left: 0;
-  animation: moverEstrellas 90s linear infinite;
-  z-index: -1;
+@font-face{
+    font-family:"BaskervilleCustom";
+    src:local("Baskerville"), local("Libre Baskerville");
 }
 
-.estrellas {
-  background-image:
-    radial-gradient(2px 2px at 20px 30px, white, transparent),
-    radial-gradient(2px 2px at 80px 120px, white, transparent),
-    radial-gradient(2px 2px at 200px 220px, white, transparent),
-    radial-gradient(2px 2px at 350px 70px, white, transparent),
-    radial-gradient(2px 2px at 500px 160px, white, transparent),
-    radial-gradient(2px 2px at 650px 240px, white, transparent);
-  opacity: 0.4;
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    min-height:100vh;
+    background:linear-gradient(135deg,var(--royal-blue),var(--sapphire));
+    display:flex;
+    flex-direction:column;
+    overflow-x:hidden;
 }
 
-.estrellas2 {
-  background-image:
-    radial-gradient(1px 1px at 100px 60px, white, transparent),
-    radial-gradient(1px 1px at 300px 200px, white, transparent),
-    radial-gradient(1px 1px at 600px 100px, white, transparent),
-    radial-gradient(1px 1px at 800px 300px, white, transparent),
-    radial-gradient(1px 1px at 1000px 50px, white, transparent);
-  animation-duration: 120s;
-  opacity: 0.25;
+/* ===== ESTRELLAS ===== */
+.stars{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+    z-index:0;
 }
 
-.estrellas3 {
-  background-image:
-    radial-gradient(3px 3px at 150px 90px, white, transparent),
-    radial-gradient(3px 3px at 450px 280px, white, transparent),
-    radial-gradient(3px 3px at 750px 150px, white, transparent);
-  animation-duration: 160s;
-  opacity: 0.12;
+.star{
+    position:absolute;
+    width:3px;
+    height:3px;
+    background:var(--quicksand);
+    border-radius:50%;
+    opacity:0.8;
+    animation:fall 4s linear infinite;
 }
 
-@keyframes moverEstrellas {
-  from { transform: translateY(0); }
-  to { transform: translateY(-600px); }
+@keyframes fall{
+    0%{ transform:translateY(-100px); opacity:0;}
+    10%{opacity:1;}
+    100%{ transform:translateY(100vh) translateX(80px); opacity:0;}
 }
 
-
-header {
-  width: 100%;
-  padding: 25px 80px;
-  display: flex;
-  align-items: center;
-  background: rgba(0,0,0,0.35);
+/* ===== HEADER ===== */
+header{
+    padding:25px 60px;
+    color:var(--swan);
+    position:relative;
+    z-index:2;
 }
 
-.logo-placeholder {
-  width: 60px;
-  height: 60px;
-  border: 2px dashed #E0C58F;
-  border-radius: 10px;
-  opacity: 0.6;
+.logo-container{
+    display:flex;
+    align-items:center;
+    gap:15px;
 }
 
-header h1 {
-  font-family: "Bodoni Moda", serif;
-  color: #E0C58F;
-  letter-spacing: 6px;
-  margin-left: 40px;
-  animation: latir 4s ease-in-out infinite;
+.logo-circle{
+    width:50px;
+    height:50px;
+    background:var(--quicksand);
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:"Bodoni Moda", serif;
+    font-weight:600;
+    color:var(--royal-blue);
 }
 
-@keyframes latir {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+.logo-text{
+    font-family:"BaskervilleCustom", serif;
+    font-size:28px;
 }
 
-.contenedor-form {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 60px;
+.subtitle{
+    font-family:"Bodoni Moda", serif;
+    font-size:14px;
+    opacity:0.8;
 }
 
-.formulario {
-  background: white;
-  width: 520px;
-  padding: 50px;
-  border-radius: 22px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.45);
-  animation: aparecer 0.9s ease forwards;
+/* ===== MAIN ===== */
+.main-container{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+    min-height:0;
+
+    overflow:hidden;  
 }
 
-@keyframes aparecer {
-  from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
+.content{
+    width:100%;
+    max-width:1100px;
+    background:var(--swan);
+    border-radius:20px;
+    display:flex;
+    box-shadow:0 20px 50px rgba(0,0,0,0.3);
+
+    min-height:600px;
+
+    overflow:hidden;  
 }
 
-.formulario h2 {
-  text-align: center;
-  margin-bottom: 40px;
-  font-family: "Bodoni Moda", serif;
-  font-size: 32px;
+/* ===== LEFT ===== */
+.left-side{
+    flex:1;
+    background:linear-gradient(160deg,var(--sapphire),var(--royal-blue));
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    padding:50px 40px;
+    text-align:center;
+    color:var(--swan);
 }
 
-
-.bloque {
-  margin-bottom: 30px;
+.left-side img{
+    width:100%;
+    max-width:420px;
+    margin-bottom:30px;
+    animation:floatImage 4s ease-in-out infinite;
 }
 
-.fila {
-  display: flex;
-  gap: 25px;
-  margin-bottom: 30px;
+@keyframes floatImage{
+    0%{ transform:translateY(0);}
+    50%{ transform:translateY(-15px);}
+    100%{ transform:translateY(0);}
 }
 
-.campo {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
+.left-side h1{
+    font-family:"BaskervilleCustom", serif;
+    font-size:36px;
+    margin-bottom:10px;
 }
 
-.campo label {
-  font-size: 14px;
-  font-weight: bold;
-  margin-bottom: 6px;
+/* ===== RIGHT ===== */
+.right-side{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;  /* ← FIX IMPORTANTE */
+    padding:30px 20px;
+    overflow-y:auto;
+    min-height:0;
 }
 
-.campo input {
-  padding: 14px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-  background: #f9f9f9;
-  transition: 0.35s ease;
+.form-container{
+    width:100%;
+    max-width:380px;
+    padding-bottom:20px;
 }
 
-.campo input:focus {
-  outline: none;
-  border-color: #E0C58F;
-  box-shadow: 0 0 10px #E0C58F;
-  transform: scale(1.04);
-  background: white;
+.form-container h2{
+    font-family:"BaskervilleCustom", serif;
+    color:var(--royal-blue);
+    margin-bottom:20px;
 }
 
-
-button {
-  width: 100%;
-  margin-top: 20px;
-  padding: 14px;
-  font-size: 18px;
-  background: #E0C58F;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-family: "Bodoni Moda", serif;
-  transition: 0.3s ease;
+.input-group{
+    margin-bottom:10px;
 }
 
-button:hover {
-  background: #b49b63;
-  letter-spacing: 1px;
-  transform: scale(1.06);
-  box-shadow: 0 0 15px #E0C58F;
+.input-group input{
+    width:100%;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid var(--shell);
+    outline:none;
+    font-family:"Bodoni Moda", serif;
+    font-size: 14px;
+    transition:0.3s;
 }
 
-.login-link {
-  text-align: center;
-  margin-top: 25px;
-  font-size: 14px;
+.input-group input:focus{
+    border-color:var(--sapphire);
 }
 
-.login-link a {
-  color: #3C507D;
-  font-weight: bold;
-  text-decoration: none;
+.security-section{
+    margin:18px 0 12px;
+    padding:14px;
+    border-radius:12px;
+    background:rgba(17,34,80,0.05);
+    border:1px solid rgba(17,34,80,0.08);
 }
 
-footer {
-  text-align: center;
-  padding: 25px;
-  color: #E0C58F;
-  font-family: "Bodoni Moda", serif;
+.security-title{
+    font-family:"BaskervilleCustom", serif;
+    font-size:15px;
+    color:var(--royal-blue);
+    margin-bottom:10px;
 }
 
-@media (max-width: 620px) {
-  .formulario { width: 90%; }
-  .fila { flex-direction: column; }
-  header { padding: 25px 30px; }
+button{
+    width:100%;
+    padding:12px;
+    background:var(--quicksand);
+    border:none;
+    border-radius:10px;
+    font-family:"Bodoni Moda", serif;
+    font-weight:600;
+    color:var(--royal-blue);
+    cursor:pointer;
 }
+
+button:hover{
+    background:#d4b678;
+}
+
+.extra-links{
+    margin-top:15px;
+    text-align:center;
+    font-size:13px;
+}
+
+.extra-links a{
+    text-decoration:none;
+    color:var(--sapphire);
+}
+
+.mensaje{
+    margin-top:10px;
+    text-align:center;
+    font-size:13px;
+    font-weight:600;
+    min-height:20px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+    .content{
+      flex-direction:column;
+      border-radius:20px;
+      min-height:auto;
+      height:auto;
+    }
+
+    .main-container{
+      align-items:flex-start;
+    }
+
+    .left-side{
+        padding:25px 20px;  
+    }
+
+    .left-side img{
+        max-width:260px;  
+    }
+}
+
+/* ===== FOOTER ===== */
+footer{
+    padding:20px;
+    text-align:center;
+    font-size:13px;
+    color:var(--swan);
+}
+
+html, body{
+    width:100%;
+    overflow-x:hidden;
+}
+
 </style>
 </head>
 
 <body>
 
-<div class="estrellas"></div>
-<div class="estrellas2"></div>
-<div class="estrellas3"></div>
+<div class="stars">
+    <div class="star" style="left:10%"></div>
+    <div class="star" style="left:40%"></div>
+    <div class="star" style="left:70%"></div>
+</div>
 
 <header>
-  <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo-placeholder">
-  <h1>O.R.I.O.</h1>
+    <div class="logo-container">
+        <div class="logo-circle">O</div>
+        <div>
+            <div class="logo-text">O.R.I.O</div>
+            <div class="subtitle">Organizador de Recursos e Identificador de Objetos</div>
+        </div>
+    </div>
 </header>
 
-<div class="contenedor-form">
-  <form id="form-registro" class="formulario">
+<div class="main-container">
+    <div class="content">
 
-    <h2>Crear Cuenta</h2>
+        <div class="left-side">
+            <img src="{{ url_for('static', filename='img/img-registro.png') }}">
+            <h1>Crea tu cuenta</h1>
+            <p>Regístrate para comenzar a gestionar tus objetos.</p>
+        </div>
 
+        <div class="right-side">
+            <div class="form-container">
+                <h2>Registro</h2>
 
-    <div class="bloque">
-      <div class="campo">
-        <label>ID de Usuario</label>
-        <input type="text" name="id_usuario" required
-          pattern="[a-zA-Z0-9_]+"
-          title="Solo letras, números y guiones bajos">
-      </div>
+                <form id="form-registro">
+
+                    <div class="input-group">
+                        <input type="text" name="id_usuario" placeholder="Usuario" required>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="text" name="nombre" placeholder="Nombre visible" required>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="password" name="contrasena" id="contrasena" placeholder="Contraseña" required>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="password" name="contrasena_repetida" id="contrasena_repetida" placeholder="Repetir contraseña" required>
+                    </div>
+
+                    <div class="security-section">
+
+                      <div class="security-title">Preguntas de seguridad</div>
+
+                      <div class="input-group">
+                          <input type="text" name="pregunta1" placeholder="Pregunta de seguridad 1" required>
+                      </div>
+
+                      <div class="input-group">
+                          <input type="text" name="respuesta1" placeholder="Respuesta 1" required>
+                      </div>
+
+                      <div class="input-group">
+                          <input type="text" name="pregunta2" placeholder="Pregunta de seguridad 2" required>
+                      </div>
+
+                      <div class="input-group">
+                          <input type="text" name="respuesta2" placeholder="Respuesta 2" required>
+                      </div>
+
+                    </div>
+
+                    <button type="submit">Crear Cuenta</button>
+
+                    <div id="mensaje" class="mensaje"></div>
+
+                    <div class="extra-links">
+                        <p>¿Ya tienes cuenta? <a href="/inicio">Iniciar sesión</a></p>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
     </div>
-
-    <div class="bloque">
-      <div class="campo">
-        <label>Nombre visible</label>
-        <input type="text" name="nombre" required>
-      </div>
-    </div>
-
-    <div class="fila">
-      <div class="campo">
-        <label>Contraseña</label>
-        <input type="password" name="contrasena" id="contrasena" required>
-      </div>
-      <div class="campo">
-        <label>Repetir Contraseña</label>
-        <input type="password" name="contrasena_repetida" id="contrasena_repetida" required>
-      </div>
-    </div>
-
-    <h3>Preguntas para recuperacion de contraseña por olvido (OBLIGATORIAS)</h3>
-
-    <div class="fila">
-      <div class="campo">
-        <label>Pregunta 1</label>
-        <input type="text" name="pregunta1" id="pregunta1" required>
-      </div>
-      <div class="campo">
-        <label>Respuesta 1</label>
-        <input type="text" name="respuesta1" id="respuesta1" required>
-      </div>
-    </div>
-
-    <div class="fila">
-      <div class="campo">
-        <label>Pregunta 2</label>
-        <input type="text" name="pregunta2" id="pregunta2" required>
-      </div>
-      <div class="campo">
-        <label>Respuesta 2</label>
-        <input type="text" name="respuesta2" id="respuesta2" required>
-      </div>
-    </div>
-
-    <button type="submit">Crear Cuenta</button>
-
-    <div class="login-link">
-      ¿Ya tienes cuenta? <a href="/inicio">Inicia sesión</a>
-    </div>
-    <div id="mensaje"></div>
-  </form>
 </div>
 
 <footer>
-  © 2025 O.R.I.O. Todos los derechos reservados.
+    © 2026 O.R.I.O — Todos los derechos reservados
 </footer>
 
 <script>
-const formularioRegistro = document.getElementById("form-registro")
+const formRegistro = document.getElementById("form-registro")
+const mensaje = document.getElementById("mensaje")
 
-formularioRegistro.addEventListener("submit", async function(event) {
-    event.preventDefault()
+formRegistro.addEventListener("submit", async (e) => {
+    e.preventDefault()
 
-    let contrasena = document.getElementById("contrasena").value
-    let contrasena_repetida = document.getElementById("contrasena_repetida").value
+    const pass = document.getElementById("contrasena").value
+    const pass2 = document.getElementById("contrasena_repetida").value
 
-    if (contrasena !== contrasena_repetida) {
-        alert("Las contraseñas NO coinciden.")
+    if(pass !== pass2){
+        mensaje.innerText = "Las contraseñas no coinciden"
+        mensaje.style.color = "red"
         return
     }
 
-    const datosFormulario = new FormData(formularioRegistro)
+    mensaje.innerText = "Creando cuenta..."
+    mensaje.style.color = "#112250"
+
+    const datos = new FormData(formRegistro)
 
     const res = await fetch("/guardar_usuario", {
-        method: "POST",
-        body: datosFormulario
+        method:"POST",
+        body:datos
     })
 
-    const mensaje = await res.json()
+    const data = await res.json()
 
-    const mensajeArea = document.getElementById("mensaje")
-    mensajeArea.innerHTML = mensaje.mensaje
+    mensaje.innerText = data.mensaje
+    mensaje.style.color = data.ok ? "green" : "red"
 
-    // aqui redirige el usuario al menu si el se ha registrado
-    if (mensaje.ok) {
+    if(data.ok){
         setTimeout(() => {
-            window.location.href = "/menu"
-        }, 800)
+            window.location.href="/menu"
+        },800)
     }
 })
 </script>
-
 
 </body>
 </html>

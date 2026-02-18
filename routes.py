@@ -316,7 +316,7 @@ def init_routes(app):
     @app.route('/menu')
     @login_required
     def menu():
-        return render_template('menu.html')
+        return render_template("menu.html", active="panel")
     # -------------------------------------
     # RUTA FORMULARIO REPORTE
     # -------------------------------------
@@ -556,6 +556,7 @@ def init_routes(app):
     # RUTA DEBUG: LISTAR TODOS LOS OBJETOS
     # -----------------------------
     @app.route('/debug_objetos')
+    @login_required
     def debug_objetos():
         db = conectar_db()
         cursor = db.cursor(cursor_factory=RealDictCursor)
@@ -569,6 +570,7 @@ def init_routes(app):
     # RUTA MOTOR DE BUSQUEDAS CON FILTROS
     # -----------------------------
     @app.route('/buscar_objetos', methods=['GET'])
+    @login_required
     def buscar_objeto():
         q = request.args.get('q', '')  # texto de búsqueda
         categoria = request.args.get('categoria', '')
@@ -596,7 +598,7 @@ def init_routes(app):
         cursor.close()
         db.close()
 
-        return render_template('busquedas.html', resultados=resultados, q=q, categoria=categoria, color=color)
+        return render_template('busquedas.html', active="panel", resultados=resultados, q=q, categoria=categoria, color=color,)
 
     # -------------------------------------
     # RUTA RECUPERAR CONTRASEÑA - Formulario inicial (ID Usuario)
@@ -669,3 +671,21 @@ def init_routes(app):
 
         session.pop('recuperar_id', None)
         return jsonify({'ok': True, 'mensaje': 'Contraseña actualizada correctamente'})
+
+    @app.route("/perfil")
+    @login_required
+    def perfil():
+        return render_template("perfil.html", active="perfil")
+    
+    @app.route("/dashboard")
+    @login_required
+    def dashboard():
+        return render_template("dashboard.html", active="dashboard")
+    
+    @app.route("/reportes")
+    def reportes():
+        return render_template("reportes.html", active="reportes")
+
+    @app.route("/configuracion")
+    def configuracion():
+        return render_template("configuracion.html", active="configuracion")

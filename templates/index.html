@@ -4,203 +4,33 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Bienvenido | O.R.I.O</title>
-
-<style>
-  :root {
-    --sapphire: #3C507D;
-    --shellstone: #D9CBC2;
-    --azul:#3C5B8F;
-    --azul-oscuro:#112250;
-    --claro:#F5F0E9;
-    --dorado:#E0C58F;
-  }
-
-  body {
-    margin: 0;
-    font-family: 'Bodoni Moda', serif;
-    background:
-    radial-gradient(circle at 20% 20%, #4c6fb7 0%, transparent 35%),
-    radial-gradient(circle at 80% 80%, #1b2d57 0%, transparent 40%),
-    linear-gradient(135deg,var(--azul),var(--azul-oscuro));
-    color: var(--claro);
-    overflow-x: hidden;
-  }
-
-  header {
-    position: fixed;
-    top: 0;
-    right: 0;
-    padding: 20px 30px;
-    display: flex;
-    gap: 25px;
-    z-index: 50;
-  }
-
-  header a {
-    color: var(--dorado);
-    text-decoration: none;
-    font-size: 1.25rem;
-    transition: 0.3s ease;
-  }
-
-  header a:hover {
-    transform: translateY(-3px);
-  }
-
-  /* HERO --------- */
-  .hero {
-    min-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 0 20px;
-    animation: fadeIn 2s ease;
-    position: relative;
-    z-index: 5;
-    margin-top: -30px;
-  }
-
-  .hero h1 {
-    font-size: 3.5rem;
-    margin: 0;
-    color: #E0C58F;
-    letter-spacing: 2px;
-    text-shadow: 0 0 15px rgba(255,255,255,0.2);
-    margin-top: -100px;
-  }
-
-  .hero p {
-    max-width: 650px;
-    font-size: 1.35rem;
-    margin-top: 20px;
-    opacity: 0.9;
-  }
-
-  .btn-empezar {
-    margin-top: 40px;
-    padding: 15px 40px;
-    background: var(--dorado);
-    color: var(--azul-oscuro);
-    border: none;
-    border-radius: 15px;
-    font-size: 1.3rem;
-    cursor: pointer;
-    transition: 0.3s ease;
-    box-shadow: 0 0 10px rgba(224,197,143,0.3);
-    text-decoration: none;
-  }
-
-  .btn-empezar:hover {
-    transform: scale(1.06);
-    background: var(--shellstone);
-  }
-
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(25px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-
-  .circle {
-    position: absolute;
-    border-radius: 50%;
-    background: var(--dorado);
-    opacity: 0.55;
-    filter: blur(2px);
-    animation: float 7s ease-in-out infinite;
-    z-index: 0;
-  }
-
-  .c1 { width: 150px; height: 150px; top: 12%; left: 6%; }
-  .c2 { width: 110px; height: 110px; bottom: 22%; right: 12%; }
-  .c3 { width: 80px; height: 80px; top: 58%; right: 28%; }
-
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-18px); }
-  }
-
-  .divider {
-    width: 90%;
-    margin: 0 auto;
-    height: 1px;
-    background: linear-gradient(to right, transparent, var(--shellstone), transparent);
-  }
-
-  .info {
-    padding: 100px 20px 80px;
-    background: #ffffff;
-    border-radius: 30px 30px 0 0;
-    color: var(--azul-oscuro);
-
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    flex-wrap: wrap;
-  }
-
-  .info .card {
-    width: 300px;
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    padding: 25px;
-    text-align: center;
-
-    position: relative;   
-    top: -250px;       
-
-    z-index: 20;
-    transition: transform 0.25s ease;
-  }
-
-  .info .card:hover {
-    transform: scale(1.05);
-  }
-
-  .card h2 {
-    margin-bottom: 10px;
-    font-size: 1.6rem;
-  }
-
-  .card img {
-    width: 190px;
-    height: auto;
-    margin-top: 10px;
-  }
-
-  .card img.personas {
-    width: 250px;
-  }
-
-  @media (max-width: 900px) {
-    .hero h1 {
-      font-size: 2.6rem;
-    }
-
-    .info .card {
-      width: 90%;
-      max-width: 400px;
-    }
-  }
-
-</style>
+<link rel="stylesheet" href="static/css/global.css">
 </head>
 
+
 <body>
-  <header>
+  <header class="header header--fixed">
     <a href="/registro">Registrarse</a>
     <a href="/inicio">Iniciar sesión</a>
   </header>
 
-  <div class="circle c1"></div>
-  <div class="circle c2"></div>
-  <div class="circle c3"></div>
+
 
   <section class="hero">
+    <div class="glow g1"></div>
+<div class="glow g2"></div>
+<div class="glow g3"></div>
+
+    <div class="stars-zone">
+  <span class="star"></span>
+  <span class="star"></span>
+  <span class="star"></span>
+  <span class="star"></span>
+  <span class="star small"></span>
+  <span class="star small"></span>
+  <span class="star small"></span>
+</div>
+
     <h1>Bienvenido a O.R.I.O</h1>
     <p>La plataforma donde puedes reportar, buscar y encontrar objetos perdidos. Rápido, confiable y pensado para todos.</p>
     <a href="/menu" class="btn-empezar">Empezar</a>
@@ -227,9 +57,16 @@
       <h2>Comunidad</h2>
       <p>Somos un grupo de usuarios que se ayuda mutuamente para recuperar objetos. 
       Valoramos la honestidad, la colaboración y el apoyo entre todos.</p>
+
+      <!-- 🔹 Imagen corregida -->
       <img src="https://media.istockphoto.com/id/1321230821/es/vector/ilustraci%C3%B3n-de-golpe-de-pu%C3%B1o-la-protuberancia-del-pu%C3%B1o-es-un-saludo-que-toca-pu%C3%B1os-y-pu%C3%B1os.jpg?s=612x612&w=0&k=20&c=qahdhXpdN128Vqsavi6TzL91V-mSmtlzDz6fnvzC36g=" class="personas" />
     </div>
   </section>
+
+  <!-- 🔹 SLOGAN DEBAJO DE LAS TARJETAS -->
+  <div class="slogan">
+    “O.R.I.O: Conectando estrellas, guiando destinos."
+  </div>
 
   <footer style="text-align:center; margin-top:40px; color:#E0C58F; font-family:'Bodoni Moda', serif;">
     © 2025 O.R.I.O. Todos los derechos reservados.

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Perfil | O.R.I.O{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/perfil.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<h1 class="title">Mi Perfil</h1>
+<p class="subtitle">
+Sube tu foto de perfil. Un retrato en primer plano es ideal.
+</p>
+
+<div class="photo-card">
+    
+    <img src="https://via.placeholder.com/200" 
+         class="profile-preview" 
+         id="preview">
+
+    <br>
+
+    <input type="file" id="fileInput" hidden>
+
+    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+        <i class="fas fa-upload"></i> Subir foto de perfil
+    </button>
+
+    <p class="min-info">* Mínimo 200 × 200px</p>
+
+</div>
+
+<div class="form-card">
+    <h3 class="section-title">Datos de usuario</h3>
+
+    <div class="row">
+        <div class="field">
+            <label>Nombre</label>
+            <input type="text" placeholder="Tu nombre">
+        </div>
+
+        <div class="field">
+            <label>Apellido</label>
+            <input type="text" placeholder="Tu apellido">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="field">
+            <label>Teléfono</label>
+            <input type="text" placeholder="Tu teléfono">
+        </div>
+
+        <div class="field">
+            <label>Correo</label>
+            <input type="email" placeholder="Tu correo">
+        </div>
+    </div>
+</div>
+
+<button class="save-btn">
+    <i class="fas fa-floppy-disk"></i> Guardar cambios
+</button>
+
+<script>
+const fileInput = document.getElementById("fileInput");
+const preview = document.getElementById("preview");
+
+fileInput.addEventListener("change", function(){
+    const file = this.files[0];
+
+    if(file){
+        const reader = new FileReader();
+
+        reader.onload = function(e){
+            preview.src = e.target.result;
+            preview.classList.add("animate");
+
+            setTimeout(()=>{
+                preview.classList.remove("animate");
+            },400);
+        }
+
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+
+{% endblock %}

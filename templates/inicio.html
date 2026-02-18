@@ -2,276 +2,359 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Iniciar Sesión | O.R.I.O.</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<title>O.R.I.O - Inicio de Sesión</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-.logo-icon {
-  width: 70px;
-  height: 70px;
-  border-radius: 12px;
-  border: 2px solid #E0C58F;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #E0C58F;
-  font-size: 35px;
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(2px);
+
+/* PALETA */
+:root{
+    --royal-blue:#112250;
+    --sapphire:#3C507D;
+    --quicksand:#E0C58F;
+    --swan:#F5F0E9;
+    --shell:#D9CBC2;
 }
 
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: radial-gradient(circle at top,#3C5B8F, #000);
-  min-height: 100vh;
-  overflow-x: hidden;
+@font-face{
+    font-family:"BaskervilleCustom";
+    src:local("Baskerville"), local("Libre Baskerville");
 }
 
-.estrellas, .estrellas2, .estrellas3 {
-  position: fixed;
-  width: 200%;
-  height: 200%;
-  top: 0;
-  left: 0;
-  background-repeat: repeat;
-  animation: moverEstrellas 130s linear infinite;
-  z-index: -1;
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
 
-.estrellas {
-  background-image:
-    radial-gradient(2px 2px at 20px 30px, white, transparent),
-    radial-gradient(2px 2px at 200px 120px, white, transparent),
-    radial-gradient(2px 2px at 400px 220px, white, transparent);
-  opacity: 0.55;
+body{
+    min-height:100vh;
+    background:linear-gradient(135deg,var(--royal-blue),var(--sapphire));
+    display:flex;
+    flex-direction:column;
+    overflow-x:hidden;
 }
 
-.estrellas2 {
-  background-image:
-    radial-gradient(1px 1px at 100px 60px, white, transparent),
-    radial-gradient(1px 1px at 300px 200px, white, transparent);
-  animation-duration: 190s;
-  opacity: 0.35;
+/* ESTRELLAS */
+.stars{
+    position:absolute;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    overflow:hidden;
 }
 
-.estrellas3 {
-  background-image:
-    radial-gradient(3px 3px at 150px 90px, white, transparent),
-    radial-gradient(3px 3px at 350px 280px, white, transparent);
-  animation-duration: 260s;
-  opacity: 0.15;
+.star{
+    position:absolute;
+    width:3px;
+    height:3px;
+    background:var(--quicksand);
+    border-radius:50%;
+    opacity:0.8;
+    animation:fall 4s linear infinite;
 }
 
-@keyframes moverEstrellas {
-  from { transform: translateY(0); }
-  to { transform: translateY(-900px); }
+@keyframes fall{
+    0%{ transform:translateY(-100px) translateX(0); opacity:0;}
+    10%{opacity:1;}
+    100%{ transform:translateY(100vh) translateX(80px); opacity:0;}
 }
 
-
-header {
-  padding: 25px 80px;
-  display: flex;
-  align-items: center;
-  background: rgba(0,0,0,0.35);
+/* HEADER */
+header{
+    padding:25px 60px;
+    color:var(--swan);
+    position:relative;
+    z-index:2;
 }
 
-.logo-placeholder {
-  width: 60px;
-  height: 60px;
-  border: 2px dashed #E0C58F;
-  border-radius: 10px;
-  opacity: 0.75;
-  
+.logo-container{
+    display:flex;
+    align-items:center;
+    gap:15px;
 }
 
-header h1 {
-  font-family: "Bodoni Moda", serif;
-  color: #E0C58F;
-  margin-left: 40px;
-  letter-spacing: 6px;
-  animation: latir 3s ease-in-out infinite;
+.logo-circle{
+    width:50px;
+    height:50px;
+    min-width:50px;
+    background:var(--quicksand);
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:"Bodoni Moda", serif;
+    font-weight:600;
+    color:var(--royal-blue);
 }
 
-@keyframes latir {
-  0%,100% { transform: scale(1); }
-  50% { transform: scale(1.06); }
+.logo-text{
+    font-family:"BaskervilleCustom", serif;
+    font-size:28px;
+    letter-spacing:2px;
 }
 
-
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 85px;
+.subtitle{
+    font-family:"Bodoni Moda", serif;
+    font-size:14px;
+    opacity:0.8;
 }
 
-
-.login-card {
-  width: 430px;
-  background: white;
-  padding: 55px;
-  border-radius: 22px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.45);
-  animation: aparecer 1s ease forwards;
+/* MAIN */
+.main-container{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:40px;
+    position:relative;
+    z-index:2;
 }
 
-@keyframes aparecer {
-  from {
-    opacity: 0;
-    transform: translateY(40px) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+.content{
+    width:100%;
+    max-width:1100px;
+    background:var(--swan);
+    border-radius:20px;
+    display:flex;
+    overflow:hidden;
+    box-shadow:0 20px 50px rgba(0,0,0,0.3);
 }
 
-.login-card h2 {
-  text-align: center;
-  margin-bottom: 40px;
-  font-family: "Bodoni Moda", serif;
-  font-size: 30px;
-  color: #112250;
+/* LEFT */
+.left-side{
+    flex:1;
+    background:linear-gradient(160deg,var(--sapphire),var(--royal-blue));
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    padding:50px 40px;
+    text-align:center;
+    color:var(--swan);
 }
 
-
-.campo {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 28px;
+.left-side img{
+    width:100%;
+    max-width:420px;
+    margin-bottom:30px;
+    animation:floatImage 4s ease-in-out infinite;
 }
 
-.campo label {
-  font-size: 14px;
-  font-weight: bold;
-  margin-bottom: 7px;
-  color: #112250;
+@keyframes floatImage{
+    0%{ transform:translateY(0);}
+    50%{ transform:translateY(-15px);}
+    100%{ transform:translateY(0);}
 }
 
-.campo input {
-  padding: 15px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  font-size: 14px;
-  background: #f9f9f9;
-  transition: 0.35s;
+.left-side h1{
+    font-family:"BaskervilleCustom", serif;
+    font-size:38px;
+    margin-bottom:15px;
 }
 
-.campo input:focus {
-  outline: none;
-  border-color: #E0C58F;
-  box-shadow: 0 0 12px #E0C58F;
-  transform: scale(1.04);
-  background: white;
+.left-side p{
+    font-family:"Bodoni Moda", serif;
+    max-width:350px;
 }
 
-
-button {
-  width: 100%;
-  margin-top: 10px;
-  padding: 15px;
-  font-size: 18px;
-  background: #E0C58F;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  font-family: "Bodoni Moda", serif;
-  transition: 0.3s;
+/* RIGHT */
+.right-side{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:50px 20px;
 }
 
-button:hover {
-  background: #b49b63;
-  letter-spacing: 1px;
-  transform: scale(1.06);
-  box-shadow: 0 0 14px #E0C58F;
+.form-container{
+    width:100%;
+    max-width:350px;
 }
 
-
-.login-link {
-  text-align: center;
-  margin-top: 30px;
-  font-size: 14px;
+.form-container h2{
+    font-family:"BaskervilleCustom", serif;
+    color:var(--royal-blue);
+    margin-bottom:25px;
+    font-size:28px;
 }
 
-.login-link a {
-  color: #3C507D;
-  font-weight: bold;
-  text-decoration: none;
+.input-group{
+    margin-bottom:20px;
 }
 
-
-footer {
-  text-align: center;
-  padding: 30px;
-  color: #E0C58F;
-  margin-top: 55px;
-  font-family: "Bodoni Moda", serif;
+.input-group input{
+    width:100%;
+    padding:14px 15px;
+    border-radius:10px;
+    border:1px solid var(--shell);
+    outline:none;
+    font-family:"Bodoni Moda", serif;
+    transition:0.3s;
+    font-size:15px;
 }
 
-@media (max-width: 500px) {
-  .login-card { width: 90%; padding: 45px; }
-  header { padding: 25px 30px; }
+.input-group input:focus{
+    border-color:var(--sapphire);
+    box-shadow:0 0 5px rgba(60,80,125,0.3);
 }
+
+button{
+    width:100%;
+    padding:14px;
+    background:var(--quicksand);
+    border:none;
+    border-radius:10px;
+    font-family:"Bodoni Moda", serif;
+    font-weight:600;
+    color:var(--royal-blue);
+    cursor:pointer;
+    transition:0.3s;
+    font-size:15px;
+}
+
+button:hover{
+    background:#d4b678;
+}
+
+.extra-links{
+    margin-top:18px;
+    text-align:center;
+    font-family:"Bodoni Moda", serif;
+    font-size:13px;
+}
+
+.extra-links a{
+    text-decoration:none;
+    color:var(--sapphire);
+}
+
+.extra-links a:hover{
+    text-decoration:underline;
+}
+
+/* MENSAJE */
+.mensaje-login{
+    margin-top:12px;
+    text-align:center;
+    font-family:"Bodoni Moda", serif;
+    font-size:13px;
+    font-weight:600;
+    min-height:20px;
+}
+
+/* RESPONSIVE (igual que tuyo) */
+@media(max-width:900px){
+    header{ padding:25px 30px; }
+    .content{ flex-direction:column; }
+    .left-side{ padding:40px 25px; }
+    .left-side h1{ font-size:32px; }
+}
+
+@media(max-width:600px){
+    header{ padding:20px; }
+    .logo-container{ gap:10px; }
+    .logo-circle{ width:42px; height:42px; min-width:42px; font-size:18px; }
+    .logo-text{ font-size:22px; }
+    .subtitle{ font-size:12px; }
+    .main-container{ padding:20px; align-items:flex-start; }
+    .content{ border-radius:16px; }
+    .left-side{ padding:35px 20px; }
+    .left-side img{ max-width:260px; }
+    .left-side h1{ font-size:26px; }
+    .left-side p{ font-size:14px; }
+    .right-side{ padding:35px 20px; }
+}
+
+/* FOOTER */
+footer{
+    width:100%;
+    padding:20px 40px;
+    text-align:center;
+    font-family:"Bodoni Moda", serif;
+    font-size:13px;
+    color:var(--swan);
+}
+
+footer span{ opacity:0.7; }
+
 </style>
 </head>
 
 <body>
 
-<div class="estrellas"></div>
-<div class="estrellas2"></div>
-<div class="estrellas3"></div>
+<div class="stars">
+    <div class="star" style="left:10%; animation-delay:0s;"></div>
+    <div class="star" style="left:30%; animation-delay:1s;"></div>
+    <div class="star" style="left:50%; animation-delay:2s;"></div>
+    <div class="star" style="left:70%; animation-delay:1.5s;"></div>
+    <div class="star" style="left:90%; animation-delay:0.5s;"></div>
+</div>
 
 <header>
-  <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo" class="logo-placeholder">
-  <h1>O.R.I.O.</h1>
+    <div class="logo-container">
+        <div class="logo-circle">O</div>
+        <div>
+            <div class="logo-text">O.R.I.O</div>
+            <div class="subtitle">Organizador de Recursos e Identificador de Objetos</div>
+        </div>
+    </div>
 </header>
 
-<div class="container">
-  <div class="login-card">
+<div class="main-container">
+    <div class="content">
 
-    <h2>Iniciar Sesión</h2>
+        <div class="left-side">
+            <img src="{{ url_for('static', filename='img/persona-buscando.png') }}">
+            <h1>Bienvenido de nuevo</h1>
+            <p>Accede a tu cuenta y continua gestionando tus objetos perdidos de forma segura.</p>
+        </div>
 
-    <form id="form-login">
+        <div class="right-side">
+            <div class="form-container">
+                <h2>Iniciar Sesión</h2>
 
-      <div class="campo">
-        <label>ID Usuario</label>
-        <input
-          type="text"
-          name="id_usuario"
-          placeholder="Ingresa tu ID de usuario"
-          required
-        >
-      </div>
+                <form id="form-login">
 
-      <div class="campo">
-        <label>Contraseña</label>
-        <input
-          type="password"
-          name="contrasena"
-          placeholder="Ingresa tu contraseña"
-          required
-        >
-      </div>
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            name="id_usuario"
+                            placeholder="Usuario"
+                            required
+                            autocomplete="username"
+                        >
+                    </div>
 
-      <button type="submit">Entrar</button>
-      <div id="mensaje" style="margin-top:15px; text-align:center;"></div>
-      <div id="olvido" style="text-align:center; margin-top:10px;"></div>
+                    <div class="input-group">
+                        <input
+                            type="password"
+                            name="contrasena"
+                            placeholder="Contraseña"
+                            required
+                            autocomplete="current-password"
+                        >
+                    </div>
 
+                    <button type="submit">Ingresar</button>
 
-    </form>
+                    <div id="mensaje" style="margin-top:12px; text-align:center; font-size:13px;"></div>
 
-    <div class="login-link">
-      ¿No tienes cuenta? <a href="/registro">Regístrate</a>
+                    <div class="extra-links">
+                        <p id="olvido"></p>
+                        <p>¿No tienes cuenta? <a href="/registro">Regístrate</a></p>
+                    </div>
+
+                </form>
+            </div>
+        </div>
     </div>
-
-  </div>
 </div>
 
 <footer>
-© 2025 O.R.I.O. Todos los derechos reservados.
+    <span>© 2026 O.R.I.O — Todos los derechos reservados</span>
 </footer>
 
 <script>
@@ -282,35 +365,41 @@ const olvido = document.getElementById("olvido")
 formLogin.addEventListener("submit", async (e) => {
     e.preventDefault()
 
+    mensaje.innerText = "Verificando..."
+    mensaje.style.color = "#112250"
+
     const datos = new FormData(formLogin)
 
-    const res = await fetch("/inicio", {
-        method: "POST",
-        body: datos
-    })
+    try {
+        const res = await fetch("/inicio", {
+            method: "POST",
+            body: datos
+        })
 
-    const data = await res.json()
+        const data = await res.json()
 
-    // mostrar el mensaje de estado
-    mensaje.innerText = data.mensaje
-    mensaje.style.color = data.ok ? "green" : "red"
+        mensaje.innerText = data.mensaje
+        mensaje.style.color = data.ok ? "green" : "red"
 
-    // mostrar "Olvidaste tu contraseña" solo si la contraseña es incorrecta
-    if (!data.ok && data.mensaje === "Contraseña incorrecta") {
-        olvido.innerHTML = '<a href="/recuperar" style="color:#3C507D; font-weight:bold;">¿Olvidaste tu contraseña?</a>'
-    } else {
-        olvido.innerHTML = '' // ocultar el link en otros casos
-    }
+        if (!data.ok && data.mensaje === "Contraseña incorrecta") {
+            olvido.innerHTML =
+              '<a href="/recuperar">¿Olvidaste tu contraseña?</a>'
+        } else {
+            olvido.innerHTML = ''
+        }
 
-    // ir al menu si el inicio fue exitoso
-    if (data.ok) {
-        setTimeout(() => {
-            window.location.href = "/menu"
-        }, 800)
+        if (data.ok) {
+            setTimeout(() => {
+                window.location.href = "/menu"
+            }, 800)
+        }
+
+    } catch {
+        mensaje.innerText = "Error de conexión"
+        mensaje.style.color = "red"
     }
 })
 </script>
 
-
 </body>
-</html> 
+</html>

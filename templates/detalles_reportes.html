@@ -11,21 +11,57 @@
             background: #f3f4f6;
             padding: 20px;
             background: radial-gradient(circle at top,#3C5B8F, #000);
-        }
+            }
 
         .contenedor {
-            max-width: 850px;
-            margin: auto;
-            background: #002b5b;
-            border-radius: 12px;
-            padding: 20px;
-            border: 3px solid #E0C58F;
+            max-width: 1200px;
+            margin: 150px auto 0 auto;
+            background: white;
+            border-radius: 0 12px 12px 0;
+            padding: 0;
             box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            overflow: hidden;
         }
 
         h1 {
             text-align: center;
-            color: #E0C58F;
+            color: #002b5b;
+            grid-column: 1 / -1;
+        }
+
+        .contenedor-principal {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            align-items: stretch;
+            min-height: 500px; 
+            border-radius: 25px;
+            border: 3px solid #E0C58F;
+           
+
+        }
+
+        .contenedor-imagen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at top, #3C5B8F, #000);
+            padding: 30px;
+            color: #f3f4f6;
+        }
+
+        .contenedor-datos {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            background: white;
+        }
+
+        @media (max-width: 768px) { /* Para pantallas pequeñas, apilar los elementos*/
+            .contenedor-principal {
+                grid-template-columns: 1fr;
+            }
         }
 
         .imagen {
@@ -35,18 +71,17 @@
             border-radius: 12px;
             margin-bottom: 20px;
             border: 3px solid #E0C58F;
+
         }
 
         .info {
             font-size: 18px;
             margin-bottom: 15px;
-            color: #f3f4f6;
-            text-align: justify;
         }
 
         .label {
             font-weight: bold;
-            color: white;
+            color: #002b5b;
         }
 
         .btn-volver {
@@ -73,29 +108,34 @@
 
 <div class="contenedor">
 
-    <h1>Detalles del Objeto</h1>
+    <div class="contenedor-principal">
+        <div class="contenedor-imagen">
+            {% if item.IMAGEN %}
+                <img class="imagen" src="{{ item.IMAGEN }}" alt="Imagen del objeto">
+            {% else %}
+                <div class="info"><span class="label">Imagen:</span> No hay imagen del objeto</div>
+            {% endif %}
+        </div>
 
-    {% if item.IMAGEN %}
-        <img class="imagen" src="{{ item.IMAGEN }}" alt="Imagen del objeto">
-    {% else %}
-        <div class="info"><span class="label">Imagen:</span> No hay imagen del objeto</div>
-    {% endif %}
+        <div class="contenedor-datos">
+            <h1>Detalles del Objeto</h1>
+            <p class="info"><span class="label">Nombre:</span> {{ item.NOMBRE }}</p>
+            <p class="info"><span class="label">Categoría:</span> {{ item.CATEGORIA }}</p>
+            <p class="info"><span class="label">Color:</span> {{ item.COLOR }}</p>
+            <p class="info"><span class="label">Fecha Reporte:</span> {{ item.FECHA }}</p>
+            <p class="info"> <span class="label"> Persona que reportó: </span>{{ item.NOMBRE_USUARIO if item.NOMBRE_USUARIO else 'No disponible' }}</p>
 
-    <p class="info"><span class="label">Nombre:</span> {{ item.NOMBRE }}</p>
-    <p class="info"><span class="label">Categoría:</span> {{ item.CATEGORIA }}</p>
-    <p class="info"><span class="label">Color:</span> {{ item.COLOR }}</p>
-    <p class="info"><span class="label">Fecha Reporte:</span> {{ item.FECHA }}</p>
-    <p class="info"> <span class="label"> Persona que reportó: </span>{{ item.NOMBRE_USUARIO if item.NOMBRE_USUARIO else 'No disponible' }}</p>
+            <p class="info"><span class="label">Observaciones:</span><br>
+                {% if item.OBSERVACIONES %}
+                    {{ item.OBSERVACIONES }}
+                {% else %}
+                    No hay observaciones para este objeto
+                {% endif %}
+            </p>
 
-    <p class="info"><span class="label">Observaciones:</span><br>
-        {% if item.OBSERVACIONES %}
-            {{ item.OBSERVACIONES }}
-        {% else %}
-            No hay observaciones para este objeto
-        {% endif %}
-    </p>
-
-    <a href="/buscar_objetos" class="btn-volver"> Volver</a>
+            <a href="/buscar_objetos" class="btn-volver"> Volver</a>
+        </div>
+    </div>
 </div>
 
 </body>
