@@ -1,75 +1,221 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bienvenido | O.R.I.O</title>
-<link rel="stylesheet" href="static/css/global.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O.R.I.O</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Baskervville&family=Bodoni+Moda:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+--royal:#112250;
+--sapphire:#3C507D;
+--swan:#F5F0E9;
+--gold:#E0C58F;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+background:linear-gradient(180deg,var(--royal),var(--sapphire));
+font-family:'Baskervville', serif;
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+}
+
+/* CONTENEDOR */
+.hero{
+position:relative;
+width:1200px;
+height:650px;
+border-radius:25px;
+overflow:hidden;
+box-shadow:0 25px 60px rgba(0,0,0,.5);
+}
+
+/* CARRUSEL */
+.slides{
+position:absolute;
+width:100%;
+height:100%;
+display:flex;
+transition:transform .8s ease;
+}
+
+.slide{
+min-width:100%;
+height:100%;
+background-size:cover;
+background-position:center;
+position:relative;
+}
+
+/* IMÁGENES */
+.slide1{
+background-image:url('https://images.unsplash.com/photo-1500530855697-b586d89ba3ee');
+}
+.slide2{
+background-image:url('https://images.unsplash.com/photo-1501785888041-af3ef285b470');
+}
+.slide3{
+background-image:url('https://images.unsplash.com/photo-1493246507139-91e8fad9978e');
+}
+
+/* Overlay oscuro elegante */
+.slide::after{
+content:"";
+position:absolute;
+width:100%;
+height:100%;
+background:linear-gradient(to right, rgba(17,34,80,.5), rgba(17,34,80,.2));
+}
+
+/* PARTE BLANCA CON SVG */
+.hero-left{
+position:absolute;
+width:50%;
+height:100%;
+z-index:2;
+}
+
+.hero-left svg{
+width:100%;
+height:100%;
+position:absolute;
+top:0;
+left:0;
+}
+
+.hero-content{
+position:absolute;
+top:50%;
+left:80px;
+transform:translateY(-50%);
+max-width:400px;
+}
+
+.hero-content h1{
+font-family:'Bodoni Moda', serif;
+font-size:48px;
+color:var(--royal);
+margin-bottom:20px;
+}
+
+.hero-content p{
+color:var(--royal);
+line-height:1.6;
+margin-bottom:30px;
+}
+
+.btn{
+display:inline-block;
+padding:14px 40px;
+background:var(--royal);
+color:var(--swan);
+text-decoration:none;
+border-radius:30px;
+font-family:'Bodoni Moda', serif;
+transition:.3s;
+}
+
+.btn:hover{
+background:var(--sapphire);
+}
+
+/* PUNTOS */
+.dots{
+position:absolute;
+bottom:35px;
+left:120px;
+z-index:3;
+display:flex;
+gap:12px;
+}
+
+.dot{
+width:10px;
+height:10px;
+border-radius:50%;
+background:#ccc;
+cursor:pointer;
+}
+
+.dot.active{
+background:var(--royal);
+}
+
+</style>
 </head>
 
-
 <body>
-  <header class="header header--fixed">
-    <a href="/registro">Registrarse</a>
-    <a href="/inicio">Iniciar sesión</a>
-  </header>
 
+<div class="hero">
 
-
-  <section class="hero">
-    <div class="glow g1"></div>
-<div class="glow g2"></div>
-<div class="glow g3"></div>
-
-    <div class="stars-zone">
-  <span class="star"></span>
-  <span class="star"></span>
-  <span class="star"></span>
-  <span class="star"></span>
-  <span class="star small"></span>
-  <span class="star small"></span>
-  <span class="star small"></span>
+<!-- CARRUSEL -->
+<div class="slides" id="slides">
+<div class="slide slide1"></div>
+<div class="slide slide2"></div>
+<div class="slide slide3"></div>
 </div>
 
-    <h1>Bienvenido a O.R.I.O</h1>
-    <p>La plataforma donde puedes reportar, buscar y encontrar objetos perdidos. Rápido, confiable y pensado para todos.</p>
-    <a href="/menu" class="btn-empezar">Empezar</a>
-  </section>
+<!-- PARTE BLANCA CON CURVA EXACTA -->
+<div class="hero-left">
 
-  <div class="divider"></div>
+<svg viewBox="0 0 600 650" preserveAspectRatio="none">
+<path d="
+M0,0 
+L520,0 
+C470,120 470,260 500,360
+C530,480 420,650 600,650
+L0,650 
+Z" fill="#F5F0E9"/>
+</svg>
 
-  <section class="info">
-    <div class="card">
-      <h2>¿Qué hacemos?</h2>
-      <p>Unimos a personas que han perdido algo con quienes lo encuentran.
-      Aquí puedes registrar objetos perdidos o hallados para facilitar que regresen a su dueño de forma rápida y segura.</p>
-      <img src="https://st.depositphotos.com/2007325/4954/v/450/depositphotos_49543831-stock-illustration-businessman-with-doubts.jpg" class="persona" />
-    </div>
+<div class="hero-content">
+<h1>Bienvenido a O.R.I.O</h1>
+<p>La plataforma donde puedes reportar, buscar y encontrar objetos perdidos. Rápido, confiable y pensado para todos.</p>
+<a href="/inicio" class="btn">Empezar</a>
+</div>
 
-    <div class="card">
-      <h2>¿Cómo funciona?</h2>
-      <p>Registras el objeto con una descripción y, si quieres, una foto. 
-      El sistema lo compara con otros reportes y te muestra coincidencias. Así puedes contactar a quien tenga información.</p>
-      <img src="https://static.vecteezy.com/system/resources/previews/008/470/302/non_2x/magnifying-glass-anime-cute-character-cartoon-model-emotion-illustration-clipart-drawing-kawaii-manga-design-idea-art-free-png.png" class="lupa" />
-    </div>
+</div>
 
-    <div class="card">
-      <h2>Comunidad</h2>
-      <p>Somos un grupo de usuarios que se ayuda mutuamente para recuperar objetos. 
-      Valoramos la honestidad, la colaboración y el apoyo entre todos.</p>
+<!-- PUNTOS -->
+<div class="dots">
+<div class="dot active" onclick="moveSlide(0)"></div>
+<div class="dot" onclick="moveSlide(1)"></div>
+<div class="dot" onclick="moveSlide(2)"></div>
+</div>
 
-      <!-- 🔹 Imagen corregida -->
-      <img src="https://media.istockphoto.com/id/1321230821/es/vector/ilustraci%C3%B3n-de-golpe-de-pu%C3%B1o-la-protuberancia-del-pu%C3%B1o-es-un-saludo-que-toca-pu%C3%B1os-y-pu%C3%B1os.jpg?s=612x612&w=0&k=20&c=qahdhXpdN128Vqsavi6TzL91V-mSmtlzDz6fnvzC36g=" class="personas" />
-    </div>
-  </section>
+</div>
 
-  <!-- 🔹 SLOGAN DEBAJO DE LAS TARJETAS -->
-  <div class="slogan">
-    “O.R.I.O: Conectando estrellas, guiando destinos."
-  </div>
+<script>
 
-  <footer style="text-align:center; margin-top:40px; color:#E0C58F; font-family:'Bodoni Moda', serif;">
-    © 2025 O.R.I.O. Todos los derechos reservados.
-  </footer>
+let index = 0;
+const slides = document.getElementById('slides');
+const dots = document.querySelectorAll('.dot');
+
+function moveSlide(i){
+index = i;
+slides.style.transform = `translateX(-${i * 100}%)`;
+dots.forEach(dot => dot.classList.remove('active'));
+dots[i].classList.add('active');
+}
+
+setInterval(()=>{
+index++;
+if(index > 2) index = 0;
+moveSlide(index);
+},5000);
+
+</script>
+
 </body>
 </html>

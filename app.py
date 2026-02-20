@@ -1,46 +1,47 @@
+"""
+Aplicación principal - Sistema de gestión de objetos perdidos/encontrados
+
+Este módulo inicializa la aplicación Flask, crea las tablas de base de datos
+y registra todas las rutas de la aplicación.
+"""
+
 from flask import Flask
 import os
 
 from routes import init_routes
-from database import (
-    crear_tabla_Categorias,
-    crear_tabla_Paises,
-    crear_tabla_Departamentos,
-    crear_tabla_Ciudades,
-    crear_tabla_Roles,
-    crear_tabla_Estados,
-    crear_tabla_Tipo_identificaciones,
-    crear_tabla_Usuario,
-    crear_tabla_Objetos,
-    crear_tabla_Reportes_encontrados,
-    crear_tabla_Reportes_perdidos
-)
+from database import crear_tablas, inicializar_datos_default
 
+
+# Configuración de la aplicación Flask
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
 
-# registrar rutas
+# Registrar todas las rutas de la aplicación
 init_routes(app)
+
 
 if __name__ == "__main__":
     try:
-        # Orden de creación respetando dependencias
-        crear_tabla_Categorias()
-        crear_tabla_Paises()
-        crear_tabla_Departamentos()
-        crear_tabla_Ciudades()
-        crear_tabla_Roles()
-        crear_tabla_Estados()
-        crear_tabla_Tipo_identificaciones()
-        crear_tabla_Usuario()
-        crear_tabla_Objetos()
-        crear_tabla_Reportes_encontrados()
-        crear_tabla_Reportes_perdidos()
-
-        print("Tablas verificadas/creadas correctamente. Iniciando servidor...")
+        print("\n" + "="*50)
+        print("  Inicializando base de datos...")
+        print("="*50 + "\n")
+        
+        # Crear todas las tablas en el orden correcto
+        crear_tablas()
+        
+        # Insertar datos por defecto
+        inicializar_datos_default()
+        
+        print("\n" + "="*50)
+        print("  ✓ Base de datos lista")
+        print("  ✓ Iniciando servidor en http://0.0.0.0:5000")
+        print("="*50 + "\n")
+        
         app.run(host="0.0.0.0", port=5000, debug=True)
 
     except Exception as e:
         import traceback
-        print("Error al crear tablas o iniciar la aplicación:")
+        print("\n" + "="*50)
+        print("  ✗ Error al inicializar la aplicación")
+        print("="*50 + "\n")
         traceback.print_exc()
