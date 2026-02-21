@@ -1,0 +1,272 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Libre+Baskerville:wght@400;700&display=swap');
+
+/* ===== MISMA PALETA ===== */
+:root{
+    --royal-blue:#112250;
+    --sapphire:#3C507D;
+    --quicksand:#E0C58F;
+    --swan:#F5F0E9;
+    --shell:#D9CBC2;
+}
+
+@font-face{
+    font-family:"BaskervilleCustom";
+    src:local("Baskerville"), local("Libre Baskerville");
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    min-height:100vh;
+    background:linear-gradient(135deg,var(--royal-blue),var(--sapphire));
+    display:flex;
+    flex-direction:column;
+    overflow-x:hidden;
+}
+
+/* ===== ESTRELLAS ===== */
+.stars{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+    z-index:0;
+}
+
+.star{
+    position:absolute;
+    width:3px;
+    height:3px;
+    background:var(--quicksand);
+    border-radius:50%;
+    opacity:0.8;
+    animation:fall 4s linear infinite;
+}
+
+@keyframes fall{
+    0%{ transform:translateY(-100px); opacity:0;}
+    10%{opacity:1;}
+    100%{ transform:translateY(100vh) translateX(80px); opacity:0;}
+}
+
+/* ===== HEADER ===== */
+header{
+    padding:25px 60px;
+    color:var(--swan);
+    position:relative;
+    z-index:2;
+}
+
+.logo-container{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.logo-circle{
+    width:50px;
+    height:50px;
+    background:var(--quicksand);
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-family:"Bodoni Moda", serif;
+    font-weight:600;
+    color:var(--royal-blue);
+}
+
+.logo-text{
+    font-family:"BaskervilleCustom", serif;
+    font-size:28px;
+}
+
+.subtitle{
+    font-family:"Bodoni Moda", serif;
+    font-size:14px;
+    opacity:0.8;
+}
+
+/* ===== MAIN ===== */
+.main-container{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:20px;
+    min-height:0;
+
+    overflow:hidden;  
+}
+
+.content{
+    width:100%;
+    max-width:1100px;
+    background:var(--swan);
+    border-radius:20px;
+    display:flex;
+    box-shadow:0 20px 50px rgba(0,0,0,0.3);
+
+    min-height:600px;
+
+    overflow:hidden;  
+}
+
+/* ===== LEFT ===== */
+.left-side{
+    flex:1;
+    background:linear-gradient(160deg,var(--sapphire),var(--royal-blue));
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    padding:50px 40px;
+    text-align:center;
+    color:var(--swan);
+}
+
+.left-side img{
+    width:100%;
+    max-width:420px;
+    margin-bottom:30px;
+    animation:floatImage 4s ease-in-out infinite;
+}
+
+@keyframes floatImage{
+    0%{ transform:translateY(0);}
+    50%{ transform:translateY(-15px);}
+    100%{ transform:translateY(0);}
+}
+
+.left-side h1{
+    font-family:"BaskervilleCustom", serif;
+    font-size:36px;
+    margin-bottom:10px;
+}
+
+/* ===== RIGHT ===== */
+.right-side{
+    flex:1;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;  /* ← FIX IMPORTANTE */
+    padding:30px 20px;
+    overflow-y:auto;
+    min-height:0;
+}
+
+.form-container{
+    width:100%;
+    max-width:380px;
+    padding-bottom:20px;
+}
+
+.form-container h2{
+    font-family:"BaskervilleCustom", serif;
+    color:var(--royal-blue);
+    margin-bottom:20px;
+}
+
+.input-group{
+    margin-bottom:10px;
+}
+
+.input-group input{
+    width:100%;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid var(--shell);
+    outline:none;
+    font-family:"Bodoni Moda", serif;
+    font-size: 14px;
+    transition:0.3s;
+}
+
+.input-group input:focus{
+    border-color:var(--sapphire);
+}
+
+.security-section{
+    margin:18px 0 12px;
+    padding:14px;
+    border-radius:12px;
+    background:rgba(17,34,80,0.05);
+    border:1px solid rgba(17,34,80,0.08);
+}
+
+.security-title{
+    font-family:"BaskervilleCustom", serif;
+    font-size:15px;
+    color:var(--royal-blue);
+    margin-bottom:10px;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    background:var(--quicksand);
+    border:none;
+    border-radius:10px;
+    font-family:"Bodoni Moda", serif;
+    font-weight:600;
+    color:var(--royal-blue);
+    cursor:pointer;
+}
+
+button:hover{
+    background:#d4b678;
+}
+
+.extra-links{
+    margin-top:15px;
+    text-align:center;
+    font-size:13px;
+}
+
+.extra-links a{
+    text-decoration:none;
+    color:var(--sapphire);
+}
+
+.mensaje{
+    margin-top:10px;
+    text-align:center;
+    font-size:13px;
+    font-weight:600;
+    min-height:20px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+    .content{
+      flex-direction:column;
+      border-radius:20px;
+      min-height:auto;
+      height:auto;
+    }
+
+    .main-container{
+      align-items:flex-start;
+    }
+
+    .left-side{
+        padding:25px 20px;  
+    }
+
+    .left-side img{
+        max-width:260px;  
+    }
+}
+
+/* ===== FOOTER ===== */
+footer{
+    padding:20px;
+    text-align:center;
+    font-size:13px;
+    color:var(--swan);
+}
+
+html, body{
+    width:100%;
+    overflow-x:hidden;
+}
