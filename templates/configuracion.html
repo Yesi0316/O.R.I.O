@@ -1,0 +1,426 @@
+{% extends "base.html" %}
+
+{% block title %}Configuración | O.R.I.O{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+<style>
+.config-section {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 8px 18px rgba(0,0,0,.08);
+}
+
+.config-section h3 {
+  font-family: 'Bodoni Moda', serif;
+  color: var(--royal);
+  font-size: 20px;
+  margin-bottom: 18px;
+  border-bottom: 2px solid var(--gold);
+  padding-bottom: 10px;
+}
+
+.config-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.config-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.config-label {
+  flex: 1;
+}
+
+.config-label strong {
+  display: block;
+  color: var(--royal);
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.config-label p {
+  color: #666;
+  font-size: 12px;
+  margin: 0;
+}
+
+.toggle-switch {
+  width: 50px;
+  height: 28px;
+  border-radius: 14px;
+  background: #ddd;
+  cursor: pointer;
+  position: relative;
+  transition: .3s;
+}
+
+.toggle-switch.active {
+  background: var(--gold);
+}
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: white;
+  top: 2px;
+  left: 2px;
+  transition: .3s;
+}
+
+.toggle-switch.active::after {
+  left: 24px;
+}
+
+.select-config {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  color: var(--sapphire);
+  cursor: pointer;
+  font-size: 13px;
+  transition: .25s;
+}
+
+.select-config:hover {
+  border-color: var(--gold);
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  color: var(--royal);
+  font-size: 13px;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: 'Libre Baskerville', serif;
+  font-size: 13px;
+  transition: .25s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(224,197,143,.15);
+}
+
+.btn-config {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, var(--gold), #f2d9a6);
+  color: var(--royal);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: .25s;
+  margin-top: 12px;
+}
+
+.btn-config:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(224,197,143,.3);
+}
+
+.msg-success {
+  background: #d4edda;
+  color: #155724;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  display: none;
+}
+
+.msg-error {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  display: none;
+}
+
+.msg-error.show, .msg-success.show {
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .config-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="header">
+  <h1>Configuración</h1>
+</div>
+
+<!-- APARIENCIA -->
+<div class="config-section">
+  <h3><i class="fas fa-palette"></i> Apariencia</h3>
+  
+  <div class="config-item">
+    <div class="config-label">
+      <strong>Tema</strong>
+      <p>Elige entre tema claro u oscuro</p>
+    </div>
+    <select id="selectTema" class="select-config">
+      <option value="claro">Claro</option>
+      <option value="oscuro">Oscuro</option>
+    </select>
+  </div>
+</div>
+
+<!-- NOTIFICACIONES -->
+<div class="config-section">
+  <h3><i class="fas fa-bell"></i> Notificaciones</h3>
+  
+  <div class="config-item">
+    <div class="config-label">
+      <strong>Notificaciones en la app</strong>
+      <p>Recibe alertas sobre tus reportes</p>
+    </div>
+    <div id="toggleNotif" class="toggle-switch active" onclick="toggleNotif()"></div>
+  </div>
+
+  <div class="config-item">
+    <div class="config-label">
+      <strong>Email por reportes</strong>
+      <p>Recibe correos cuando hay coincidencias</p>
+    </div>
+    <div id="toggleEmail" class="toggle-switch active" onclick="toggleEmail()"></div>
+  </div>
+</div>
+
+<!-- PRIVACIDAD -->
+<div class="config-section">
+  <h3><i class="fas fa-lock"></i> Privacidad</h3>
+  
+  <div class="config-item">
+    <div class="config-label">
+      <strong>Visibilidad de perfil</strong>
+      <p>Controla quién puede ver tu perfil</p>
+    </div>
+    <select id="selectPrivacidad" class="select-config">
+      <option value="publica">Público</option>
+      <option value="amigos">Amigos únicamente</option>
+      <option value="privada">Privado</option>
+    </select>
+  </div>
+</div>
+
+<!-- SEGURIDAD -->
+<div class="config-section">
+  <h3><i class="fas fa-shield-alt"></i> Seguridad</h3>
+  
+  <div id="msgSuccess" class="msg-success"></div>
+  <div id="msgError" class="msg-error"></div>
+
+  <div class="form-group">
+    <label>Contraseña actual</label>
+    <input type="password" id="inputPassActual" placeholder="Tu contraseña actual">
+  </div>
+
+  <div class="form-group">
+    <label>Nueva contraseña</label>
+    <input type="password" id="inputPassNueva" placeholder="Nueva contraseña (mín. 6 caracteres)">
+  </div>
+
+  <div class="form-group">
+    <label>Confirmar contraseña</label>
+    <input type="password" id="inputPassConfirm" placeholder="Confirma tu nueva contraseña">
+  </div>
+
+  <button class="btn-config" onclick="cambiarContrasena()">
+    <i class="fas fa-key"></i> Cambiar contraseña
+  </button>
+</div>
+
+<!-- INFO -->
+<div class="config-section">
+  <h3><i class="fas fa-info-circle"></i> Información</h3>
+  
+  <div class="config-item">
+    <div class="config-label">
+      <strong>Versión de O.R.I.O</strong>
+      <p>v1.0.0</p>
+    </div>
+  </div>
+
+  <div class="config-item">
+    <div class="config-label">
+      <strong>Última sincronización</strong>
+      <p id="lastSync">Hace unos momentos</p>
+    </div>
+  </div>
+</div>
+
+<script>
+let config = {
+  tema: 'claro',
+  notificaciones: true,
+  privacidad: 'publica',
+  email_reportes: true
+};
+
+async function cargarConfig() {
+  try {
+    const res = await fetch('/api/configuracion');
+    const data = await res.json();
+    if (data.ok && data.config) {
+      config = data.config;
+      document.getElementById('selectTema').value = config.tema;
+      document.getElementById('selectPrivacidad').value = config.privacidad;
+      
+      // Aplicar tema al body
+      if (config.tema === 'oscuro') {
+        document.body.classList.add('modo-oscuro');
+        localStorage.setItem('modo', 'oscuro');
+      } else {
+        document.body.classList.remove('modo-oscuro');
+        localStorage.setItem('modo', 'claro');
+      }
+      
+      if (config.notificaciones) {
+        document.getElementById('toggleNotif').classList.add('active');
+      } else {
+        document.getElementById('toggleNotif').classList.remove('active');
+      }
+      
+      if (config.email_reportes) {
+        document.getElementById('toggleEmail').classList.add('active');
+      } else {
+        document.getElementById('toggleEmail').classList.remove('active');
+      }
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function toggleNotif() {
+  const toggle = document.getElementById('toggleNotif');
+  config.notificaciones = !config.notificaciones;
+  toggle.classList.toggle('active');
+  guardarConfig();
+}
+
+function toggleEmail() {
+  const toggle = document.getElementById('toggleEmail');
+  config.email_reportes = !config.email_reportes;
+  toggle.classList.toggle('active');
+  guardarConfig();
+}
+
+document.getElementById('selectTema').addEventListener('change', function() {
+  config.tema = this.value;
+  // Guardar en localStorage para que se aplique inmediatamente
+  localStorage.setItem('modo', this.value);
+  // Aplicar al body
+  if (this.value === 'oscuro') {
+    document.body.classList.add('modo-oscuro');
+  } else {
+    document.body.classList.remove('modo-oscuro');
+  }
+  guardarConfig();
+});
+
+document.getElementById('selectPrivacidad').addEventListener('change', function() {
+  config.privacidad = this.value;
+  guardarConfig();
+});
+
+async function guardarConfig() {
+  try {
+    const res = await fetch('/api/configuracion', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(config)
+    });
+    const data = await res.json();
+    if (!data.ok) console.error('Error guardando config');
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function cambiarContrasena() {
+  const actual = document.getElementById('inputPassActual').value.trim();
+  const nueva = document.getElementById('inputPassNueva').value.trim();
+  const confirmar = document.getElementById('inputPassConfirm').value.trim();
+  
+  const msgSuccess = document.getElementById('msgSuccess');
+  const msgError = document.getElementById('msgError');
+  msgSuccess.classList.remove('show');
+  msgError.classList.remove('show');
+
+  if (!actual || !nueva || !confirmar) {
+    msgError.textContent = 'Por favor completa todos los campos';
+    msgError.classList.add('show');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/cambiar_contrasena', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contrasena_actual: actual,
+        contrasena_nueva: nueva,
+        contrasena_confirmar: confirmar
+      })
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      msgSuccess.textContent = '✓ ' + data.mensaje;
+      msgSuccess.classList.add('show');
+      document.getElementById('inputPassActual').value = '';
+      document.getElementById('inputPassNueva').value = '';
+      document.getElementById('inputPassConfirm').value = '';
+      setTimeout(() => msgSuccess.classList.remove('show'), 4000);
+    } else {
+      msgError.textContent = '✗ ' + data.error;
+      msgError.classList.add('show');
+    }
+  } catch (e) {
+    msgError.textContent = '✗ Error en la solicitud';
+    msgError.classList.add('show');
+    console.error(e);
+  }
+}
+
+cargarConfig();
+</script>
+
+{% endblock %}

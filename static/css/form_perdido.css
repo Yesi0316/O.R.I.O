@@ -43,7 +43,11 @@ body {
     max-width: 750px;
     backdrop-filter: blur(6px);
     border: 1px solid rgba(224, 197, 143, 0.4);
+    margin:0 auto;
+    margin-top:80px;
+
 }
+
 
 
 .form-header {

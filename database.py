@@ -199,6 +199,20 @@ TABLAS = {
         );
     """,
     
+    'Perfiles': """
+        CREATE TABLE IF NOT EXISTS public."Perfiles"(
+            "ID_PERFIL" SERIAL PRIMARY KEY,
+            "ID_USUARIO" TEXT NOT NULL UNIQUE,
+            "NOMBRE" TEXT,
+            "APELLIDO" TEXT,
+            "TELEFONO" TEXT,
+            "CORREO" TEXT,
+            "FOTO_PERFIL" TEXT,
+            "FECHA_ACTUALIZACION" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY ("ID_USUARIO") REFERENCES public."Usuarios" ("ID_USUARIO") ON DELETE CASCADE
+        );
+    """,
+    
     'Reportes_perdidos': """
         CREATE TABLE IF NOT EXISTS public."Reportes_perdidos"(
             "ID_REPORTE" TEXT PRIMARY KEY,
@@ -250,6 +264,25 @@ def crear_tabla_Usuario():
     """Crea la tabla Usuarios."""
     ejecutar_sql(TABLAS['Usuarios'], "Tabla Usuarios")
 
+def crear_tabla_Perfiles():
+    """Crea la tabla Perfiles. Primero la elimina si existe para recrearla."""
+    # Eliminar tabla si existe (para actualizar estructura)
+    conexion = conectar_db()
+    if conexion:
+        try:
+            cursor = conexion.cursor()
+            cursor.execute('DROP TABLE IF EXISTS public."Perfiles" CASCADE')
+            conexion.commit()
+            cursor.close()
+            print("✓ Tabla Perfiles eliminada (será recreada)")
+        except Exception as e:
+            print(f"✗ Error eliminando tabla Perfiles: {e}")
+        finally:
+            conexion.close()
+    
+    # Crear tabla con estructura correcta
+    ejecutar_sql(TABLAS['Perfiles'], "Tabla Perfiles")
+
 def crear_tabla_Objetos():
     """Crea la tabla Objetos."""
     ejecutar_sql(TABLAS['Objetos'], "Tabla Objetos")
@@ -276,6 +309,7 @@ def crear_tablas():
     crear_tabla_Estados()
     crear_tabla_Tipo_identificaciones()
     crear_tabla_Usuario()
+    crear_tabla_Perfiles()
     crear_tabla_Objetos()
     crear_tabla_Reportes_encontrados()
     crear_tabla_Reportes_perdidos()

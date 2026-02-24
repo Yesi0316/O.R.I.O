@@ -1,0 +1,274 @@
+/* MODO CLARO (por defecto) */
+:root {
+    /* variables usadas en global.css y base.html */
+    --royal-blue: #112250;
+    --royal: #112250;
+    --sapphire: #3C507D;
+    --gold: #E0C58F;
+    --cream: #F5F0E9;
+}
+
+/* MODO OSCURO - Tema completamente oscuro */
+body.modo-oscuro {
+    /* Fondo oscuro */
+    background: linear-gradient(135deg, #0f1419, #1a1f2e) !important;
+    color: #e8e8e8;
+
+    /* Actualizar variables de color */
+    --royal-blue: #0f1419;
+    --royal: #1a1f2e;
+    --sapphire: #2d3748;
+    --gold: #ffd700;
+    --cream: #1e2330;
+}
+
+/* MODO OSCURO - Sidebar */
+body.modo-oscuro .sidebar {
+    background: rgba(15, 20, 25, 0.95) !important;
+    color: #e8e8e8;
+    border-right: 1px solid #2d3748;
+}
+
+body.modo-oscuro .sidebar-profile {
+    background: linear-gradient(135deg, #2d3748, #1a1f2e) !important;
+    border: 2px solid #E0C58F !important;
+}
+
+body.modo-oscuro .menu a {
+    color: #b0b0b0 !important;
+}
+
+body.modo-oscuro .menu a:hover {
+    background: rgba(224, 197, 143, 0.1) !important;
+    color: #e8e8e8 !important;
+}
+
+body.modo-oscuro .menu a.active {
+    background: linear-gradient(135deg, #E0C58F, #d4b77b) !important;
+    color: #0f1419 !important;
+    box-shadow: 0 10px 25px rgba(224, 197, 143, 0.2) !important;
+}
+
+body.modo-oscuro .toggle {
+    background: #E0C58F !important;
+    color: #0f1419 !important;
+}
+
+/* MODO OSCURO - Main content */
+body.modo-oscuro .main {
+    background: #1e2330 !important;
+    color: #e8e8e8;
+    border-radius: 35px;
+}
+
+/* MODO OSCURO - Tarjetas y forms */
+body.modo-oscuro .card,
+body.modo-oscuro .form-card,
+body.modo-oscuro .photo-card,
+body.modo-oscuro .activity-box,
+body.modo-oscuro .config-section {
+    background: #2d3748 !important;
+    color: #e8e8e8 !important;
+    border: 1px solid #3f4a5c !important;
+}
+
+body.modo-oscuro .card::before,
+body.modo-oscuro .config-section h3 {
+    border-color: #E0C58F !important;
+}
+
+body.modo-oscuro .card h3,
+body.modo-oscuro .config-section h3,
+body.modo-oscuro .title {
+    color: #E0C58F !important;
+}
+
+body.modo-oscuro .card span,
+body.modo-oscuro .activity-item strong,
+body.modo-oscuro .form-label {
+    color: #e8e8e8 !important;
+}
+
+body.modo-oscuro .activity-item {
+    color: #b0b0b0;
+    border-radius: 15px;
+}
+
+body.modo-oscuro .activity-item:hover {
+    background: rgba(224, 197, 143, 0.08) !important;
+}
+
+body.modo-oscuro .activity-item i {
+    color: #E0C58F !important;
+}
+
+/* MODO OSCURO - Input y selects */
+body.modo-oscuro input[type="text"],
+body.modo-oscuro input[type="email"],
+body.modo-oscuro input[type="password"],
+body.modo-oscuro select,
+body.modo-oscuro textarea {
+    background: #1a1f2e !important;
+    color: #e8e8e8 !important;
+    border: 1px solid #3f4a5c !important;
+}
+
+body.modo-oscuro input::placeholder,
+body.modo-oscuro textarea::placeholder {
+    color: #777 !important;
+}
+
+body.modo-oscuro input:focus,
+body.modo-oscuro select:focus,
+body.modo-oscuro textarea:focus {
+    border-color: #E0C58F !important;
+    box-shadow: 0 0 0 3px rgba(224, 197, 143, 0.1) !important;
+    background: #1a1f2e !important;
+}
+
+/* MODO OSCURO - Botones */
+body.modo-oscuro .btn,
+body.modo-oscuro .save-btn,
+body.modo-oscuro .upload-btn,
+body.modo-oscuro .btn-form,
+body.modo-oscuro .tarjeta-btn,
+body.modo-oscuro .btn-config {
+    background: linear-gradient(135deg, #E0C58F, #d4b77b) !important;
+    color: #0f1419 !important;
+    box-shadow: 0 4px 15px rgba(224, 197, 143, 0.2) !important;
+}
+
+body.modo-oscuro .btn:hover,
+body.modo-oscuro .save-btn:hover,
+body.modo-oscuro .upload-btn:hover,
+body.modo-oscuro .btn-form:hover,
+body.modo-oscuro .tarjeta-btn:hover,
+body.modo-oscuro .btn-config:hover {
+    box-shadow: 0 6px 20px rgba(224, 197, 143, 0.3) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* MODO OSCURO - Modal */
+body.modo-oscuro .profile-modal-backdrop {
+    background: rgba(0, 0, 0, 0.7) !important;
+}
+
+body.modo-oscuro .profile-modal {
+    background: #2d3748 !important;
+    color: #e8e8e8 !important;
+    border: 1px solid #3f4a5c !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.modo-oscuro .profile-modal .info b {
+    color: #E0C58F !important;
+}
+
+/* MODO OSCURO - FAB */
+body.modo-oscuro .fab {
+    background: linear-gradient(135deg, #E0C58F, #d4b77b) !important;
+    color: #0f1419 !important;
+    box-shadow: 0 15px 30px rgba(224, 197, 143, 0.2) !important;
+}
+
+body.modo-oscuro .fab-btn {
+    background: #2d3748 !important;
+    color: #E0C58F !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.modo-oscuro .fab-btn:hover {
+    background: #3f4a5c !important;
+}
+
+/* MODO OSCURO - Header */
+body.modo-oscuro .header h1 {
+    color: #E0C58F !important;
+}
+
+body.modo-oscuro .header p,
+body.modo-oscuro .subtitle {
+    color: #b0b0b0 !important;
+}
+
+/* MODO OSCURO - Grid de tarjetas */
+body.modo-oscuro .grid-resultados {
+    /* Grid mantiene fondo heredado */
+}
+
+body.modo-oscuro .tarjeta-resultado {
+    background: #2d3748 !important;
+    border: 1px solid #3f4a5c !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.modo-oscuro .tarjeta-resultado:hover {
+    box-shadow: 0 8px 20px rgba(224, 197, 143, 0.15) !important;
+}
+
+body.modo-oscuro .tarjeta-titulo {
+    color: #E0C58F !important;
+}
+
+body.modo-oscuro .tarjeta-categoria,
+body.modo-oscuro .tarjeta-color {
+    color: #b0b0b0 !important;
+}
+
+/* MODO OSCURO - Search bar */
+body.modo-oscuro .search-bar input {
+    background: #1a1f2e !important;
+    color: #e8e8e8 !important;
+    border: 1px solid #3f4a5c !important;
+}
+
+body.modo-oscuro .search-bar input:focus {
+    border-color: #E0C58F !important;
+    box-shadow: 0 0 0 3px rgba(224, 197, 143, 0.1) !important;
+}
+
+body.modo-oscuro .filter-select {
+    background: #1a1f2e !important;
+    color: #e8e8e8 !important;
+    border: 2px solid #3f4a5c !important;
+}
+
+body.modo-oscuro .filter-select:hover,
+body.modo-oscuro .filter-select:focus {
+    border-color: #E0C58F !important;
+    box-shadow: 0 0 2px rgba(224, 197, 143, 0.1) !important;
+}
+
+/* MODO OSCURO - Toggle switch */
+body.modo-oscuro .toggle-switch {
+    background: #3f4a5c !important;
+}
+
+body.modo-oscuro .toggle-switch.active {
+    background: #E0C58F !important;
+}
+
+@media (max-width: 900px) {
+    body.modo-oscuro .sidebar {
+        background: rgba(15, 20, 25, 0.85) !important;
+    }
+}
+
+
+/* MODO DE ALTO CONTRASTE */
+body.modo-alto-contraste {
+    --color-fondo: #000000;
+    --color-texto: #FFFFFF;
+    --color-boton: #ffffff3d;
+    --color-boton-hover: #112250;
+
+    /* sobrescribir variables globales para contraste máximo */
+    --royal-blue: #000000;
+    --royal: #000000;
+    --sapphire: #FFFFFF;
+    --gold: #FFFFFF;
+    --cream: #000000;
+
+    background: #000000;
+    color: #FFFFFF;
+}

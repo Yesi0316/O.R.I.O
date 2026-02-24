@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Mis Reportes | O.R.I.O{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="header">
+  <h1>Mis Reportes</h1>
+</div>
+
+<div class="search-section">
+  <div class="search-bar">
+    <i class="fas fa-search"></i>
+    <input type="text" id="buscarReportes" placeholder="Buscar por nombre o color..." autocomplete="off">
+  </div>
+
+  <select id="filtroTipo" class="filter-select">
+    <option value="">Todos</option>
+    <option value="perdido">Perdido</option>
+    <option value="encontrado">Encontrado</option>
+  </select>
+
+  <select id="filtroCategoria" class="filter-select">
+    <option value="">Todas las categorías</option>
+    <option value="Documentos">Documentos</option>
+    <option value="Tecnología">Tecnología</option>
+    <option value="Accesorios">Accesorios</option>
+    <option value="Ropa">Ropa</option>
+    <option value="Llaves">Llaves</option>
+    <option value="Otros">Otros</option>
+  </select>
+</div>
+
+<div id="reportesGrid" class="grid-resultados" style="margin-top:18px;">
+  <!-- tarjetas se insertan aquí -->
+</div>
+
+<script>
+const buscarInput = document.getElementById('buscarReportes');
+const filtroTipo = document.getElementById('filtroTipo');
+const filtroCategoria = document.getElementById('filtroCategoria');
+const grid = document.getElementById('reportesGrid');
+let allReportes = [];
+
+async function cargarReportes(){
+  try{
+    const res = await fetch('/api/mis_reportes');
+    const data = await res.json();
+    if (!data.ok) {
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:#c33;">Error cargando reportes</div>';
+      return;
+    }
+    allReportes = data.datos || [];
+    renderizar();
+  }catch(e){
+    console.error(e);
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:#c33;">Error en la solicitud</div>';
+  }
+}
+
+function renderizar(){
+  const q = buscarInput.value.trim().toLowerCase();
+  const tipo = filtroTipo.value;
+  const cat = filtroCategoria.value;
+
+  const filtrados = allReportes.filter(r => {
+    if (tipo && r.tipo !== tipo) return false;
+    if (cat && r.categoria !== cat) return false;
+    if (!q) return true;
+    return (r.NOMBRE || r.nombre || '').toLowerCase().includes(q) || (r.COLOR || r.color || '').toLowerCase().includes(q);
+  });
+
+  grid.innerHTML = '';
+  if (filtrados.length === 0){
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--sapphire);">No hay reportes que coincidan</div>';
+    return;
+  }
+
+  filtrados.forEach(r => {
+    const img = r.IMAGEN || r.imagen || null;
+    const tipoLabel = r.tipo === 'perdido' ? 'Perdido' : 'Encontrado';
+    const fecha = r.FECHA ? new Date(r.FECHA).toLocaleDateString() : '';
+
+    const imgHtml = img ? `<img class="tarjeta-img" src="${img}" alt="Imagen">` : '';
+
+    const html = `
+      <div class="tarjeta-resultado">
+        ${imgHtml}
+        <div class="tarjeta-contenido">
+          <div>
+            <div class="tarjeta-titulo">${r.NOMBRE || r.nombre || 'Sin título'}</div>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:6px;">
+              <span class="tarjeta-categoria">${r.categoria || ''}</span>
+              <small style="color:#888;font-size:11px;">${tipoLabel} • ${fecha}</small>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;">
+            <a class="tarjeta-btn" href="/detalles/${r.ID_OBJETO}">Ver</a>
+          </div>
+        </div>
+      </div>
+    `;
+
+    grid.insertAdjacentHTML('beforeend', html);
+  });
+}
+
+buscarInput.addEventListener('input', renderizar);
+filtroTipo.addEventListener('change', renderizar);
+filtroCategoria.addEventListener('change', renderizar);
+
+cargarReportes();
+</script>
+
+{% endblock %}

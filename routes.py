@@ -677,6 +677,142 @@ def init_routes(app):
     def perfil():
         return render_template("perfil.html", active="perfil")
     
+    @app.route("/datos_perfil", methods=['GET'])
+    @login_required
+    def datos_perfil():
+        """Obtiene los datos del perfil del usuario actual"""
+        try:
+            id_usuario = session['id_usuario']
+            db = conectar_db()
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+            
+            # Obtener datos del perfil
+            cursor.execute('''
+                SELECT "NOMBRE", "APELLIDO", "TELEFONO", "CORREO", "FOTO_PERFIL"
+                FROM "Perfiles"
+                WHERE "ID_USUARIO" = %s
+            ''', (id_usuario,))
+            
+            perfil = cursor.fetchone()
+            cursor.close()
+            db.close()
+            
+            if perfil:
+                return jsonify({
+                    'ok': True,
+                    'datos': perfil
+                })
+            else:
+                return jsonify({
+                    'ok': True,
+                    'datos': {
+                        'NOMBRE': '',
+                        'APELLIDO': '',
+                        'TELEFONO': '',
+                        'CORREO': '',
+                        'FOTO_PERFIL': 'https://via.placeholder.com/200'
+                    }
+                })
+        except Exception as e:
+            return jsonify({'ok': False, 'error': str(e)}), 500
+    
+    @app.route("/guardar_perfil", methods=['POST'])
+    @login_required
+    def guardar_perfil():
+        """Guarda los datos del perfil del usuario"""
+        try:
+            id_usuario = session['id_usuario']
+            nombre = request.form.get('nombre', '').strip()
+            apellido = request.form.get('apellido', '').strip()
+            telefono = request.form.get('telefono', '').strip()
+            correo = request.form.get('correo', '').strip()
+            
+            db = conectar_db()
+            cursor = db.cursor()
+            
+            # Verificar si ya existe perfil
+            cursor.execute('SELECT 1 FROM "Perfiles" WHERE "ID_USUARIO" = %s', (id_usuario,))
+            existe = cursor.fetchone()
+            
+            if existe:
+                # Actualizar perfil existente
+                cursor.execute('''
+                    UPDATE "Perfiles"
+                    SET "NOMBRE" = %s, "APELLIDO" = %s, "TELEFONO" = %s, "CORREO" = %s, "FECHA_ACTUALIZACION" = CURRENT_TIMESTAMP
+                    WHERE "ID_USUARIO" = %s
+                ''', (nombre, apellido, telefono, correo, id_usuario))
+            else:
+                # Crear nuevo perfil
+                cursor.execute('''
+                    INSERT INTO "Perfiles" ("ID_USUARIO", "NOMBRE", "APELLIDO", "TELEFONO", "CORREO")
+                    VALUES (%s, %s, %s, %s, %s)
+                ''', (id_usuario, nombre, apellido, telefono, correo))
+            
+            db.commit()
+            cursor.close()
+            db.close()
+            
+            return jsonify({'ok': True, 'mensaje': 'Perfil actualizado correctamente'})
+        
+        except Exception as e:
+            return jsonify({'ok': False, 'error': str(e)}), 500
+    
+    @app.route("/subir_foto_perfil", methods=['POST'])
+    @login_required
+    def subir_foto_perfil():
+        """Sube la foto de perfil del usuario"""
+        try:
+            id_usuario = session['id_usuario']
+            
+            if 'foto' not in request.files:
+                return jsonify({'ok': False, 'error': 'No se encontró imagen'}), 400
+            
+            foto = request.files['foto']
+            
+            if foto.filename == '':
+                return jsonify({'ok': False, 'error': 'No se seleccionó imagen'}), 400
+            
+            # Validar extensión
+            ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+            if not ('.' in foto.filename and foto.filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS):
+                return jsonify({'ok': False, 'error': 'Formato de imagen no permitido'}), 400
+            
+            # Guardar archivo
+            filename = f"perfil_{id_usuario}_{uuid.uuid4().hex}.{foto.filename.rsplit('.', 1)[1].lower()}"
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            foto.save(filepath)
+            
+            ruta_guardada = f"/uploads/{filename}"
+            
+            db = conectar_db()
+            cursor = db.cursor()
+            
+            # Verificar si existe perfil
+            cursor.execute('SELECT 1 FROM "Perfiles" WHERE "ID_USUARIO" = %s', (id_usuario,))
+            existe = cursor.fetchone()
+            
+            if existe:
+                cursor.execute('''
+                    UPDATE "Perfiles"
+                    SET "FOTO_PERFIL" = %s, "FECHA_ACTUALIZACION" = CURRENT_TIMESTAMP
+                    WHERE "ID_USUARIO" = %s
+                ''', (ruta_guardada, id_usuario))
+            else:
+                cursor.execute('''
+                    INSERT INTO "Perfiles" ("ID_USUARIO", "FOTO_PERFIL")
+                    VALUES (%s, %s)
+                ''', (id_usuario, ruta_guardada))
+            
+            db.commit()
+            cursor.close()
+            db.close()
+            
+            return jsonify({'ok': True, 'ruta': ruta_guardada, 'mensaje': 'Foto actualizada correctamente'})
+        
+        except Exception as e:
+            return jsonify({'ok': False, 'error': str(e)}), 500
+    
+    
     @app.route("/dashboard")
     @login_required
     def dashboard():
@@ -686,6 +822,132 @@ def init_routes(app):
     def reportes():
         return render_template("reportes.html", active="reportes")
 
+    @app.route('/api/mis_reportes', methods=['GET'])
+    @login_required
+    def api_mis_reportes():
+        """Devuelve JSON con los reportes (perdidos/encontrados) del usuario en sesión"""
+        try:
+            id_usuario = session['id_usuario']
+            db = conectar_db()
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+
+            query = '''
+                SELECT r."ID_REPORTE" as id_reporte, 'perdido' as tipo, o."ID_OBJETO", o."NOMBRE", o."COLOR", o."IMAGEN", r."FECHA", r."OBSERVACIONES", o."ID_CATEGORIA" as categoria
+                FROM "Reportes_perdidos" r
+                JOIN "Objetos" o ON r."ID_OBJETO" = o."ID_OBJETO"
+                WHERE r."ID_USUARIO" = %s
+                UNION ALL
+                SELECT r."ID_REPORTE_ENC" as id_reporte, 'encontrado' as tipo, o."ID_OBJETO", o."NOMBRE", o."COLOR", o."IMAGEN", r."FECHA", r."OBSERVACIONES", o."ID_CATEGORIA" as categoria
+                FROM "Reportes_encontrados" r
+                JOIN "Objetos" o ON r."ID_OBJETO" = o."ID_OBJETO"
+                WHERE r."ID_USUARIO" = %s
+                ORDER BY "FECHA" DESC
+            '''
+
+            cursor.execute(query, (id_usuario, id_usuario))
+            reportes = cursor.fetchall()
+            cursor.close()
+            db.close()
+
+            return jsonify({'ok': True, 'datos': reportes})
+        except Exception as e:
+            return jsonify({'ok': False, 'error': str(e)}), 500
+
     @app.route("/configuracion")
+    @login_required
     def configuracion():
         return render_template("configuracion.html", active="configuracion")
+
+    @app.route('/api/configuracion', methods=['GET'])
+    @login_required
+    def api_get_configuracion():
+        """Obtiene configuración del usuario"""
+        try:
+            id_usuario = session['id_usuario']
+            db = conectar_db()
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+            
+            # Verificar si existe configuración (por ahora devolvemos defaults)
+            config = {
+                'tema': request.cookies.get('tema', 'claro'),
+                'notificaciones': request.cookies.get('notificaciones', 'true') == 'true',
+                'privacidad': request.cookies.get('privacidad', 'publica'),
+                'email_reportes': request.cookies.get('email_reportes', 'true') == 'true'
+            }
+            
+            cursor.close()
+            db.close()
+            
+            return jsonify({'ok': True, 'config': config})
+        except Exception as e:
+            return jsonify({'ok': False, 'error': str(e)}), 500
+
+    @app.route('/api/configuracion', methods=['POST'])
+    @login_required
+    def api_guardar_configuracion():
+        """Guarda configuración del usuario mediante cookies"""
+        try:
+            tema = request.json.get('tema', 'claro')
+            notificaciones = request.json.get('notificaciones', True)
+            privacidad = request.json.get('privacidad', 'publica')
+            email_reportes = request.json.get('email_reportes', True)
+            
+            response = jsonify({'ok': True, 'mensaje': 'Configuración guardada'})
+            response.set_cookie('tema', tema, max_age=31536000)
+            response.set_cookie('notificaciones', str(notificaciones).lower(), max_age=31536000)
+            response.set_cookie('privacidad', privacidad, max_age=31536000)
+            response.set_cookie('email_reportes', str(email_reportes).lower(), max_age=31536000)
+            
+            return response
+        except Exception as e:
+            return jsonify({'ok': False, 'error': str(e)}), 500
+
+    @app.route('/api/cambiar_contrasena', methods=['POST'])
+    @login_required
+    def api_cambiar_contrasena():
+        """Cambia la contraseña del usuario"""
+        try:
+            id_usuario = session['id_usuario']
+            contrasena_actual = request.json.get('contrasena_actual', '').strip()
+            contrasena_nueva = request.json.get('contrasena_nueva', '').strip()
+            contrasena_confirmar = request.json.get('contrasena_confirmar', '').strip()
+            
+            if not contrasena_actual or not contrasena_nueva or not contrasena_confirmar:
+                return jsonify({'ok': False, 'error': 'Todos los campos son requeridos'}), 400
+            
+            if contrasena_nueva != contrasena_confirmar:
+                return jsonify({'ok': False, 'error': 'Las contraseñas no coinciden'}), 400
+            
+            if len(contrasena_nueva) < 6:
+                return jsonify({'ok': False, 'error': 'La contraseña debe tener al menos 6 caracteres'}), 400
+            
+            db = conectar_db()
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+            
+            # Obtener contraseña actual
+            cursor.execute('SELECT "CONTRASENA" FROM "Usuarios" WHERE "ID_USUARIO" = %s', (id_usuario,))
+            usuario = cursor.fetchone()
+            
+            if not usuario:
+                cursor.close()
+                db.close()
+                return jsonify({'ok': False, 'error': 'Usuario no encontrado'}), 404
+            
+            # Verificar contraseña actual
+            if not check_password_hash(usuario['CONTRASENA'], contrasena_actual):
+                cursor.close()
+                db.close()
+                return jsonify({'ok': False, 'error': 'Contraseña actual incorrecta'}), 401
+            
+            # Actualizar contraseña
+            nueva_hash = generate_password_hash(contrasena_nueva)
+            cursor.execute('UPDATE "Usuarios" SET "CONTRASENA" = %s WHERE "ID_USUARIO" = %s', 
+                         (nueva_hash, id_usuario))
+            db.commit()
+            cursor.close()
+            db.close()
+            
+            return jsonify({'ok': True, 'mensaje': 'Contraseña actualizada correctamente'})
+        except Exception as e:
+            return jsonify({'ok': False, 'error': str(e)}), 500
+

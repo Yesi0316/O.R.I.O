@@ -147,6 +147,131 @@ color:#555;
 margin-top:4px;
 }
 
+/* ===== FILTROS DE BÚSQUEDA ===== */
+
+.search-section{
+display:flex;
+align-items:center;
+gap:12px;
+margin-bottom:35px;
+}
+
+.search-section .search-bar{
+flex:1;
+margin-bottom:0;
+}
+
+.filter-select{
+padding:14px 16px;
+border-radius:15px;
+border:2px solid #e0e0e0;
+background:white;
+color:var(--sapphire);
+font-family:'Libre Baskerville',serif;
+font-size:13px;
+cursor:pointer;
+transition:.25s;
+outline:none;
+min-width:140px;
+}
+
+.filter-select:hover{
+border-color:var(--gold);
+box-shadow:0 0 0 2px rgba(224,197,143,.15);
+}
+
+.filter-select:focus{
+border-color:var(--gold);
+box-shadow:0 0 0 3px rgba(224,197,143,.25);
+}
+
+/* ===== GRID DE RESULTADOS ===== */
+
+.grid-resultados{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+gap:15px;
+animation:fadeIn .3s ease;
+}
+
+@keyframes fadeIn{
+from{ opacity:0; transform:translateY(10px); }
+to{ opacity:1; transform:translateY(0); }
+}
+
+.tarjeta-resultado{
+background:white;
+border-radius:15px;
+overflow:hidden;
+box-shadow:0 8px 18px rgba(0,0,0,.08);
+transition:.25s;
+display:flex;
+flex-direction:column;
+height:100%;
+}
+
+.tarjeta-resultado:hover{
+transform:translateY(-4px);
+box-shadow:0 12px 28px rgba(0,0,0,.15);
+}
+
+.tarjeta-img{
+width:100%;
+height:120px;
+object-fit:cover;
+background:linear-gradient(135deg,var(--cream),#f0f0f0);
+}
+
+.tarjeta-contenido{
+padding:12px;
+display:flex;
+flex-direction:column;
+gap:6px;
+flex:1;
+justify-content:space-between;
+}
+
+.tarjeta-titulo{
+font-family:'Bodoni Moda',serif;
+color:var(--royal);
+font-size:13px;
+font-weight:600;
+line-height:1.2;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+}
+
+.tarjeta-categoria{
+font-size:11px;
+color:var(--sapphire);
+}
+
+.tarjeta-color{
+font-size:11px;
+color:#666;
+}
+
+.tarjeta-btn{
+padding:6px 10px;
+background:linear-gradient(135deg,var(--gold),#f2d9a6);
+color:var(--royal);
+border-radius:8px;
+text-decoration:none;
+text-align:center;
+font-size:11px;
+font-weight:600;
+transition:.25s;
+border:none;
+cursor:pointer;
+margin-top:4px;
+}
+
+.tarjeta-btn:hover{
+transform:scale(1.05);
+box-shadow:0 4px 12px rgba(224,197,143,.3);
+}
+
 /* ===== FAB ===== */
 
 .fab{
@@ -228,4 +353,20 @@ right:20px;
 bottom:100px;
 right:20px;
 }
+
+.search-section{
+flex-direction:column;
+gap:10px;
+}
+
+.filter-select{
+width:100%;
+min-width:auto;
+}
+
+.grid-resultados{
+grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+gap:12px;
+}
+
 }

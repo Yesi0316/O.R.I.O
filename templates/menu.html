@@ -4,6 +4,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -12,11 +13,32 @@
 <h1>Bienvenido Usuario</h1>
 </div>
 
+<!-- BUSCADOR CON FILTROS EN UNA SOLA BARRA -->
+<div class="search-section">
 <div class="search-bar">
 <i class="fas fa-search"></i>
-<input type="text" placeholder="Buscar objeto perdido o encontrado...">
+<input type="text" id="motorBusqueda" placeholder="Buscar objeto..." autocomplete="off">
 </div>
 
+<select id="categoria" class="filter-select">
+<option value="">Todas las categorías</option>
+<option value="Documentos">Documentos</option>
+<option value="Tecnología">Tecnología</option>
+<option value="Accesorios">Accesorios</option>
+<option value="Ropa">Ropa</option>
+<option value="Llaves">Llaves</option>
+<option value="Otros">Otros</option>
+</select>
+
+<select id="tipo" class="filter-select">
+<option value="">Todos los tipos</option>
+<option value="perdido">Perdido</option>
+<option value="encontrado">Encontrado</option>
+</select>
+</div>
+
+<!-- CONTENIDO PRINCIPAL (Se oculta cuando hay búsqueda) -->
+<div id="contenidoPrincipal">
 <div class="cards">
 <div class="card"><h3>12</h3><span>Reportes totales</span></div>
 <div class="card"><h3>5</h3><span>Recuperados</span></div>
@@ -45,20 +67,12 @@
 </div>
 </div>
 </div>
-
-<div class="fab" id="fab" onclick="toggleFabMenu()">
-<i class="fas fa-plus"></i>
 </div>
 
-<div class="fab-menu" id="fabMenu">
-<a href="/formulario_perdido" class="fab-btn">
-<i class="fas fa-search"></i>
-</a>
-
-<a href="/formulario_encontrado" class="fab-btn">
-<i class="fas fa-box"></i>
-</a>
+<!-- RESULTADOS DE BÚSQUEDA (Se muestra cuando hay búsqueda) -->
+<div id="resultadosBusqueda" class="grid-resultados" style="display:none;">
 </div>
+
 
 <script>
 function toggleFabMenu(){
@@ -68,6 +82,74 @@ const menu = document.getElementById("fabMenu");
 fab.classList.toggle("active");
 menu.classList.toggle("active");
 }
+
+// MOTOR DE BÚSQUEDA
+const motorBusqueda = document.getElementById("motorBusqueda");
+const categoria = document.getElementById("categoria");
+const tipo = document.getElementById("tipo");
+const contenidoPrincipal = document.getElementById("contenidoPrincipal");
+const resultadosBusqueda = document.getElementById("resultadosBusqueda");
+
+async function realizarBusqueda() {
+const q = motorBusqueda.value.trim();
+const cat = categoria.value;
+const tip = tipo.value;
+
+if (!q) {
+// Si no hay búsqueda, mostrar contenido principal
+contenidoPrincipal.style.display = "block";
+resultadosBusqueda.style.display = "none";
+return;
+}
+
+// Hay búsqueda, ocultar contenido principal
+contenidoPrincipal.style.display = "none";
+resultadosBusqueda.style.display = "grid";
+
+const params = new URLSearchParams({
+q: q,
+categoria: cat,
+tipo: tip
+});
+
+try {
+const res = await fetch(`/busquedas?${params.toString()}`);
+const datos = await res.json();
+resultadosBusqueda.innerHTML = "";
+
+if (datos["datos"] && datos["datos"].length > 0) {
+const objetos = datos["datos"];
+objetos.forEach(objeto => {
+let imagen_html = "";
+if (objeto.IMAGEN) {
+imagen_html = `<img src="${objeto.IMAGEN}" alt="Imagen del objeto" class="tarjeta-img">`;
+}
+
+let html = `<div class="tarjeta-resultado">
+${imagen_html}
+<div class="tarjeta-contenido">
+<div class="tarjeta-titulo">${objeto.NOMBRE}</div>
+<div class="tarjeta-categoria">${objeto.ID_CATEGORIA}</div>
+<div class="tarjeta-color">${objeto.COLOR}</div>
+<a class="tarjeta-btn" href="/detalles/${objeto.ID_OBJETO}">Ver</a>
+</div>
+</div>`;
+
+resultadosBusqueda.insertAdjacentHTML("beforeend", html);
+});
+} else {
+resultadosBusqueda.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--sapphire); font-size: 14px;">${datos["mensaje"] || "No se encontraron resultados"}</div>`;
+}
+} catch (error) {
+console.error("Error en la búsqueda:", error);
+resultadosBusqueda.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: red; font-size: 14px;">Error al realizar la búsqueda</div>`;
+}
+}
+
+// Event listeners
+motorBusqueda.addEventListener("input", realizarBusqueda);
+categoria.addEventListener("change", realizarBusqueda);
+tipo.addEventListener("change", realizarBusqueda);
 </script>
 
 {% endblock %}

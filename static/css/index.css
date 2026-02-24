@@ -42,11 +42,12 @@ transition:transform .8s ease;
 }
 
 .slide{
-min-width:100%;
-height:100%;
-background-size:cover;
-background-position:center;
-position:relative;
+	min-width:100%;
+	height:100%;
+	background-size:cover;
+	/* Mover el foco de la imagen hacia la derecha para que no lo tape el panel blanco */
+	background-position: calc(50% + 140px) center;
+	position:relative;
 }
 
 /* IMÁGENES */
@@ -67,6 +68,15 @@ position:absolute;
 width:100%;
 height:100%;
 background:linear-gradient(to right, rgba(17,34,80,.5), rgba(17,34,80,.2));
+}
+
+/* Responsive: reducir el desplazamiento en pantallas pequeñas */
+@media (max-width:1200px){
+	.slide{ background-position: calc(50% + 60px) center; }
+}
+
+@media (max-width:900px){
+	.slide{ background-position: center; }
 }
 
 /* PARTE BLANCA CON SVG */
