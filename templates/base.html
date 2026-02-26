@@ -72,7 +72,7 @@ window.addEventListener('DOMContentLoaded', function() {
 {% block content %}{% endblock %}
 </div>
 
-{% if active != 'perfil' %}
+{% if active != 'perfil' and not hide_fab %}
 
 <div class="fab" id="fab" onclick="toggleFabMenu()">
     <i class="fas fa-plus"></i>
@@ -83,7 +83,7 @@ window.addEventListener('DOMContentLoaded', function() {
         <i class="fas fa-search"></i>
     </a>
 
-    <a href="/formulario_encontrado" class="fab-btn">
+    <a href="/formulario_objeto_encontrado" class="fab-btn">
         <i class="fas fa-box"></i>
     </a>
 </div>

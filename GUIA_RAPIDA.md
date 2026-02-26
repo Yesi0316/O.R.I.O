@@ -9,7 +9,6 @@ Tu código ahora está:
 - ✅ **Mantenible** - Fácil de entender y modificar
 
 ---
-
 ## 📦 Archivos Principales
 
 | Archivo | Descripción |

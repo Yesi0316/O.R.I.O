@@ -56,34 +56,49 @@ def init_routes(app):
     def detalles_objeto(id_objeto):
         db = conectar_db()
         cursor = db.cursor(cursor_factory=RealDictCursor)
-        # Buscar objeto y su reporte (perdido o encontrado)
+        # recuperar la información del objeto y al menos un reporte asociado
+        # (se toma el más reciente mediante ORDER BY y LIMIT)
         cursor.execute('''
-            SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", o."ID_CATEGORIA" as CATEGORIA,
-                   r."FECHA", r."OBSERVACIONES", r."ID_USUARIO", u."NOMBRE" as NOMBRE_USUARIO
-            FROM "Objetos" o
-            LEFT JOIN "Reportes_perdidos" r ON o."ID_OBJETO" = r."ID_OBJETO"
-            LEFT JOIN "Usuarios" u ON r."ID_USUARIO" = u."ID_USUARIO"
-            WHERE o."ID_OBJETO" = %s AND r."ID_USUARIO" IS NOT NULL
-            UNION
-            SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", o."ID_CATEGORIA" as CATEGORIA,
-                   r."FECHA", r."OBSERVACIONES", r."ID_USUARIO", u."NOMBRE" as NOMBRE_USUARIO
-            FROM "Objetos" o
-            LEFT JOIN "Reportes_encontrados" r ON o."ID_OBJETO" = r."ID_OBJETO"
-            LEFT JOIN "Usuarios" u ON r."ID_USUARIO" = u."ID_USUARIO"
-            WHERE o."ID_OBJETO" = %s AND r."ID_USUARIO" IS NOT NULL
+            SELECT * FROM (
+                SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", o."ID_CATEGORIA" as CATEGORIA,
+                       r."FECHA", r."OBSERVACIONES", r."ID_USUARIO", u."NOMBRE" as NOMBRE_USUARIO,
+                       'perdido' AS tipo
+                FROM "Objetos" o
+                LEFT JOIN "Reportes_perdidos" r ON o."ID_OBJETO" = r."ID_OBJETO"
+                LEFT JOIN "Usuarios" u ON r."ID_USUARIO" = u."ID_USUARIO"
+                WHERE o."ID_OBJETO" = %s
+                UNION ALL
+                SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", o."ID_CATEGORIA" as CATEGORIA,
+                       r."FECHA", r."OBSERVACIONES", r."ID_USUARIO", u."NOMBRE" as NOMBRE_USUARIO,
+                       'encontrado' AS tipo
+                FROM "Objetos" o
+                LEFT JOIN "Reportes_encontrados" r ON o."ID_OBJETO" = r."ID_OBJETO"
+                LEFT JOIN "Usuarios" u ON r."ID_USUARIO" = u."ID_USUARIO"
+                WHERE o."ID_OBJETO" = %s
+            ) t
+            ORDER BY t."FECHA" DESC
+            LIMIT 1
         ''', (id_objeto, id_objeto))
         item = cursor.fetchone()
-        # Si no hay nombre visible, buscarlo manualmente
-        if item and (not item.get('NOMBRE_USUARIO') or item['NOMBRE_USUARIO'] is None) and item.get('ID_USUARIO'):
+
+        # si el reporte existe pero no trajo el nombre de usuario, intentar obtenerlo
+        if item and (not item.get('NOMBRE_USUARIO')) and item.get('ID_USUARIO'):
             cursor.execute('SELECT "NOMBRE" FROM "Usuarios" WHERE "ID_USUARIO" = %s', (item['ID_USUARIO'],))
             user = cursor.fetchone()
             if user and user.get('NOMBRE'):
                 item['NOMBRE_USUARIO'] = user['NOMBRE']
+
+        # formatear fecha para mostrar
+        if item and isinstance(item.get('FECHA'), datetime):
+            item['FECHA'] = item['FECHA'].strftime('%d/%m/%Y')
+
         cursor.close()
         db.close()
+
         if not item:
-            return render_template('detalles_reportes.html', item=None, error="No se encontró el objeto")
-        return render_template('detalles_reportes.html', item=item)
+            return render_template('detalles_reportes.html', item=None, error="No se encontró el objeto", hide_fab=True, active='')
+        # pasar variables al template para que herede base.html correctamente
+        return render_template('detalles_reportes.html', item=item, hide_fab=True, active='')
     
 
     # CONFIGURAR CARPETAS DE SUBIDAS Y ESTATICAS    
@@ -195,7 +210,7 @@ def init_routes(app):
         else:
             join = ''
 
-        query = f'SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", o."ID_CATEGORIA" FROM "Objetos" o {join} WHERE 1=1'
+        query = f'SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", o."ID_CATEGORIA" AS CATEGORIA FROM "Objetos" o {join} WHERE 1=1'
         params = []
 
         # Buscar por nombre o por categoría (nombre o id)
@@ -355,7 +370,7 @@ def init_routes(app):
             db.commit()
         cursor.close()
         db.close()
-        return render_template('form_perdido.html', categorias=categorias)
+        return render_template('form_perdido.html', categorias=categorias, active='panel', hide_fab=True)
 
 
     @app.route('/formulario_reporte2')
@@ -463,7 +478,7 @@ def init_routes(app):
         cursor.close()
         bd.close()
 
-        return render_template('form_encontrado.html', categorias=categorias)
+        return render_template('form_encontrado.html', categorias=categorias, active='panel', hide_fab=True)
 
 
 
@@ -526,7 +541,7 @@ def init_routes(app):
         if existe:
             cursor.close()
             bd.close()
-            return jsonify({"mensaje": "Ya existe un reporte igual para este usuario.", "existe": true})
+            return jsonify({"mensaje": "Ya existe un reporte igual para este usuario.", "existe": True})
 
         cursor.execute("""
             INSERT INTO "Objetos"  
@@ -950,4 +965,102 @@ def init_routes(app):
             return jsonify({'ok': True, 'mensaje': 'Contraseña actualizada correctamente'})
         except Exception as e:
             return jsonify({'ok': False, 'error': str(e)}), 500
+
+    @app.route('/api/estadisticas')
+    @login_required
+    def api_estadisticas():
+        """Devuelve las estadísticas del dashboard"""
+        try:
+            db = conectar_db()
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+            
+            # Reportes totales (suma de encontrados y perdidos)
+            cursor.execute('SELECT COUNT(*) as total FROM "Reportes_encontrados"')
+            encontrados = cursor.fetchone()['total']
+            
+            cursor.execute('SELECT COUNT(*) as total FROM "Reportes_perdidos"')
+            perdidos = cursor.fetchone()['total']
+            
+            reportes_totales = encontrados + perdidos
+            
+            # Recuperados: objetos que fueron perdidos Y encontrados
+            cursor.execute('''
+                SELECT COUNT(DISTINCT rp."ID_OBJETO") as recuperados
+                FROM "Reportes_perdidos" rp
+                INNER JOIN "Reportes_encontrados" re ON rp."ID_OBJETO" = re."ID_OBJETO"
+            ''')
+            recuperados = cursor.fetchone()['recuperados']
+            
+            # Pendientes: reportes perdidos sin correspondencia en encontrados
+            cursor.execute('''
+                SELECT COUNT(*) as pendientes
+                FROM "Reportes_perdidos" rp
+                WHERE rp."ID_OBJETO" NOT IN (
+                    SELECT DISTINCT "ID_OBJETO" FROM "Reportes_encontrados"
+                )
+            ''')
+            pendientes = cursor.fetchone()['pendientes']
+            
+            # Usuarios activos (usuarios únicos que han reportado algo)
+            cursor.execute('''
+                SELECT COUNT(DISTINCT id_usuario) as activos FROM (
+                    SELECT "ID_USUARIO" as id_usuario FROM "Reportes_encontrados"
+                    UNION
+                    SELECT "ID_USUARIO" as id_usuario FROM "Reportes_perdidos"
+                ) usuarios_unicos
+            ''')
+            usuarios_activos = cursor.fetchone()['activos']
+            
+            cursor.close()
+            db.close()
+            
+            return jsonify({
+                'reportes_totales': reportes_totales,
+                'recuperados': recuperados,
+                'pendientes': pendientes,
+                'usuarios_activos': usuarios_activos
+            })
+        except Exception as e:
+            print(f"Error en estadísticas: {e}")
+            return jsonify({
+                'reportes_totales': 0,
+                'recuperados': 0,
+                'pendientes': 0,
+                'usuarios_activos': 0
+            }), 500
+
+    @app.route('/api/actividad')
+    @login_required
+    def api_actividad():
+        """Devuelve el historial de actividad del usuario"""
+        try:
+            id_usuario = session.get('id_usuario')
+            db = conectar_db()
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+            
+            # traer los últimos 10 eventos del usuario (perdidos o encontrados)
+            cursor.execute('''
+                SELECT 'perdido' AS tipo, rp."FECHA" as fecha, o."NOMBRE" as nombre
+                FROM "Reportes_perdidos" rp
+                JOIN "Objetos" o ON rp."ID_OBJETO" = o."ID_OBJETO"
+                WHERE rp."ID_USUARIO" = %s
+                UNION ALL
+                SELECT 'encontrado' AS tipo, re."FECHA" as fecha, o."NOMBRE" as nombre
+                FROM "Reportes_encontrados" re
+                JOIN "Objetos" o ON re."ID_OBJETO" = o."ID_OBJETO"
+                WHERE re."ID_USUARIO" = %s
+                ORDER BY fecha DESC
+                LIMIT 10
+            ''', (id_usuario, id_usuario))
+            eventos = cursor.fetchall()
+            cursor.close()
+            db.close()
+            # convertir fecha a string ISO para JS
+            for ev in eventos:
+                if isinstance(ev.get('fecha'), datetime):
+                    ev['fecha'] = ev['fecha'].isoformat()
+            return jsonify({'eventos': eventos})
+        except Exception as e:
+            print(f"Error en actividad: {e}")
+            return jsonify({'eventos': []}), 500
 

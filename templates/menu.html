@@ -40,31 +40,17 @@
 <!-- CONTENIDO PRINCIPAL (Se oculta cuando hay búsqueda) -->
 <div id="contenidoPrincipal">
 <div class="cards">
-<div class="card"><h3>12</h3><span>Reportes totales</span></div>
-<div class="card"><h3>5</h3><span>Recuperados</span></div>
-<div class="card"><h3>3</h3><span>Pendientes</span></div>
-<div class="card"><h3>24</h3><span>Usuarios activos</span></div>
+<div class="card"><h3 id="reportes-totales">-</h3><span>Reportes totales</span></div>
+<div class="card"><h3 id="recuperados">-</h3><span>Recuperados</span></div>
+<div class="card"><h3 id="pendientes">-</h3><span>Pendientes</span></div>
+<div class="card"><h3 id="usuarios-activos">-</h3><span>Usuarios activos</span></div>
 </div>
 
 <div class="activity">
 <h2>Historial de Actividad</h2>
 
-<div class="activity-box">
-<div class="activity-item">
-<i class="fas fa-search"></i>
-<div>
-<strong>Objeto perdido reportado</strong>
-<p>Mochila negra - Hace 5 minutos</p>
-</div>
-</div>
-
-<div class="activity-item">
-<i class="fas fa-box"></i>
-<div>
-<strong>Objeto encontrado registrado</strong>
-<p>Celular Samsung - Hace 20 minutos</p>
-</div>
-</div>
+<div class="activity-box" id="actividadBox">
+<!-- Items se generan dinámicamente -->
 </div>
 </div>
 </div>
@@ -81,6 +67,75 @@ const menu = document.getElementById("fabMenu");
 
 fab.classList.toggle("active");
 menu.classList.toggle("active");
+}
+
+// Cargar estadísticas al iniciar la página
+async function cargarEstadisticas() {
+try {
+const res = await fetch('/api/estadisticas');
+const datos = await res.json();
+
+document.getElementById('reportes-totales').textContent = datos.reportes_totales;
+document.getElementById('recuperados').textContent = datos.recuperados;
+document.getElementById('pendientes').textContent = datos.pendientes;
+document.getElementById('usuarios-activos').textContent = datos.usuarios_activos;
+} catch (error) {
+console.error("Error al cargar estadísticas:", error);
+// En caso de error, dejar los guiones
+}
+}
+
+// Cargar estadísticas cuando la página se cargue
+document.addEventListener('DOMContentLoaded', () => {
+    cargarEstadisticas();
+    cargarActividad();
+});
+
+// calculadora de tiempo transcurrido
+function tiempoTranscurrido(fechaStr) {
+    const fecha = new Date(fechaStr);
+    const ahora = new Date();
+    const diff = ahora - fecha; // ms
+    const minutos = Math.floor(diff / 60000);
+    if (minutos < 1) return 'Hace unos segundos';
+    if (minutos < 60) return `Hace ${minutos} minuto${minutos === 1 ? '' : 's'}`;
+    const horas = Math.floor(minutos / 60);
+    if (horas < 24) return `Hace ${horas} hora${horas === 1 ? '' : 's'}`;
+    const dias = Math.floor(horas / 24);
+    return `Hace ${dias} día${dias === 1 ? '' : 's'}`;
+}
+
+// Cargar actividad del usuario
+async function cargarActividad() {
+    try {
+        const res = await fetch('/api/actividad');
+        const data = await res.json();
+        const contenedor = document.getElementById('actividadBox');
+        contenedor.innerHTML = '';
+        if (data.eventos && data.eventos.length > 0) {
+            data.eventos.forEach(ev => {
+                const icon = ev.tipo === 'perdido' ? 'fa-search' : 'fa-box';
+                const texto = ev.tipo === 'perdido'
+                    ? 'Objeto perdido reportado'
+                    : 'Objeto encontrado registrado';
+                const tiempo = tiempoTranscurrido(ev.fecha);
+                const nombre = ev.nombre || '';
+                const item = document.createElement('div');
+                item.classList.add('activity-item');
+                item.innerHTML = `
+                    <i class="fas ${icon}"></i>
+                    <div>
+                        <strong>${texto}</strong>
+                        <p>${nombre} - ${tiempo}</p>
+                    </div>`;
+                contenedor.appendChild(item);
+            });
+        } else {
+            contenedor.innerHTML = '<div style="padding:20px; text-align:center; color:var(--sapphire);">No hay actividad reciente</div>';
+        }
+    } catch (error) {
+        console.error('Error al cargar actividad:', error);
+    }
 }
 
 // MOTOR DE BÚSQUEDA
@@ -129,7 +184,7 @@ let html = `<div class="tarjeta-resultado">
 ${imagen_html}
 <div class="tarjeta-contenido">
 <div class="tarjeta-titulo">${objeto.NOMBRE}</div>
-<div class="tarjeta-categoria">${objeto.ID_CATEGORIA}</div>
+<div class="tarjeta-categoria">${objeto.CATEGORIA}</div>
 <div class="tarjeta-color">${objeto.COLOR}</div>
 <a class="tarjeta-btn" href="/detalles/${objeto.ID_OBJETO}">Ver</a>
 </div>

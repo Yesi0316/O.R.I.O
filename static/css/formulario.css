@@ -82,6 +82,63 @@ p{
 p a{
     color: #1E90FF;
 }
+
+/* MODO OSCURO */
+body.modo-oscuro {
+    background-color: #1e2330 !important;
+}
+
+body.modo-oscuro form {
+    background-color: #2d3748 !important;
+    color: #e8e8e8;
+}
+
+body.modo-oscuro nav {
+    border-bottom-color: #3f4a5c !important;
+}
+
+body.modo-oscuro .li-formulario a {
+    color: #e8e8e8 !important;
+}
+
+body.modo-oscuro .h2-registro {
+    color: #E0C58F !important;
+}
+
+body.modo-oscuro label {
+    color: #e8e8e8 !important;
+}
+
+body.modo-oscuro input {
+    background-color: #1a1f2e !important;
+    color: #e8e8e8 !important;
+    border-color: #3f4a5c !important;
+}
+
+body.modo-oscuro input::placeholder {
+    color: #777 !important;
+}
+
+body.modo-oscuro input:focus {
+    border-color: #E0C58F !important;
+    box-shadow: 0 0 0 3px rgba(224, 197, 143, 0.1) !important;
+}
+
+body.modo-oscuro button {
+    background-color: #E0C58F !important;
+    color: #0f1419 !important;
+    border-color: #E0C58F !important;
+}
+
+body.modo-oscuro button:hover {
+    background-color: #d4b77b !important;
+    box-shadow: 0 6px 16px rgba(224, 197, 143, 0.3) !important;
+}
+
+body.modo-oscuro p a {
+    color: #6BA3FF !important;
+}
+
 @media screen and (max-width: 600px){
     form{
         width: 100%;

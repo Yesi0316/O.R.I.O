@@ -1,46 +1,55 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalle del Objeto</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block title %}Detalles | O.R.I.O{% endblock %}
 
-<div class="contenedor">
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
+{% endblock %}
 
-    <div class="contenedor-principal">  
-        <div class="contenedor-imagen">
-            {% if item.IMAGEN %}
-                <img class="imagen" src="{{ item.IMAGEN }}" alt="Imagen del objeto">
-            {% else %}
-                <div class="info-detalle"><span class="label">Imagen:</span> No hay imagen del objeto</div>
-            {% endif %}
+{% block content %}
+
+<div class="contenedor detalle-container">
+
+    {% if error %}
+        <div class="detalle-card">
+            <div class="error" style="text-align:center; padding:40px; color:var(--crimson);">
+                {{ error }}
+            </div>
+            <a href="/" class="btn-volver">Volver al inicio</a>
         </div>
-
-        <div class="contenedor-datos">
-            <h1>Detalles del Objeto</h1>
-            <p class="info-detalle"><span class="label">Nombre:</span> {{ item.NOMBRE }}</p>
-            <p class="info-detalle"><span class="label">Categoría:</span> {{ item.CATEGORIA }}</p>
-            <p class="info-detalle"><span class="label">Color:</span> {{ item.COLOR }}</p>
-            <p class="info-detalle"><span class="label">Fecha Reporte:</span> {{ item.FECHA }}</p>
-            <p class="info-detalle"> <span class="label"> Persona que reportó: </span>{{ item.NOMBRE_USUARIO if item.NOMBRE_USUARIO else 'No disponible' }}</p>
-
-            <p class="info-detalle"><span class="label">Observaciones:</span><br>
-                {% if item.OBSERVACIONES %}
-                    {{ item.OBSERVACIONES }}
+    {% else %}
+        <div class="contenedor-principal detalle-card">  
+            <div class="contenedor-imagen">
+                {% if item.IMAGEN %}
+                    <img class="imagen" src="{{ item.IMAGEN }}" alt="Imagen del objeto">
                 {% else %}
-                    No hay observaciones para este objeto
+                    <div class="info-detalle"><span class="label">Imagen:</span> No hay imagen del objeto</div>
                 {% endif %}
-            </p>
+            </div>
 
-            <a href="/menu" class="btn-volver"> Volver</a>
+            <div class="contenedor-datos">
+                <h1>Detalles del Objeto</h1>
+                {% if item.tipo %}
+                    <p class="info-detalle tipo-report"><span class="label">Tipo de reporte:</span> {{ item.tipo|capitalize }}</p>
+                {% endif %}
+                <p class="info-detalle"><span class="label">Nombre:</span> {{ item.NOMBRE }}</p>
+                <p class="info-detalle"><span class="label">Categoría:</span> {{ item.CATEGORIA }}</p>
+                <p class="info-detalle"><span class="label">Color:</span> {{ item.COLOR }}</p>
+                <p class="info-detalle"><span class="label">Fecha Reporte:</span> {{ item.FECHA }}</p>
+                <p class="info-detalle"><span class="label">Persona que reportó:</span> {{ item.NOMBRE_USUARIO or 'No disponible' }}</p>
+
+                <p class="info-detalle"><span class="label">Observaciones:</span><br>
+                    {% if item.OBSERVACIONES %}
+                        {{ item.OBSERVACIONES }}
+                    {% else %}
+                        No hay observaciones para este objeto
+                    {% endif %}
+                </p>
+
+                <a href="javascript:history.back()" class="btn-volver">Volver</a>
+            </div>
         </div>
-    </div>
+    {% endif %}
 </div>
 
-</body>
-</html>
+{% endblock %}

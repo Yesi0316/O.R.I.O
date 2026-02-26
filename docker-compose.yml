@@ -16,11 +16,17 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-    
     mem_limit: 200M
     cpus: "0.25"
   
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    depends_on:
+      - db
 
 volumes:
   db_data:

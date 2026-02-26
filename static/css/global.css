@@ -636,6 +636,54 @@ h1 { /* Título del reporte */
   margin-bottom: 15px;
 }
 
+.tipo-report { /* etiqueta tipo de reporte */
+  font-style: italic;
+  color: var(--sapphire);
+}
+
+.error { /* mensajes de error general */
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--crimson);
+  margin: 40px 0;
+}
+
+/* estilos específicos para la página de detalles */
+.detalle-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 120px); /* espacio para el header/sidebar */
+  padding: 60px 20px;
+  box-sizing: border-box;
+  margin: 0 auto; /* quitar el margin-top heredado */
+}
+
+.back-top {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: auto;
+  padding: 6px 14px;
+  font-size: 14px;
+  background: var(--gold);
+}
+
+.detalle-card {
+  max-width: 800px;
+  width: 100%;
+  background: #fff; /* card should stand out */
+  border-radius: 25px;
+  border: 3px solid var(--gold);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  padding: 30px;
+}
+
+.detalle-card .contenedor-imagen {
+  padding: 0;
+}
+
 .label { /*ESTILO DE LAS ETIQUETAS DE LOS DATOS DEL REPORTE*/
   font-weight: bold;
   color: var(--royal-blue);
