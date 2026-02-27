@@ -50,7 +50,7 @@
                     <input type="date" id="fecha" name="fecha" required>
 
                     <label>Ficha del aprendiz</label>
-                    <input type="integer" id="ficha" name="ficha" required>
+                    <input type="number" id="ficha" name="ficha" required>
 
                     <label class="multiple">Categoría</label>
                     <div class="select-wrap">
@@ -87,27 +87,46 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(form);
+            const mensajeAlerta = document.getElementById('MensajeAlerta');
+            
             try {
+                // Mostrar mensaje de carga
+                mensajeAlerta.innerHTML = 'Enviando reporte...';
+                mensajeAlerta.style.color = '#006bb6';
+                
                 const response = await fetch('/submit_per', {
                     method: 'POST',
                     body: formData
                 });
+                
                 const text = await response.text();
                 let result;
                 try {
                     result = JSON.parse(text);
                 } catch (err) {
                     console.error("El servidor devolvió HTML en vez de JSON:", text);
-                    throw new Error("Error 500: La respuesta NO es JSON.");
+                    throw new Error("Error 500: La respuesta del servidor no es válida.");
                 }
-                const mensajeAlerta = document.getElementById('MensajeAlerta');
-                mensajeAlerta.innerHTML = result.mensaje || "Datos enviados correctamente";
-                mensajeAlerta.style.color = "green";
+                
+                // Verificar si hay error en la respuesta
+                if (result.error || !response.ok) {
+                    mensajeAlerta.innerHTML = result.mensaje || "Error al enviar los datos";
+                    mensajeAlerta.style.color = "red";
+                    console.error("Error:", result);
+                } else {
+                    mensajeAlerta.innerHTML = result.mensaje || "Reporte enviado correctamente";
+                    mensajeAlerta.style.color = "green";
+                    // Limpiar formulario
+                    form.reset();
+                    // Redirigir después de 2 segundos
+                    setTimeout(() => {
+                        window.location.href = '/menu';
+                    }, 2000);
+                }
             } catch (error) {
-                const mensajeAlerta = document.getElementById('MensajeAlerta');
-                mensajeAlerta.innerHTML = "Error al enviar los datos";
+                mensajeAlerta.innerHTML = "Error al enviar los datos: " + error.message;
                 mensajeAlerta.style.color = "red";
-                console.error(error);
+                console.error("Error completo:", error);
             }
         });
     </script>

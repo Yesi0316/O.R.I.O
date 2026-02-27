@@ -257,18 +257,103 @@ body.modo-oscuro .toggle-switch.active {
 
 /* MODO DE ALTO CONTRASTE */
 body.modo-alto-contraste {
-    --color-fondo: #000000;
-    --color-texto: #FFFFFF;
-    --color-boton: #ffffff3d;
-    --color-boton-hover: #112250;
-
-    /* sobrescribir variables globales para contraste máximo */
+    /* colores base para que las demás reglas heredadas puedan usar variables */
     --royal-blue: #000000;
     --royal: #000000;
-    --sapphire: #FFFFFF;
+    --sapphire: #000000;
     --gold: #FFFFFF;
     --cream: #000000;
+    --shell: #000000;
 
-    background: #000000;
-    color: #FFFFFF;
+    /* contrastes adicionales */
+    --negro: #000000;
+    --blanco: #FFFFFF;
+    --gris: #ffffff37;
+
+    background: #000000 !important;
+    color: #FFFFFF !important;
 }
+body.modo-alto-contraste a,
+body.modo-alto-contraste .btn,
+body.modo-alto-contraste .save-btn,
+body.modo-alto-contraste .upload-btn,
+body.modo-alto-contraste .btn-form,
+body.modo-alto-contraste .tarjeta-btn,
+body.modo-alto-contraste .btn-config,
+body.modo-alto-contraste .fab-btn {
+    background: #000 !important;
+    color: #FFF !important;
+    border-color: #FFF !important;
+}
+
+body.modo-alto-contraste .sidebar,
+body.modo-alto-contraste .main,
+body.modo-alto-contraste .card,
+body.modo-alto-contraste .form-card,
+body.modo-alto-contraste .photo-card,
+body.modo-alto-contraste .activity-box,
+body.modo-alto-contraste .config-section {
+    background: #000 !important;
+    color: #FFF !important;
+    border-color: #FFF !important;
+}
+
+body.modo-alto-contraste input,
+body.modo-alto-contraste select,
+body.modo-alto-contraste textarea {
+    background: #000 !important;
+    color: #FFF !important;
+    border: 1px solid #FFF !important;
+}
+
+body.modo-alto-contraste input::placeholder,
+body.modo-alto-contraste textarea::placeholder {
+    color: #CCC !important;
+}
+
+body.modo-alto-contraste .toggle {
+    background: #FFF !important;
+    color: #000 !important;
+}
+
+body.modo-alto-contraste .grid-resultados {
+}
+
+body.modo-alto-contraste .tarjeta-resultado {
+    background: #FFF !important;
+    border: 1px solid #3f4a5c !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.modo-alto-contraste .tarjeta-resultado:hover {
+    box-shadow: 0 8px 20px rgba(224, 197, 143, 0.15) !important;
+}
+
+body.modo-alto-contraste .tarjeta-titulo {
+    color:#FFF !important;
+}
+
+body.modo-alto-contraste .tarjeta-categoria,
+body.modo-alto-contraste .tarjeta-color {
+    color: #b0b0b0 !important;
+}
+
+body.modo-alto-contraste .search-bar input {
+    background: #000 !important;
+    color: #FFF !important;
+    border: 1px solid #FFF !important;
+}
+
+.body.modo-alto-contraste .search-bar input:focus {
+    border-color: #FFF !important;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1) !important;
+}
+
+.body .body.modo-alto-contraste .contenedor-datos{
+    color: #FFF !important;
+    .p{
+        color: #FFF !important;
+    }
+}
+
+

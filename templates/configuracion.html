@@ -197,6 +197,7 @@
     <select id="selectTema" class="select-config">
       <option value="claro">Claro</option>
       <option value="oscuro">Oscuro</option>
+      <option value="alto-contraste">Alto contraste</option>
     </select>
   </div>
 </div>
@@ -303,14 +304,22 @@ async function cargarConfig() {
       document.getElementById('selectPrivacidad').value = config.privacidad;
       
       // Aplicar tema al body
+
+     document.body.classList.remove('modo-oscuro');
+     document.body.classList.remove('modo-alto-contraste'); /*forma de "limpiar" clases previas antes de aplicar la nueva*/
+
+
       if (config.tema === 'oscuro') {
         document.body.classList.add('modo-oscuro');
         localStorage.setItem('modo', 'oscuro');
-      } else {
-        document.body.classList.remove('modo-oscuro');
-        localStorage.setItem('modo', 'claro');
       }
-      
+      else if (config.tema === 'alto-contraste') {
+        document.body.classList.add('modo-alto-contraste');
+        localStorage.setItem('modo', 'alto-contraste');
+        }
+      else {localStorage.setItem('modo', 'claro');
+      }
+
       if (config.notificaciones) {
         document.getElementById('toggleNotif').classList.add('active');
       } else {
@@ -346,12 +355,15 @@ document.getElementById('selectTema').addEventListener('change', function() {
   config.tema = this.value;
   // Guardar en localStorage para que se aplique inmediatamente
   localStorage.setItem('modo', this.value);
-  // Aplicar al body
+  // Limpiar cualquier clase de tema previo
+  document.body.classList.remove('modo-oscuro', 'modo-alto-contraste');
+
   if (this.value === 'oscuro') {
     document.body.classList.add('modo-oscuro');
-  } else {
-    document.body.classList.remove('modo-oscuro');
+  } else if (this.value === 'alto-contraste') {
+    document.body.classList.add('modo-alto-contraste');
   }
+  // si es 'claro' no necesitamos añadir nada
   guardarConfig();
 });
 

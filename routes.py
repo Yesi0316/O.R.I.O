@@ -385,76 +385,98 @@ def init_routes(app):
 
 
     @app.route("/submit_per", methods=["GET","POST"])
+    @login_required
     def submit_per():
-        if request.method != "POST":
-            return jsonify({"mensaje": "Metodo no admitido"})
+        try:
+            if request.method != "POST":
+                return jsonify({"mensaje": "Metodo no admitido"}), 405
 
-        id_objeto = str(random.randint(100000, 999999))
-        id_reporte = str(random.randint(100000, 999999))
+            # Validar campos requeridos
+            id_usuario = session.get('id_usuario')
+            nombre_objeto = request.form.get('nombre_objeto', '').strip()
+            estado = request.form.get('estado', '').strip()
+            color_dominante = request.form.get('color_dominante', '').strip()
+            lugar = request.form.get('lugar', '').strip()
+            fecha = request.form.get('fecha', '').strip()
+            categoria = request.form.get('categoria', '').strip()
+            comentario = request.form.get('comentario', '').strip()
+            
+            if not all([nombre_objeto, estado, color_dominante, lugar, fecha, categoria]):
+                return jsonify({"mensaje": "Faltan campos requeridos", "error": True}), 400
 
-        id_usuario = session['id_usuario']
-        nombre_objeto = request.form.get('nombre_objeto')
-        estado = request.form.get('estado')
-        color_dominante = request.form.get('color_dominante')
-        lugar = request.form.get('lugar')
-        fecha = request.form.get('fecha')
-        ficha = request.form.get('ficha')
-        if ficha:
-            ficha = int(ficha)
-        else:
-            ficha = None  
-        categoria = request.form.get('categoria')
-        comentario = request.form.get('comentario')
+            ficha = request.form.get('ficha')
+            if ficha:
+                try:
+                    ficha = int(ficha)
+                except ValueError:
+                    return jsonify({"mensaje": "La ficha debe ser un número", "error": True}), 400
+            else:
+                ficha = None
 
-        # Archivo
-        imagen = request.files.get('imagen')
-        ruta = None
-        if imagen:
-            # limpia el nombre del archivo
-            filename = secure_filename(imagen.filename)
-            # crea un nombre unico usando uuid para evitar colisiones
-            unique_filename = f"{uuid.uuid4()}_{filename}"
-            # guardarla en la carpeta uploads
-            save_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-            imagen.save(save_path)
-            # guarda la ruta que voy a usar en la base de datos
-            ruta = f"/uploads/{unique_filename}"
+            id_objeto = str(random.randint(100000, 999999))
+            id_reporte = str(random.randint(100000, 999999))
 
-        bd = conectar_db()
-        cursor = bd.cursor()
+            # Archivo
+            imagen = request.files.get('imagen')
+            ruta = None
+            if imagen and imagen.filename:
+                try:
+                    # limpia el nombre del archivo
+                    filename = secure_filename(imagen.filename)
+                    # crea un nombre unico usando uuid para evitar colisiones
+                    unique_filename = f"{uuid.uuid4()}_{filename}"
+                    # crear carpeta si no existe
+                    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+                    # guardarla en la carpeta uploads
+                    save_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+                    imagen.save(save_path)
+                    # guarda la ruta que voy a usar en la base de datos
+                    ruta = f"/uploads/{unique_filename}"
+                except Exception as e:
+                    print(f"Error al guardar imagen: {e}")
+                    return jsonify({"mensaje": "Error al guardar la imagen", "error": True}), 500
 
-        # Asegurar que el estado existe
-        cursor.execute('SELECT 1 FROM "Estados" WHERE "ID_ESTADO" = %s', (estado,))
-        if not cursor.fetchone():
-            estados_default = ['Bueno', 'Regular', 'Malo']
-            for est in estados_default:
-                cursor.execute('INSERT INTO "Estados" ("ID_ESTADO") VALUES (%s) ON CONFLICT DO NOTHING', (est,))
+            bd = conectar_db()
+            if not bd:
+                return jsonify({"mensaje": "Error de conexión a la base de datos", "error": True}), 500
+            
+            cursor = bd.cursor()
+
+            # Asegurar que el estado existe
+            cursor.execute('SELECT 1 FROM "Estados" WHERE "ID_ESTADO" = %s', (estado,))
+            if not cursor.fetchone():
+                cursor.execute('INSERT INTO "Estados" ("ID_ESTADO") VALUES (%s) ON CONFLICT DO NOTHING', (estado,))
+                bd.commit()
+            
+            # Asegurar que la categoría existe
+            cursor.execute('SELECT 1 FROM "Categorias" WHERE "ID_CATEGORIA" = %s', (categoria,))
+            if not cursor.fetchone():
+                cursor.execute('INSERT INTO "Categorias" ("ID_CATEGORIA") VALUES (%s) ON CONFLICT DO NOTHING', (categoria,))
+                bd.commit()
+
+            # Insertar objeto
+            cursor.execute("""INSERT INTO "Objetos" ("ID_OBJETO", "NOMBRE", "COLOR", "ID_ESTADO", "LUGAR_ENCONTRADO", "ID_CATEGORIA", "IMAGEN") 
+                            VALUES (%s, %s, %s, %s, %s, %s, %s)""", 
+                        (id_objeto, nombre_objeto, color_dominante, estado, lugar, categoria, ruta))
+            
+            # Insertar reporte
+            cursor.execute("""INSERT INTO "Reportes_perdidos" ("FECHA", "OBSERVACIONES", "ID_OBJETO", "ID_USUARIO", "ID_REPORTE", "FICHA", "ID_CATEGORIA")
+                            VALUES (%s, %s, %s, %s, %s, %s, %s)""", 
+                        (fecha, comentario, id_objeto, id_usuario, id_reporte, ficha, categoria))
+
             bd.commit()
-        # Asegurar que la categoría existe
-        cursor.execute('SELECT 1 FROM "Categorias" WHERE "ID_CATEGORIA" = %s', (categoria,))
-        if not cursor.fetchone():
-            categorias_default = [
-                'Documentos',
-                'Tecnología',
-                'Accesorios',
-                'Ropa',
-                'Llaves',
-                'Otros'
-            ]
-            for cat in categorias_default:
-                cursor.execute('INSERT INTO "Categorias" ("ID_CATEGORIA") VALUES (%s) ON CONFLICT DO NOTHING', (cat,))
-            bd.commit()
+            cursor.close()
+            bd.close()
 
-        cursor.execute("""INSERT INTO "Objetos" ("ID_OBJETO", "NOMBRE", "COLOR", "ID_ESTADO", "LUGAR_ENCONTRADO", "ID_CATEGORIA", "IMAGEN") VALUES (%s, %s, %s, %s, %s, %s, %s)""", (id_objeto, nombre_objeto, color_dominante, estado, lugar, categoria, ruta))
-        cursor.execute("""INSERT INTO "Reportes_perdidos" ("FECHA", "OBSERVACIONES", "ID_OBJETO", "ID_USUARIO", "ID_REPORTE", "FICHA", "ID_CATEGORIA")VALUES (%s, %s, %s, %s, %s, %s, %s) """, (fecha, comentario, id_objeto, id_usuario, id_reporte, ficha, categoria))
+            session["img"] = ruta
 
-        bd.commit()
-        cursor.close()
-        bd.close()
-
-        session["img"] = ruta
-
-        return jsonify({"mensaje":'datos enviado', "ruta": ruta})
+            return jsonify({"mensaje": "Reporte enviado correctamente", "ruta": ruta}), 200
+            
+        except Exception as e:
+            print(f"Error en submit_per: {e}")
+            import traceback
+            traceback.print_exc()
+            return jsonify({"mensaje": f"Error al procesar el reporte: {str(e)}", "error": True}), 500
 
     # -----------------------------
     # RUTA PARA MOSTRAR IMAGENES SUBIDAS
@@ -493,79 +515,118 @@ def init_routes(app):
         return render_template('reportes_principal.html', estados=estados)
 
     @app.route("/submit_enc", methods=["GET","POST"])
+    @login_required
     def submit_enc():
-        if request.method != "POST":
-            return jsonify({"mensaje": "Metodo no admitido"})
+        try:
+            if request.method != "POST":
+                return jsonify({"mensaje": "Metodo no admitido"}), 405
 
-        id_objeto = str(random.randint(100000, 999999))
-        id_reporte = str(random.randint(100000, 999999))
+            # Validar campos requeridos
+            id_usuario = session.get('id_usuario')
+            nombre_objeto = request.form.get('nombre_objeto', '').strip()
+            estado = request.form.get('estado', '').strip()
+            color_dominante = request.form.get('color_dominante', '').strip()
+            lugar = request.form.get('lugar', '').strip()
+            fecha = request.form.get('fecha', '').strip()
+            categoria = request.form.get('categoria', '').strip()
+            comentario = request.form.get('comentario', '').strip()
+            
+            if not all([nombre_objeto, estado, color_dominante, lugar, fecha, categoria]):
+                return jsonify({"mensaje": "Faltan campos requeridos", "error": True}), 400
 
-        id_usuario = session['id_usuario']
-        nombre_objeto = request.form.get('nombre_objeto')
-        estado = request.form.get('estado')
-        color_dominante = request.form.get('color_dominante')
-        lugar = request.form.get('lugar')
-        fecha = request.form.get('fecha')
-        ficha = request.form.get('ficha')
-        if ficha:
-            ficha = int(ficha)
-        else:
-            ficha = None  
-        categoria = request.form.get('categoria')
-        comentario = request.form.get('comentario')
+            ficha = request.form.get('ficha')
+            if ficha:
+                try:
+                    ficha = int(ficha)
+                except ValueError:
+                    return jsonify({"mensaje": "La ficha debe ser un número", "error": True}), 400
+            else:
+                ficha = None
 
-        # Archivo
-        imagen = request.files.get('imagen')
-        ruta = None
-        if imagen:
-            # limpia el nombre del archivo
-            filename = secure_filename(imagen.filename)
-            # crea un nombre unico usando uuid para evitar colisiones
-            unique_filename = f"{uuid.uuid4()}_{filename}"
-            # guardarla en la carpeta uploads
-            save_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-            imagen.save(save_path)
-            # guarda la ruta que voy a usar en la base de datos
-            ruta = f"/uploads/{unique_filename}"
+            id_objeto = str(random.randint(100000, 999999))
+            id_reporte = str(random.randint(100000, 999999))
 
-        bd = conectar_db()
-        cursor = bd.cursor()
+            # Archivo
+            imagen = request.files.get('imagen')
+            ruta = None
+            if imagen and imagen.filename:
+                try:
+                    # limpia el nombre del archivo
+                    filename = secure_filename(imagen.filename)
+                    # crea un nombre unico usando uuid para evitar colisiones
+                    unique_filename = f"{uuid.uuid4()}_{filename}"
+                    # crear carpeta si no existe
+                    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+                    # guardarla en la carpeta uploads
+                    save_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+                    imagen.save(save_path)
+                    # guarda la ruta que voy a usar en la base de datos
+                    ruta = f"/uploads/{unique_filename}"
+                except Exception as e:
+                    print(f"Error al guardar imagen: {e}")
+                    return jsonify({"mensaje": "Error al guardar la imagen", "error": True}), 500
 
-        # Verificar si ya existe un reporte igual para este usuario y objeto
-        cursor.execute('''
-            SELECT 1 FROM "Reportes_encontrados" r
-            JOIN "Objetos" o ON r."ID_OBJETO" = o."ID_OBJETO"
-            WHERE r."ID_USUARIO" = %s AND o."NOMBRE" = %s AND o."COLOR" = %s AND o."ID_CATEGORIA" = %s
-        ''', (id_usuario, nombre_objeto, color_dominante, categoria))
-        existe = cursor.fetchone()
-        if existe:
+            bd = conectar_db()
+            if not bd:
+                return jsonify({"mensaje": "Error de conexión a la base de datos", "error": True}), 500
+            
+            cursor = bd.cursor()
+
+            # Verificar si ya existe un reporte igual para este usuario y objeto
+            cursor.execute('''
+                SELECT 1 FROM "Reportes_encontrados" r
+                JOIN "Objetos" o ON r."ID_OBJETO" = o."ID_OBJETO"
+                WHERE r."ID_USUARIO" = %s AND o."NOMBRE" = %s AND o."COLOR" = %s AND o."ID_CATEGORIA" = %s
+            ''', (id_usuario, nombre_objeto, color_dominante, categoria))
+            existe = cursor.fetchone()
+            if existe:
+                cursor.close()
+                bd.close()
+                return jsonify({"mensaje": "Ya existe un reporte igual para este usuario.", "existe": True}), 400
+
+            # Asegurar que el estado existe
+            cursor.execute('SELECT 1 FROM "Estados" WHERE "ID_ESTADO" = %s', (estado,))
+            if not cursor.fetchone():
+                cursor.execute('INSERT INTO "Estados" ("ID_ESTADO") VALUES (%s) ON CONFLICT DO NOTHING', (estado,))
+                bd.commit()
+            
+            # Asegurar que la categoría existe
+            cursor.execute('SELECT 1 FROM "Categorias" WHERE "ID_CATEGORIA" = %s', (categoria,))
+            if not cursor.fetchone():
+                cursor.execute('INSERT INTO "Categorias" ("ID_CATEGORIA") VALUES (%s) ON CONFLICT DO NOTHING', (categoria,))
+                bd.commit()
+
+            # Insertar objeto
+            cursor.execute("""
+                INSERT INTO "Objetos"  
+                ("ID_OBJETO", "NOMBRE", "COLOR", "ID_ESTADO", "LUGAR_ENCONTRADO", "ID_CATEGORIA", "IMAGEN")    
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (id_objeto, nombre_objeto, color_dominante, estado, lugar, categoria, ruta))
+            
+            # Insertar reporte
+            cursor.execute("""
+                INSERT INTO "Reportes_encontrados"
+                ("FECHA", "OBSERVACIONES", "ID_OBJETO", "ID_USUARIO", "ID_REPORTE_ENC", "FICHA", "ID_CATEGORIA")
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (fecha, comentario, id_objeto, id_usuario, id_reporte, ficha, categoria))
+
+            bd.commit()
             cursor.close()
             bd.close()
-            return jsonify({"mensaje": "Ya existe un reporte igual para este usuario.", "existe": True})
 
-        cursor.execute("""
-            INSERT INTO "Objetos"  
-            ("ID_OBJETO", "NOMBRE", "COLOR", "ID_ESTADO", "LUGAR_ENCONTRADO", "ID_CATEGORIA", "IMAGEN")    
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-            """, (id_objeto, nombre_objeto, color_dominante, estado, lugar, categoria, ruta))
-        cursor.execute("""
-            INSERT INTO "Reportes_encontrados"
-            ("FECHA", "OBSERVACIONES", "ID_OBJETO", "ID_USUARIO", "ID_REPORTE_ENC", "FICHA", "ID_CATEGORIA")
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-            """, (fecha, comentario, id_objeto, id_usuario, id_reporte, ficha, categoria))
+            session["img"] = ruta
 
-
-        bd.commit()
-        cursor.close()
-        bd.close()
-
-        session["img"] = ruta
-
-        return jsonify({
-            "mensaje": "Reporte enviado correctamente",
-            "ruta": ruta,
-            "existe": False
-        })
+            return jsonify({
+                "mensaje": "Reporte enviado correctamente",
+                "ruta": ruta,
+                "existe": False
+            }), 200
+            
+        except Exception as e:
+            print(f"Error en submit_enc: {e}")
+            import traceback
+            traceback.print_exc()
+            return jsonify({"mensaje": f"Error al procesar el reporte: {str(e)}", "error": True}), 500
 
     # -----------------------------
     # RUTA DEBUG: LISTAR TODOS LOS OBJETOS
@@ -614,7 +675,6 @@ def init_routes(app):
         db.close()
 
         return render_template('busquedas.html', active="panel", resultados=resultados, q=q, categoria=categoria, color=color,)
-
     # -------------------------------------
     # RUTA RECUPERAR CONTRASEÑA - Formulario inicial (ID Usuario)
     # -------------------------------------

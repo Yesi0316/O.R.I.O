@@ -24,6 +24,8 @@ body{
     overflow-x:hidden;
 }
 
+
+
 /* ===== ESTRELLAS ===== */
 .stars{
     position:fixed;
@@ -55,6 +57,10 @@ header{
     color:var(--swan);
     position:relative;
     z-index:2;
+}
+.logo-image{
+    width:60px;   
+    height:auto;
 }
 
 .logo-container{

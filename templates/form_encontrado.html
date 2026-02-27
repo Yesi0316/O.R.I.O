@@ -33,7 +33,7 @@
         </div>
 
         <div class="form-header">
-            
+            <img src="{{ url_for('static', filename='img/logo_orio.png') }}" alt="Logo" class="logo">
             <h1>Registro de Objetos Encontrados</h1>
         </div>
 
@@ -99,4 +99,60 @@
     </div>
 
 </div>
+
+<script>
+    const form = document.getElementById('reportForm');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const mensajeAlerta = document.getElementById('MensajeAlerta');
+        
+        try {
+            // Mostrar mensaje de carga
+            mensajeAlerta.innerHTML = 'Enviando reporte...';
+            mensajeAlerta.style.color = '#006bb6';
+            
+            const response = await fetch('/submit_enc', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const text = await response.text();
+            let result;
+            try {
+                result = JSON.parse(text);
+            } catch (err) {
+                console.error("El servidor devolvió HTML en vez de JSON:", text);
+                throw new Error("Error 500: La respuesta del servidor no es válida.");
+            }
+            
+            // Verificar si hay error en la respuesta
+            if (result.error || !response.ok) {
+                mensajeAlerta.innerHTML = result.mensaje || "Error al enviar los datos";
+                mensajeAlerta.style.color = "red";
+                console.error("Error:", result);
+            } else {
+                // Verificar si el reporte ya existe
+                if (result.existe) {
+                    mensajeAlerta.innerHTML = result.mensaje;
+                    mensajeAlerta.style.color = "orange";
+                } else {
+                    mensajeAlerta.innerHTML = result.mensaje || "Reporte enviado correctamente";
+                    mensajeAlerta.style.color = "green";
+                    // Limpiar formulario
+                    form.reset();
+                    // Redirigir después de 2 segundos
+                    setTimeout(() => {
+                        window.location.href = '/menu';
+                    }, 2000);
+                }
+            }
+        } catch (error) {
+            mensajeAlerta.innerHTML = "Error al enviar los datos: " + error.message;
+            mensajeAlerta.style.color = "red";
+            console.error("Error completo:", error);
+        }
+    });
+</script>
+
 {% endblock %}

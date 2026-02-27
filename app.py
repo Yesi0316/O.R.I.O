@@ -7,14 +7,18 @@ y registra todas las rutas de la aplicación.
 
 from flask import Flask
 import os
+from dotenv import load_dotenv
 
 from routes import init_routes
 from database import crear_tablas, inicializar_datos_default
 
+load_dotenv()
 
 # Configuración de la aplicación Flask
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), os.getenv("UPLOAD_FOLDER", "uploads"))
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
 # Registrar todas las rutas de la aplicación
 init_routes(app)
