@@ -5,6 +5,9 @@ Este módulo maneja:
 - Configuración de conexión a PostgreSQL
 - Creación de tablas base del sistema
 - Inicialización de datos por defecto
+
+Ahora reside dentro del paquete `app`, por lo que otras partes de la
+aplicación lo importan con `from app.database import ...`.
 """
 
 import os
@@ -48,9 +51,9 @@ ESTADOS_DEFAULT = [
 # CONEXIÓN A LA BASE DE DATOS
 # ========================
 
+
 def conectar_db():
-    """
-    Establece conexión a la base de datos PostgreSQL.
+    """Establece conexión a la base de datos PostgreSQL.
     
     Returns:
         psycopg2.connection: Conexión a la BD o None si hay error
@@ -82,9 +85,9 @@ def conectar_db():
 # FUNCIONES GENÉRICAS
 # ========================
 
+
 def ejecutar_sql(sql, descripcion=""):
-    """
-    Ejecuta un comando SQL de forma segura.
+    """Ejecuta un comando SQL de forma segura.
     
     Args:
         sql (str): Comando SQL a ejecutar
@@ -232,37 +235,46 @@ TABLAS = {
 # FUNCIONES DE CREACIÓN DE TABLAS
 # ========================
 
+
 def crear_tabla_Categorias():
     """Crea la tabla Categorias."""
     ejecutar_sql(TABLAS['Categorias'], "Tabla Categorias")
+
 
 def crear_tabla_Paises():
     """Crea la tabla Paises."""
     ejecutar_sql(TABLAS['Paises'], "Tabla Paises")
 
+
 def crear_tabla_Departamentos():
     """Crea la tabla Departamentos."""
     ejecutar_sql(TABLAS['Departamentos'], "Tabla Departamentos")
+
 
 def crear_tabla_Ciudades():
     """Crea la tabla Ciudades."""
     ejecutar_sql(TABLAS['Ciudades'], "Tabla Ciudades")
 
+
 def crear_tabla_Roles():
     """Crea la tabla Roles."""
     ejecutar_sql(TABLAS['Roles'], "Tabla Roles")
+
 
 def crear_tabla_Estados():
     """Crea la tabla Estados."""
     ejecutar_sql(TABLAS['Estados'], "Tabla Estados")
 
+
 def crear_tabla_Tipo_identificaciones():
     """Crea la tabla Tipos_identificaciones."""
     ejecutar_sql(TABLAS['Tipos_identificaciones'], "Tabla Tipos_identificaciones")
 
+
 def crear_tabla_Usuario():
     """Crea la tabla Usuarios."""
     ejecutar_sql(TABLAS['Usuarios'], "Tabla Usuarios")
+
 
 def crear_tabla_Perfiles():
     """Crea la tabla Perfiles. Primero la elimina si existe para recrearla."""
@@ -283,13 +295,16 @@ def crear_tabla_Perfiles():
     # Crear tabla con estructura correcta
     ejecutar_sql(TABLAS['Perfiles'], "Tabla Perfiles")
 
+
 def crear_tabla_Objetos():
     """Crea la tabla Objetos."""
     ejecutar_sql(TABLAS['Objetos'], "Tabla Objetos")
 
+
 def crear_tabla_Reportes_encontrados():
     """Crea la tabla Reportes_encontrados."""
     ejecutar_sql(TABLAS['Reportes_encontrados'], "Tabla Reportes_encontrados")
+
 
 def crear_tabla_Reportes_perdidos():
     """Crea la tabla Reportes_perdidos."""

@@ -11,7 +11,7 @@ from flask import (
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
-from database import conectar_db
+from .database import conectar_db
 from psycopg2.extras import RealDictCursor
 
 
@@ -36,14 +36,6 @@ def guest_required(f):
             return redirect(url_for('menu'))
         return f(*args, **kwargs)
     return decorated_function
-
-
-# obtener rutas a las carpetas
-UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), os.getenv("UPLOAD_FOLDER"))
-STATIC_IMG_FOLDER = os.path.join(os.path.dirname(__file__), os.getenv("STATIC_IMG_FOLDER"))
-# crear carpetas si no existen
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(STATIC_IMG_FOLDER, exist_ok=True)
 
 
 
@@ -102,8 +94,8 @@ def init_routes(app):
     
 
     # CONFIGURAR CARPETAS DE SUBIDAS Y ESTATICAS    
-    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-    app.config['STATIC_IMG_FOLDER'] = STATIC_IMG_FOLDER
+    app.config['UPLOAD_FOLDER'] = app.config.get('UPLOAD_FOLDER')
+    app.config['STATIC_IMG_FOLDER'] = app.config.get('STATIC_IMG_FOLDER')
     
     # -----------------------------
     # RUTA PRINCIPAL
@@ -306,7 +298,7 @@ def init_routes(app):
             return jsonify({
                 'ok': True, 
                 'mensaje': 'Inicio de sesión exitoso'
-                })
+                    })
 
         except Exception as e:
             import traceback
@@ -382,7 +374,6 @@ def init_routes(app):
         cursor.close()
         bd.close()
         return render_template('reportes_principal.html', estados=estados)
-
 
     @app.route("/submit_per", methods=["GET","POST"])
     @login_required
@@ -887,7 +878,6 @@ def init_routes(app):
         except Exception as e:
             return jsonify({'ok': False, 'error': str(e)}), 500
     
-    
     @app.route("/dashboard")
     @login_required
     def dashboard():
@@ -1048,7 +1038,8 @@ def init_routes(app):
                 SELECT COUNT(DISTINCT rp."ID_OBJETO") as recuperados
                 FROM "Reportes_perdidos" rp
                 INNER JOIN "Reportes_encontrados" re ON rp."ID_OBJETO" = re."ID_OBJETO"
-            ''')
+            '''
+            )
             recuperados = cursor.fetchone()['recuperados']
             
             # Pendientes: reportes perdidos sin correspondencia en encontrados
@@ -1058,7 +1049,8 @@ def init_routes(app):
                 WHERE rp."ID_OBJETO" NOT IN (
                     SELECT DISTINCT "ID_OBJETO" FROM "Reportes_encontrados"
                 )
-            ''')
+            '''
+            )
             pendientes = cursor.fetchone()['pendientes']
             
             # Usuarios activos (usuarios únicos que han reportado algo)
@@ -1068,7 +1060,8 @@ def init_routes(app):
                     UNION
                     SELECT "ID_USUARIO" as id_usuario FROM "Reportes_perdidos"
                 ) usuarios_unicos
-            ''')
+            '''
+            )
             usuarios_activos = cursor.fetchone()['activos']
             
             cursor.close()
@@ -1123,4 +1116,3 @@ def init_routes(app):
         except Exception as e:
             print(f"Error en actividad: {e}")
             return jsonify({'eventos': []}), 500
-

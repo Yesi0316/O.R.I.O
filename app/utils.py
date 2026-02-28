@@ -5,12 +5,14 @@ Contiene funciones comunes reutilizables para:
 - Manejo de imágenes
 - Operaciones de base de datos
 - Inicialización de datos
+
+Este módulo ahora forma parte del paquete `app`.
 """
 
 import os
 import uuid
 from werkzeug.utils import secure_filename
-from database import conectar_db, CATEGORIAS_DEFAULT, ESTADOS_DEFAULT
+from .database import conectar_db, CATEGORIAS_DEFAULT, ESTADOS_DEFAULT
 from psycopg2.extras import RealDictCursor
 
 
