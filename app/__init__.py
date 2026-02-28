@@ -1,53 +1,65 @@
 """
-Flask application factory and package initialization.
+fabrica de aplicacion flask e inicializacion del paquete.
 
-This module exposes `create_app()` which configures the Flask instance,
-registers routes and database helpers, and performs any one-time setup
-(like creating tables and default data).
+este modulo expone create_app() que configura la instancia de flask,
+registra las rutas y funciones de base de datos, y ejecuta configuraciones
+iniciales como crear tablas y datos por defecto.
 
-Other modules inside the package should use relative imports (e.g.:
-`from .database import conectar_db`).
+otros modulos dentro del paquete deben usar imports relativos
+por ejemplo:
+from .database import conectar_db
 """
 
 import os
-from flask import Flask
+from flask import flask
 from dotenv import load_dotenv
 
-# import components from this package
+# importar componentes internos del paquete
 from .routes import init_routes
 from .database import crear_tablas, inicializar_datos_default
 
 
 def create_app():
-    """Create and configure the Flask application."""
-    # load environment variables once
+    """
+    crea y configura la aplicacion flask.
+    """
+
+    # cargar variables de entorno desde el archivo .env
     load_dotenv()
 
-    app = Flask(__name__)
+    # crear instancia principal de flask
+    app = flask(__name__)
 
-    # secret key and upload configuration
-    app.secret_key = os.getenv("SECRET_KEY")
-    app.config['UPLOAD_FOLDER'] = os.path.join(
+    # configurar clave secreta desde variables de entorno
+    app.secret_key = os.getenv("secret_key")
+
+    # configurar carpeta de subidas
+    app.config["upload_folder"] = os.path.join(
         os.path.dirname(__file__),
-        os.getenv("UPLOAD_FOLDER", "uploads")
+        os.getenv("upload_folder", "uploads")
     )
-    app.config['STATIC_IMG_FOLDER'] = os.path.join(
+
+    # configurar carpeta estatica para imagenes u otros archivos
+    app.config["static_img_folder"] = os.path.join(
         os.path.dirname(__file__),
-        os.getenv("STATIC_IMG_FOLDER", "static")
+        os.getenv("static_img_folder", "static")
     )
-    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB
 
-    # make sure directories exist
-    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-    os.makedirs(app.config['STATIC_IMG_FOLDER'], exist_ok=True)
+    # limitar el tamano maximo de archivos a 16 mb
+    app.config["max_content_length"] = 16 * 1024 * 1024
 
-    # register all blueprints / routes
+    # asegurar que las carpetas existan
+    os.makedirs(app.config["upload_folder"], exist_ok=True)
+    os.makedirs(app.config["static_img_folder"], exist_ok=True)
+
+    # registrar todas las rutas del sistema
     init_routes(app)
 
-    # initialize database structure and default values
-    # we use the application context in case any extensions rely on it
+    # inicializar estructura de base de datos y datos por defecto
+    # se usa el contexto de aplicacion porque algunas extensiones lo requieren
     with app.app_context():
         crear_tablas()
         inicializar_datos_default()
 
+    # devolver la aplicacion configurada
     return app
