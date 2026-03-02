@@ -55,6 +55,12 @@
                         <input type="password" name="contrasena" id="contrasena" placeholder="Contraseña" required>
                     </div>
 
+                    <div class="password-rules" id="password-rules">
+                        <p id="rule-length">✖ Mínimo 6 caracteres</p>
+                        <p id="rule-letter">✖ Al menos una letra</p>
+                        <p id="rule-number">✖ Al menos un número</p>
+                    </div>
+
                     <div class="input-group">
                         <input type="password" name="contrasena_repetida" id="contrasena_repetida" placeholder="Repetir contraseña" required>
                     </div>
@@ -104,15 +110,62 @@
 const formRegistro = document.getElementById("form-registro")
 const mensaje = document.getElementById("mensaje")
 
+const passwordInput = document.getElementById("contrasena")
+const pass2Input = document.getElementById("contrasena_repetida")
+
+const ruleLength = document.getElementById("rule-length")
+const ruleLetter = document.getElementById("rule-letter")
+const ruleNumber = document.getElementById("rule-number")
+
+function actualizarRegla(elemento, condicion, texto){
+    if(condicion){
+        elemento.classList.add("valid")
+        elemento.classList.remove("invalid")
+        elemento.innerHTML = "✔ " + texto
+    } else {
+        elemento.classList.add("invalid")
+        elemento.classList.remove("valid")
+        elemento.innerHTML = "✖ " + texto
+    }
+}
+
+function validarPassword(pass){
+    let valido = true
+
+    const cumpleLongitud = pass.length >= 6
+    const cumpleLetra = /[A-Za-z]/.test(pass)
+    const cumpleNumero = /[0-9]/.test(pass)
+
+    actualizarRegla(ruleLength, cumpleLongitud, "Mínimo 6 caracteres")
+    actualizarRegla(ruleLetter, cumpleLetra, "Al menos una letra")
+    actualizarRegla(ruleNumber, cumpleNumero, "Al menos un número")
+
+    if(!cumpleLongitud || !cumpleLetra || !cumpleNumero){
+        valido = false
+    }
+
+    return valido
+}
+
+passwordInput.addEventListener("input", () => {
+    validarPassword(passwordInput.value)
+})
+
 formRegistro.addEventListener("submit", async (e) => {
     e.preventDefault()
 
-    const pass = document.getElementById("contrasena").value
-    const pass2 = document.getElementById("contrasena_repetida").value
+    const pass = passwordInput.value
+    const pass2 = pass2Input.value
 
     if(pass !== pass2){
         mensaje.innerText = "Las contraseñas no coinciden"
-        mensaje.style.color = "red"
+        mensaje.style.color = "#b23b3b"
+        return
+    }
+
+    if(!validarPassword(pass)){
+        mensaje.innerText = "La contraseña no cumple los requisitos"
+        mensaje.style.color = "#b23b3b"
         return
     }
 
@@ -129,7 +182,7 @@ formRegistro.addEventListener("submit", async (e) => {
     const data = await res.json()
 
     mensaje.innerText = data.mensaje
-    mensaje.style.color = data.ok ? "green" : "red"
+    mensaje.style.color = data.ok ? "#1e7e4f" : "#b23b3b"
 
     if(data.ok){
         setTimeout(() => {

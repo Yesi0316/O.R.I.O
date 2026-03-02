@@ -127,6 +127,49 @@
   box-shadow: 0 0 0 3px rgba(224,197,143,.15);
 }
 
+.password-rules{
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: all .3s ease;
+  font-size:12px;
+  font-family:'Libre Baskerville', serif;
+}
+
+/* Cuando está activo (visible) */
+.password-rules.active{
+  max-height: 200px;
+  opacity: 1;
+  transform: translateY(0);
+
+  margin-top:12px;
+  margin-bottom:18px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:rgba(17,34,80,0.05);
+  border:1px solid rgba(17,34,80,0.08);
+}
+
+/* Estilos internos */
+.password-rules p{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin:4px 0;
+  color:rgba(17,34,80,.6);
+  transition:.3s;
+}
+
+.password-rules .valid{
+  color:#1e7e4f;
+  font-weight:600;
+}
+
+.password-rules .invalid{
+  color:#b23b3b;
+}
+
 .btn-config {
   padding: 10px 24px;
   background: linear-gradient(135deg, var(--gold), #f2d9a6);
@@ -143,6 +186,13 @@
 .btn-config:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(224,197,143,.3);
+}
+
+.btn-config:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .msg-success {
@@ -174,6 +224,16 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .config-section {
+    padding: 18px;
+  }
+
+  .config-section h3 {
+    font-size: 17px;
   }
 }
 </style>
@@ -257,12 +317,18 @@
     <input type="password" id="inputPassNueva" placeholder="Nueva contraseña (mín. 6 caracteres)">
   </div>
 
+  <div class="password-rules" id="passwordRulesConfig">
+    <p id="ruleLengthConfig">✖ Mínimo 6 caracteres</p>
+    <p id="ruleLetterConfig">✖ Al menos una letra</p>
+    <p id="ruleNumberConfig">✖ Al menos un número</p>
+  </div>
+
   <div class="form-group">
     <label>Confirmar contraseña</label>
     <input type="password" id="inputPassConfirm" placeholder="Confirma tu nueva contraseña">
   </div>
 
-  <button class="btn-config" onclick="cambiarContrasena()">
+  <button class="btn-config" id="btnCambiar" disabled onclick="cambiarContrasena()">
     <i class="fas fa-key"></i> Cambiar contraseña
   </button>
 </div>
@@ -294,49 +360,48 @@ let config = {
   email_reportes: true
 };
 
+/* ================================
+   CARGAR CONFIGURACIÓN
+================================ */
 async function cargarConfig() {
   try {
     const res = await fetch('/api/configuracion');
     const data = await res.json();
+
     if (data.ok && data.config) {
       config = data.config;
+
       document.getElementById('selectTema').value = config.tema;
       document.getElementById('selectPrivacidad').value = config.privacidad;
-      
-      // Aplicar tema al body
 
-     document.body.classList.remove('modo-oscuro');
-     document.body.classList.remove('modo-alto-contraste'); /*forma de "limpiar" clases previas antes de aplicar la nueva*/
-
+      document.body.classList.remove('modo-oscuro', 'modo-alto-contraste');
 
       if (config.tema === 'oscuro') {
         document.body.classList.add('modo-oscuro');
         localStorage.setItem('modo', 'oscuro');
-      }
+      } 
       else if (config.tema === 'alto-contraste') {
         document.body.classList.add('modo-alto-contraste');
         localStorage.setItem('modo', 'alto-contraste');
-        }
-      else {localStorage.setItem('modo', 'claro');
+      } 
+      else {
+        localStorage.setItem('modo', 'claro');
       }
 
-      if (config.notificaciones) {
-        document.getElementById('toggleNotif').classList.add('active');
-      } else {
-        document.getElementById('toggleNotif').classList.remove('active');
-      }
-      
-      if (config.email_reportes) {
-        document.getElementById('toggleEmail').classList.add('active');
-      } else {
-        document.getElementById('toggleEmail').classList.remove('active');
-      }
+      document.getElementById('toggleNotif')
+        .classList.toggle('active', config.notificaciones);
+
+      document.getElementById('toggleEmail')
+        .classList.toggle('active', config.email_reportes);
     }
   } catch (e) {
     console.error(e);
   }
 }
 
+/* ================================
+   TOGGLES
+================================ */
 function toggleNotif() {
   const toggle = document.getElementById('toggleNotif');
   config.notificaciones = !config.notificaciones;
@@ -351,11 +416,13 @@ function toggleEmail() {
   guardarConfig();
 }
 
+/* ================================
+   SELECTS
+================================ */
 document.getElementById('selectTema').addEventListener('change', function() {
   config.tema = this.value;
-  // Guardar en localStorage para que se aplique inmediatamente
   localStorage.setItem('modo', this.value);
-  // Limpiar cualquier clase de tema previo
+
   document.body.classList.remove('modo-oscuro', 'modo-alto-contraste');
 
   if (this.value === 'oscuro') {
@@ -363,7 +430,7 @@ document.getElementById('selectTema').addEventListener('change', function() {
   } else if (this.value === 'alto-contraste') {
     document.body.classList.add('modo-alto-contraste');
   }
-  // si es 'claro' no necesitamos añadir nada
+
   guardarConfig();
 });
 
@@ -372,32 +439,122 @@ document.getElementById('selectPrivacidad').addEventListener('change', function(
   guardarConfig();
 });
 
+/* ================================
+   GUARDAR CONFIG
+================================ */
 async function guardarConfig() {
   try {
-    const res = await fetch('/api/configuracion', {
+    await fetch('/api/configuracion', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(config)
     });
-    const data = await res.json();
-    if (!data.ok) console.error('Error guardando config');
   } catch (e) {
     console.error(e);
   }
 }
 
+/* ================================
+   VALIDACIÓN DINÁMICA CONTRASEÑA
+================================ */
+const inputNueva = document.getElementById('inputPassNueva');
+const ruleLength = document.getElementById('ruleLengthConfig');
+const ruleLetter = document.getElementById('ruleLetterConfig');
+const ruleNumber = document.getElementById('ruleNumberConfig');
+
+
+
+function actualizarRegla(elemento, condicion, texto) {
+  if (!elemento) return;
+
+  if (condicion) {
+    elemento.classList.add("valid");
+    elemento.classList.remove("invalid");
+    elemento.innerHTML = "✔ " + texto;
+  } else {
+    elemento.classList.add("invalid");
+    elemento.classList.remove("valid");
+    elemento.innerHTML = "✖ " + texto;
+  }
+}
+
+function validarPassword(pass) {
+  const cumpleLongitud = pass.length >= 6;
+  const cumpleLetra = /[A-Za-z]/.test(pass);
+  const cumpleNumero = /[0-9]/.test(pass);
+
+  actualizarRegla(ruleLength, cumpleLongitud, "Mínimo 6 caracteres");
+  actualizarRegla(ruleLetter, cumpleLetra, "Al menos una letra");
+  actualizarRegla(ruleNumber, cumpleNumero, "Al menos un número");
+
+  return cumpleLongitud && cumpleLetra && cumpleNumero;
+}
+
+if (inputNueva) {
+  inputNueva.addEventListener("input", () => {
+    const valor = inputNueva.value;
+    const reglas = document.getElementById('passwordRulesConfig');
+
+    if (valor.length === 0) {
+      reglas.classList.remove('active');
+      return;
+    }
+
+    reglas.classList.add('active');
+    validarPassword(valor);
+  });
+}
+
+const btnCambiar = document.getElementById('btnCambiar');
+const inputActual = document.getElementById('inputPassActual');
+const inputConfirm = document.getElementById('inputPassConfirm');
+
+function verificarFormulario() {
+  const actual = inputActual.value.trim();
+  const nueva = inputNueva.value.trim();
+  const confirmar = inputConfirm.value.trim();
+
+  const valido =
+    actual.length > 0 &&
+    validarPassword(nueva) &&
+    nueva === confirmar;
+
+  btnCambiar.disabled = !valido;
+}
+
+[inputActual, inputNueva, inputConfirm].forEach(input => {
+  input.addEventListener("input", verificarFormulario);
+});
+
+/* ================================
+   CAMBIAR CONTRASEÑA
+================================ */
 async function cambiarContrasena() {
+
   const actual = document.getElementById('inputPassActual').value.trim();
   const nueva = document.getElementById('inputPassNueva').value.trim();
   const confirmar = document.getElementById('inputPassConfirm').value.trim();
-  
+
   const msgSuccess = document.getElementById('msgSuccess');
   const msgError = document.getElementById('msgError');
+
   msgSuccess.classList.remove('show');
   msgError.classList.remove('show');
 
   if (!actual || !nueva || !confirmar) {
-    msgError.textContent = 'Por favor completa todos los campos';
+    msgError.textContent = '✗ Por favor completa todos los campos';
+    msgError.classList.add('show');
+    return;
+  }
+
+  if (!validarPassword(nueva)) {
+    msgError.textContent = '✗ La contraseña no cumple los requisitos';
+    msgError.classList.add('show');
+    return;
+  }
+
+  if (nueva !== confirmar) {
+    msgError.textContent = '✗ Las contraseñas no coinciden';
     msgError.classList.add('show');
     return;
   }
@@ -412,19 +569,24 @@ async function cambiarContrasena() {
         contrasena_confirmar: confirmar
       })
     });
+
     const data = await res.json();
 
     if (data.ok) {
       msgSuccess.textContent = '✓ ' + data.mensaje;
       msgSuccess.classList.add('show');
+
       document.getElementById('inputPassActual').value = '';
       document.getElementById('inputPassNueva').value = '';
       document.getElementById('inputPassConfirm').value = '';
+
       setTimeout(() => msgSuccess.classList.remove('show'), 4000);
+
     } else {
       msgError.textContent = '✗ ' + data.error;
       msgError.classList.add('show');
     }
+
   } catch (e) {
     msgError.textContent = '✗ Error en la solicitud';
     msgError.classList.add('show');

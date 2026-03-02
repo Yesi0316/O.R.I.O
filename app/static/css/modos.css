@@ -270,7 +270,7 @@ body.modo-alto-contraste {
     --blanco: #FFFFFF;
     --gris: #ffffff37;
 
-    background: #000000 !important;
+    background: #777 !important;
     color: #FFFFFF !important;
 }
 body.modo-alto-contraste a,
@@ -296,6 +296,7 @@ body.modo-alto-contraste .config-section {
     background: #000 !important;
     color: #FFF !important;
     border-color: #FFF !important;
+
 }
 
 body.modo-alto-contraste input,
@@ -314,10 +315,9 @@ body.modo-alto-contraste textarea::placeholder {
 body.modo-alto-contraste .toggle {
     background: #FFF !important;
     color: #000 !important;
+    border: white 1px solid !important;
 }
 
-body.modo-alto-contraste .grid-resultados {
-}
 
 body.modo-alto-contraste .tarjeta-resultado {
     background: #FFF !important;
@@ -344,16 +344,38 @@ body.modo-alto-contraste .search-bar input {
     border: 1px solid #FFF !important;
 }
 
-.body.modo-alto-contraste .search-bar input:focus {
+body.modo-alto-contraste .search-bar input:focus {
     border-color: #FFF !important;
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1) !important;
 }
 
-.body .body.modo-alto-contraste .contenedor-datos{
+body .body.modo-alto-contraste .contenedor-datos{
     color: #FFF !important;
     .p{
         color: #FFF !important;
     }
 }
+
+body.modo-alto-contraste .filter-select {
+    background: #000 !important;
+    color: #FFF !important;
+    border: 2px solid #FFF !important;
+}
+
+body.modo-alto-contraste .filter-select:hover,
+body.modo-alto-contraste .filter-select:focus {
+    border-color: #FFF !important;
+    box-shadow: 0 0 2px rgba(255, 255, 255, 0.1) !important;
+}
+
+body .modo-alto-contraste .contenedor-datos .p{
+    color: #FFF !important;
+}
+
+body.modo-alto-contraste * {
+    border-color: #FFF !important;
+}
+
+
 
 

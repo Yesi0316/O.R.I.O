@@ -1,7 +1,7 @@
 """Entrypoint que utiliza la Application Factory.
 
-Esta versión delega toda la configuración a `app.create_app()` dentro del
-paquete `app`. El fichero principal no contiene lógica de negocio.
+esta version delega toda la configuracion a "app.create_app()" dentro del
+paquete "app". el fichero principal no contiene logica de negocio.
 """
 
 from app import create_app

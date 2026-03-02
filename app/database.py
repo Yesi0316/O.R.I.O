@@ -23,28 +23,24 @@ load_dotenv()
 # ========================
 
 DB_CONFIG = {
-    'host': os.getenv('DB_HOST'),
-    'database': os.getenv('DB_NAME'),
-    'user': os.getenv('DB_USER'),
-    'password': os.getenv('DB_PASSWORD'),
-    'port': os.getenv('DB_PORT'),
+    "host": os.getenv("DB_HOST"),
+    "database": os.getenv("DB_NAME"),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD"),
+    "port": os.getenv("DB_PORT"),
 }
 
 # Datos por defecto para las tablas
 CATEGORIAS_DEFAULT = [
-    'Documentos',
-    'Tecnología',
-    'Accesorios',
-    'Ropa',
-    'Llaves',
-    'Otros'
+    "Documentos",
+    "Tecnología",
+    "Accesorios",
+    "Ropa",
+    "Llaves",
+    "Otros",
 ]
 
-ESTADOS_DEFAULT = [
-    'Bueno',
-    'Regular',
-    'Malo'
-]
+ESTADOS_DEFAULT = ["Bueno", "Regular", "Malo"]
 
 
 # ========================
@@ -54,20 +50,17 @@ ESTADOS_DEFAULT = [
 
 def conectar_db():
     """Establece conexión a la base de datos PostgreSQL.
-    
+
     Returns:
         psycopg2.connection: Conexión a la BD o None si hay error
-        
+
     Raises:
         RuntimeError: Si hay problema de codificación UTF-8
     """
     try:
-        os.environ.setdefault('PGCLIENTENCODING', 'utf8')
+        os.environ.setdefault("PGCLIENTENCODING", "utf8")
 
-        conexion = psycopg2.connect(
-            options='-c client_encoding=UTF8',
-            **DB_CONFIG
-        )
+        conexion = psycopg2.connect(options="-c client_encoding=UTF8", **DB_CONFIG)
         return conexion
 
     except UnicodeDecodeError as e:
@@ -88,7 +81,7 @@ def conectar_db():
 
 def ejecutar_sql(sql, descripcion=""):
     """Ejecuta un comando SQL de forma segura.
-    
+
     Args:
         sql (str): Comando SQL a ejecutar
         descripcion (str): Descripción de la operación (para logs)
@@ -107,25 +100,24 @@ def ejecutar_sql(sql, descripcion=""):
         finally:
             conexion.close()
 
+
 # ========================
 # DEFINICIÓN DE TABLAS
 # ========================
 
 TABLAS = {
-    'Categorias': """
+    "Categorias": """
         CREATE TABLE IF NOT EXISTS public."Categorias"(
             "ID_CATEGORIA" TEXT PRIMARY KEY
         );
     """,
-    
-    'Paises': """
+    "Paises": """
         CREATE TABLE IF NOT EXISTS public."Paises"(
             "ID_PAIS" TEXT PRIMARY KEY,
             "NOMBRE" TEXT NOT NULL
         );
     """,
-    
-    'Departamentos': """
+    "Departamentos": """
         CREATE TABLE IF NOT EXISTS public."Departamentos"(
             "ID_DEPARTAMENTO" TEXT PRIMARY KEY,
             "NOMBRE" TEXT NOT NULL,
@@ -133,8 +125,7 @@ TABLAS = {
             FOREIGN KEY ("ID_PAIS") REFERENCES public."Paises" ("ID_PAIS")
         );
     """,
-    
-    'Ciudades': """
+    "Ciudades": """
         CREATE TABLE IF NOT EXISTS public."Ciudades"(
             "ID_CIUDAD" TEXT PRIMARY KEY,
             "NOMBRE" TEXT NOT NULL,
@@ -143,27 +134,23 @@ TABLAS = {
                 REFERENCES public."Departamentos" ("ID_DEPARTAMENTO")
         );
     """,
-    
-    'Roles': """
+    "Roles": """
         CREATE TABLE IF NOT EXISTS public."Roles"(
             "ID_ROL" INTEGER PRIMARY KEY,
             "NOMBRE" TEXT NOT NULL
         );
     """,
-    
-    'Estados': """
+    "Estados": """
         CREATE TABLE IF NOT EXISTS public."Estados"(
             "ID_ESTADO" TEXT PRIMARY KEY
         );
     """,
-    
-    'Tipos_identificaciones': """
+    "Tipos_identificaciones": """
         CREATE TABLE IF NOT EXISTS public."Tipos_identificaciones"(
             "ID_IDENTIFICACION" TEXT PRIMARY KEY
         );
     """,
-    
-    'Usuarios': """
+    "Usuarios": """
         CREATE TABLE IF NOT EXISTS public."Usuarios"(
             "ID_USUARIO" TEXT PRIMARY KEY,
             "NOMBRE" TEXT,
@@ -171,11 +158,12 @@ TABLAS = {
             "PREGUNTA_1" TEXT NOT NULL,
             "PREGUNTA_2" TEXT NOT NULL,
             "RESPUESTA_1" TEXT NOT NULL,
-            "RESPUESTA_2" TEXT NOT NULL
+            "RESPUESTA_2" TEXT NOT NULL,
+            "INTENTOS_RECUPERACION" INTEGER DEFAULT 0,
+            "BLOQUEADO_HASTA" TIMESTAMP
         );
     """,
-    
-    'Objetos': """
+    "Objetos": """
         CREATE TABLE IF NOT EXISTS public."Objetos"(
             "ID_OBJETO" TEXT PRIMARY KEY,
             "NOMBRE" TEXT NOT NULL,
@@ -188,8 +176,7 @@ TABLAS = {
             FOREIGN KEY ("ID_ESTADO") REFERENCES public."Estados" ("ID_ESTADO")
         );
     """,
-    
-    'Reportes_encontrados': """
+    "Reportes_encontrados": """
         CREATE TABLE IF NOT EXISTS public."Reportes_encontrados"(
             "ID_REPORTE_ENC" TEXT PRIMARY KEY,
             "FECHA" DATE,
@@ -201,8 +188,7 @@ TABLAS = {
             FOREIGN KEY ("ID_OBJETO") REFERENCES public."Objetos" ("ID_OBJETO")
         );
     """,
-    
-    'Perfiles': """
+    "Perfiles": """
         CREATE TABLE IF NOT EXISTS public."Perfiles"(
             "ID_PERFIL" SERIAL PRIMARY KEY,
             "ID_USUARIO" TEXT NOT NULL UNIQUE,
@@ -215,8 +201,7 @@ TABLAS = {
             FOREIGN KEY ("ID_USUARIO") REFERENCES public."Usuarios" ("ID_USUARIO") ON DELETE CASCADE
         );
     """,
-    
-    'Reportes_perdidos': """
+    "Reportes_perdidos": """
         CREATE TABLE IF NOT EXISTS public."Reportes_perdidos"(
             "ID_REPORTE" TEXT PRIMARY KEY,
             "FECHA" DATE,
@@ -227,7 +212,7 @@ TABLAS = {
             "ID_CATEGORIA" TEXT NOT NULL,
             FOREIGN KEY ("ID_OBJETO") REFERENCES public."Objetos" ("ID_OBJETO")
         );
-    """
+    """,
 }
 
 
@@ -238,77 +223,62 @@ TABLAS = {
 
 def crear_tabla_Categorias():
     """Crea la tabla Categorias."""
-    ejecutar_sql(TABLAS['Categorias'], "Tabla Categorias")
+    ejecutar_sql(TABLAS["Categorias"], "Tabla Categorias")
 
 
 def crear_tabla_Paises():
     """Crea la tabla Paises."""
-    ejecutar_sql(TABLAS['Paises'], "Tabla Paises")
+    ejecutar_sql(TABLAS["Paises"], "Tabla Paises")
 
 
 def crear_tabla_Departamentos():
     """Crea la tabla Departamentos."""
-    ejecutar_sql(TABLAS['Departamentos'], "Tabla Departamentos")
+    ejecutar_sql(TABLAS["Departamentos"], "Tabla Departamentos")
 
 
 def crear_tabla_Ciudades():
     """Crea la tabla Ciudades."""
-    ejecutar_sql(TABLAS['Ciudades'], "Tabla Ciudades")
+    ejecutar_sql(TABLAS["Ciudades"], "Tabla Ciudades")
 
 
 def crear_tabla_Roles():
     """Crea la tabla Roles."""
-    ejecutar_sql(TABLAS['Roles'], "Tabla Roles")
+    ejecutar_sql(TABLAS["Roles"], "Tabla Roles")
 
 
 def crear_tabla_Estados():
     """Crea la tabla Estados."""
-    ejecutar_sql(TABLAS['Estados'], "Tabla Estados")
+    ejecutar_sql(TABLAS["Estados"], "Tabla Estados")
 
 
 def crear_tabla_Tipo_identificaciones():
     """Crea la tabla Tipos_identificaciones."""
-    ejecutar_sql(TABLAS['Tipos_identificaciones'], "Tabla Tipos_identificaciones")
+    ejecutar_sql(TABLAS["Tipos_identificaciones"], "Tabla Tipos_identificaciones")
 
 
 def crear_tabla_Usuario():
     """Crea la tabla Usuarios."""
-    ejecutar_sql(TABLAS['Usuarios'], "Tabla Usuarios")
+    ejecutar_sql(TABLAS["Usuarios"], "Tabla Usuarios")
 
 
 def crear_tabla_Perfiles():
-    """Crea la tabla Perfiles. Primero la elimina si existe para recrearla."""
-    # Eliminar tabla si existe (para actualizar estructura)
-    conexion = conectar_db()
-    if conexion:
-        try:
-            cursor = conexion.cursor()
-            cursor.execute('DROP TABLE IF EXISTS public."Perfiles" CASCADE')
-            conexion.commit()
-            cursor.close()
-            print("✓ Tabla Perfiles eliminada (será recreada)")
-        except Exception as e:
-            print(f"✗ Error eliminando tabla Perfiles: {e}")
-        finally:
-            conexion.close()
-    
-    # Crear tabla con estructura correcta
-    ejecutar_sql(TABLAS['Perfiles'], "Tabla Perfiles")
+    """Crea la tabla Perfiles."""
+    ejecutar_sql(TABLAS["Perfiles"], "Tabla Perfiles")
 
 
 def crear_tabla_Objetos():
     """Crea la tabla Objetos."""
-    ejecutar_sql(TABLAS['Objetos'], "Tabla Objetos")
+    ejecutar_sql(TABLAS["Objetos"], "Tabla Objetos")
 
 
 def crear_tabla_Reportes_encontrados():
     """Crea la tabla Reportes_encontrados."""
-    ejecutar_sql(TABLAS['Reportes_encontrados'], "Tabla Reportes_encontrados")
+    ejecutar_sql(TABLAS["Reportes_encontrados"], "Tabla Reportes_encontrados")
 
 
 def crear_tabla_Reportes_perdidos():
     """Crea la tabla Reportes_perdidos."""
-    ejecutar_sql(TABLAS['Reportes_perdidos'], "Tabla Reportes_perdidos")
+    ejecutar_sql(TABLAS["Reportes_perdidos"], "Tabla Reportes_perdidos")
 
 
 def crear_tablas():
@@ -333,32 +303,42 @@ def crear_tablas():
 def inicializar_datos_default():
     """
     Inserta datos por defecto en las tablas de catálogos
-    (Categorias y Estados) si no existen.
+    (Categorias y Estados) si no existen y crea perfiles para usuarios sin perfil.
     """
     conexion = conectar_db()
     if not conexion:
         return
-    
+
     cursor = conexion.cursor()
-    
+
     try:
         # Insertar categorías por defecto
         for cat in CATEGORIAS_DEFAULT:
             cursor.execute(
                 'INSERT INTO "Categorias" ("ID_CATEGORIA") VALUES (%s) ON CONFLICT DO NOTHING',
-                (cat,)
+                (cat,),
             )
-        
+
         # Insertar estados por defecto
         for est in ESTADOS_DEFAULT:
             cursor.execute(
                 'INSERT INTO "Estados" ("ID_ESTADO") VALUES (%s) ON CONFLICT DO NOTHING',
-                (est,)
+                (est,),
             )
-        
+
+        # Crear perfiles para usuarios que no tengan perfil
+        cursor.execute("""
+            INSERT INTO "Perfiles" ("ID_USUARIO", "NOMBRE", "FOTO_PERFIL")
+            SELECT u."ID_USUARIO", u."NOMBRE", 'https://via.placeholder.com/200'
+            FROM "Usuarios" u
+            LEFT JOIN "Perfiles" p ON u."ID_USUARIO" = p."ID_USUARIO"
+            WHERE p."ID_USUARIO" IS NULL
+            ON CONFLICT DO NOTHING
+        """)
+
         conexion.commit()
         print("✓ Datos por defecto inicializados")
-        
+
     except Exception as e:
         print(f"✗ Error inicializando datos: {e}")
     finally:

@@ -4,95 +4,714 @@
 <meta charset="UTF-8">
 <title>Recuperar Contraseña | O.R.I.O.</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/recuperar.css') }}">
-<link rel="stylesheet" href="css/modos.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Libre+Baskerville:wght@400;700&family=Bodoni+Moda:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --royal-blue:#112250;
+  --sapphire:#3C507D;
+  --quicksand:#E0C58F;
+  --swan:#F5F0E9;
+  --shell:#D9CBC2;
+}
+
+/* RESET */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  min-height:100dvh;
+  background:linear-gradient(135deg,var(--royal-blue),var(--sapphire));
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-family:"Poppins",sans-serif;
+  position:relative;
+  overflow-x:hidden;
+}
+
+/* ESTRELLAS */
+.stars{
+  position:absolute;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:1;  
+}
+.star{
+  position:absolute;
+  width:3px;
+  height:3px;
+  background:var(--quicksand);
+  border-radius:50%;
+  opacity:0.8;
+  animation:fall 4s linear infinite;
+}
+@keyframes fall{
+  0%{ transform:translateY(-100px) translateX(0); opacity:0;}
+  10%{opacity:1;}
+  100%{ transform:translateY(100vh) translateX(80px); opacity:0;}
+}
+
+/* CONTENEDOR PRINCIPAL */
+.wrapper{
+  width:100%;
+  max-width:1100px;
+  background:var(--swan);
+  border-radius:22px;
+  display:flex;
+  overflow:hidden;
+  box-shadow:0 25px 60px rgba(0,0,0,0.35);
+  position:relative;
+  z-index:2;
+}
+
+/* LEFT PANEL */
+.left{
+  flex:1;
+  background:linear-gradient(160deg,var(--sapphire),var(--royal-blue));
+  color:var(--swan);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  padding:60px 40px;
+  text-align:center;
+}
+.left img{
+  width:100%;
+  max-width:420px;
+  margin-bottom:30px;
+  animation:floatImage 4s ease-in-out infinite;
+}
+@keyframes floatImage{
+  0%{ transform:translateY(0);}
+  50%{ transform:translateY(-15px);}
+  100%{ transform:translateY(0);}
+}
+.left h1{
+  font-family:"Libre Baskerville", serif;
+  font-size:34px;
+  margin-bottom:15px;
+}
+.left p{
+  font-family:"Bodoni Moda", serif;
+  font-size:14px;
+  opacity:0.85;
+  max-width:300px;
+}
+
+/* RIGHT PANEL */
+.right{
+  flex:1;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:60px 40px;
+  position:relative;
+  min-height:520px;
+}
+
+/* PASOS */
+.step{
+  width:100%;
+  max-width:360px;
+  margin:0 auto;
+  display:none;
+  opacity:0;
+  transition:0.35s ease;
+}
+.step.active{
+  display:block;
+  opacity:1;
+}
+
+/* TITULOS */
+.step h2{
+  font-family:"Libre Baskerville", serif;
+  color:var(--royal-blue);
+  margin-bottom:25px;
+  text-align:center;
+  font-size:26px;
+}
+
+/* INPUTS */
+input{
+  width:100%;
+  padding:14px 15px;
+  margin-bottom:18px;
+  border-radius:12px;
+  border:1px solid var(--shell);
+  font-family:"Bodoni Moda", serif;
+  font-size:14px;
+  transition:0.3s;
+}
+input:focus{
+  outline:none;
+  border-color:var(--sapphire);
+  box-shadow:0 0 6px rgba(60,80,125,0.25);
+}
+
+/* BOTONES */
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  background:var(--quicksand);
+  color:var(--royal-blue);
+  font-family:"Bodoni Moda", serif;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.3s;
+  font-size:14px;
+}
+button:hover{
+  background:#d4b678;
+}
+
+/* MENSAJES */
+.mensaje-estado{
+  margin-top:12px;
+  font-size:13px;
+  text-align:center;
+  font-style:italic;
+  color:var(--royal-blue);
+  min-height:18px;
+}
+.mensaje-error{
+  color:#b3261e;
+}
+.mensaje-ok{
+  color:var(--sapphire);
+}
+
+/* VERIFICANDO */
+.verificando{
+  text-align:center;
+  font-style:italic;
+  color:var(--royal-blue);
+  animation:pulse 1.4s infinite;
+}
+@keyframes pulse{
+  0%{opacity:0.4;}
+  50%{opacity:1;}
+  100%{opacity:0.4;}
+}
+
+/* SUCCESS */
+.success{
+  text-align:center;
+}
+.success-icon{
+  font-size:60px;
+  color:var(--sapphire);
+  margin-bottom:15px;
+  animation:pop 0.5s ease;
+}
+@keyframes pop{
+  0%{transform:scale(0.5);opacity:0;}
+  100%{transform:scale(1);opacity:1;}
+}
+
+/* PASSWORD RULES */
+.password-rules{
+  max-height:0;
+  overflow:hidden;
+  opacity:0;
+  transform:translateY(-5px);
+  transition:all .3s ease;
+  font-size:12px;
+  font-family:"Libre Baskerville", serif;
+}
+.password-rules.active{
+  max-height:200px;
+  opacity:1;
+  transform:translateY(0);
+  margin-top:5px;
+  margin-bottom:15px;
+  padding:8px 10px;
+  border-radius:10px;
+  background:rgba(17,34,80,0.05);
+  border:1px solid rgba(17,34,80,0.08);
+}
+.password-rules p{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin:4px 0;
+  color:rgba(17,34,80,.6);
+  transition:.3s;
+}
+.password-rules .valid{
+  color:#1e7e4f;
+  font-weight:600;
+}
+.password-rules .invalid{
+  color:#b23b3b;
+}
+
+/* RESPONSIVE */
+
+/* CELULAR MUY PEQUEÑO */
+@media(max-width:400px){
+  .left h1{ font-size:20px; }
+  .step h2{ font-size:18px; }
+  input, button{ font-size:12px; padding:10px; }
+  .left img{ max-width:160px; }
+}
+
+/* CELULAR */
+@media(max-width:600px){
+  body{ padding:20px 12px; align-items:flex-start; }
+  .wrapper{ flex-direction:column; border-radius:18px; overflow:hidden; }
+  .left{ padding:35px 20px; text-align:center; }
+  .left img{ max-width:200px; margin-bottom:18px; }
+  .left h1{ font-size:22px; margin-bottom:10px; }
+  .left p{ font-size:12px; max-width:260px; margin:auto; }
+  .right{ padding:30px 20px 40px 20px; min-height:auto; display:block; }
+  .step{ max-width:100%; }
+  .step h2{ font-size:19px; margin-bottom:18px; }
+  input{ padding:12px; font-size:13px; margin-bottom:15px; }
+  button{ padding:12px; font-size:13px; }
+}
+
+/* TABLET PEQUEÑA */
+@media(max-width:768px){
+  body{ padding:30px 20px; align-items:flex-start; }
+  .wrapper{ border-radius:18px; }
+  .left{ padding:40px 30px; }
+  .left h1{ font-size:28px; }
+  .left p{ font-size:13px; }
+  .right{ padding:40px 30px; }
+}
+
+/* TABLET GRANDE */
+@media(max-width:1000px){
+  .wrapper{ flex-direction:column; max-width:800px; height:auto; }
+  .left{ padding:50px 40px; }
+  .left img{ max-width:300px; }
+  .right{ padding:50px 40px; min-height:520px; }
+  .step{ position:relative; top:auto; left:auto; transform:none; opacity:1; pointer-events:auto; display:none; }
+  .step.active{ display:block; }
+}
+
+/* LAPTOP NORMAL */
+@media(max-width:1200px){
+  .wrapper{ max-width:1000px; }
+}
+
+/* PANTALLAS GRANDES 4K */
+@media(min-width:1600px){
+  .wrapper{ max-width:1400px; }
+  .left h1{ font-size:42px; }
+  .step h2{ font-size:30px; }
+  input, button{ font-size:16px; padding:16px; }
+}
+</style>
 </head>
+
 <body>
 
-<div class="contenedor-form">
-  <form id="form-recuperar" class="formulario">
-    <h2>Reestablecer Contraseña</h2>
+<div class="stars">
+    <div class="star" style="left:10%; animation-delay:0s;"></div>
+    <div class="star" style="left:20%; animation-delay:1.5s;"></div>
+    <div class="star" style="left:30%; animation-delay:1s;"></div>
+    <div class="star" style="left:40%; animation-delay:2.5s;"></div>
+    <div class="star" style="left:50%; animation-delay:2s;"></div>
+    <div class="star" style="left:60%; animation-delay:1s;"></div>
+    <div class="star" style="left:70%; animation-delay:1.5s;"></div>
+    <div class="star" style="left:80%; animation-delay:0.5s;"></div>
+    <div class="star" style="left:90%; animation-delay:0.5s;"></div>
+</div>
 
-    <div id="paso1">
-      <div class="campo">
-        <input type="text" id="id_usuario" placeholder="Ingresa tu nombre de usuario unico" required>
-      </div>
-      <button type="button" id="btn_verificar">Continuar</button>
-    </div>
+<div class="wrapper">
 
-    <div id="paso2" style="display:none;">
-      <div class="campo">
-        <p id="pregunta1_text"></p>
-        <input type="text" id="respuesta1" placeholder="Respuesta 1" required>
-      </div>
-      <div class="campo">
-        <p id="pregunta2_text"></p>
-        <input type="text" id="respuesta2" placeholder="Respuesta 2" required>
-      </div>
-      <div class="campo">
-        <input type="password" id="nueva_contrasena" placeholder="Nueva contraseña" required>
-      </div>
-      <div class="campo">
-        <input type="password" id="repetir_contrasena" placeholder="Repetir contraseña" required>
-      </div>
-      <button type="button" id="btn_cambiar">Cambiar Contraseña</button>
-    </div>
+<div class="left">
+<img src="{{ url_for('static', filename='img/img-recuperar.png') }}">
+<h1>Recupera tu acceso</h1>
+<p>Proceso seguro y elegante paso a paso para restablecer tu contraseña.</p>
+</div>
 
-    <div id="mensaje"></div>
-  </form>
+<div class="right">
+
+<!-- PASO 1 -->
+<div class="step active" id="paso1">
+<h2>Verificar Usuario</h2>
+<input 
+    id="id_usuario" 
+    name="id_usuario" 
+    type="text" 
+    placeholder="Nombre de usuario único"
+>
+<button onclick="inicioRecuperacion()">Continuar</button>
+<div id="msg_paso1" class="mensaje-estado"></div>
+</div>
+
+<!-- PASO 2 -->
+<div class="step" id="paso2">
+<h2>Preguntas de Seguridad</h2>
+<p 
+    id="texto_pregunta1" 
+    class="pregunta" 
+    style="margin-bottom:5px;font-size:14px;color:var(--royal-blue);"
+></p>
+<input 
+    id="respuesta1" 
+    name="respuesta1" 
+    type="text" 
+    placeholder="Respuesta pregunta 1"
+>
+<p 
+    id="texto_pregunta2" 
+    class="pregunta" 
+    style="margin-bottom:5px;font-size:14px;color:var(--royal-blue);"
+></p>
+<input 
+    id="respuesta2" 
+    name="respuesta2"
+    type="text" 
+    placeholder="Respuesta pregunta 2"
+>
+<button onclick="verifyAnswers()">Verificar respuestas</button>
+<div id="msg_paso2" class="mensaje-estado"></div>
+</div>
+
+<!-- PASO 3 -->
+<div class="step" id="paso3">
+<h2>Verificando</h2>
+<div class="verificando">Verificando respuestas...</div>
+</div>
+
+<!-- PASO 4 -->
+<div class="step" id="paso4">
+<h2>Cambiar Contraseña</h2>
+<input 
+    id="nueva_contrasena" 
+    type="password" 
+    placeholder="Nueva contraseña"
+    minlength="6"
+    required
+>
+<div class="password-rules" id="passwordRulesRecuperar">
+    <p id="ruleLengthRec">✖ Mínimo 6 caracteres</p>
+    <p id="ruleLetterRec">✖ Al menos una letra</p>
+    <p id="ruleNumberRec">✖ Al menos un número</p>
+</div>
+
+<input 
+    id="confirmar_contrasena" 
+    type="password" 
+    placeholder="Confirmar contraseña"
+>
+<button onclick="changePassword()">Actualizar contraseña</button>
+<div id="msg_paso4" class="mensaje-estado"></div>
+</div>
+
+<!-- PASO 5 -->
+<div class="step" id="paso5">
+<div class="success">
+
+<div class="success-icon">✓</div>
+
+<h2>¡Listo!</h2>
+
+<p style="margin-bottom:25px;color:#112250;">
+La contraseña se cambió correctamente
+
+inicia sesión con tu nueva contraseña para continuar gestionando tus objetos perdidos.
+</p>
+
+<a href="/inicio" style="text-decoration:none;">
+    <button>
+        Volver a iniciar sesión
+    </button>
+</a>
+
+</div>
+</div>
+
+</div>
 </div>
 
 <script>
-const btnVerificar = document.getElementById('btn_verificar')
-const btnCambiar = document.getElementById('btn_cambiar')
-const mensaje = document.getElementById('mensaje')
-
-// Paso 1: Verificar usuario
-btnVerificar.addEventListener('click', async () => {
-    const id_usuario = document.getElementById('id_usuario').value
-    const res = await fetch('/recuperar', {
-        method: 'POST',
-        body: new URLSearchParams({id_usuario})
+// ====================== FUNCIONES DE NAVEGACION ======================
+function nextStep(step){
+    document.querySelectorAll(".step").forEach(s=>{
+        s.classList.remove("active")
     })
-    const data = await res.json()
-    if (data.ok) {
-        document.getElementById('paso1').style.display = 'none'
-        document.getElementById('paso2').style.display = 'block'
-        document.getElementById('pregunta1_text').innerText = data.pregunta1
-        document.getElementById('pregunta2_text').innerText = data.pregunta2
-        mensaje.innerText = ''
-    } else {
-        mensaje.innerText = data.mensaje
+    document.getElementById("paso"+step).classList.add("active")
+
+    // ajustar altura dinámicamente
+    ajustarAlturaWrapper();
+}
+
+// ====================== AJUSTE DINAMICO DEL CONTENEDOR ======================
+function ajustarAlturaWrapper(){
+    const wrapper = document.querySelector('.wrapper');
+    const right = document.querySelector('.right');
+    const activeStep = right.querySelector('.step.active');
+
+    if(activeStep){
+        const alturaContenido = activeStep.scrollHeight;
+
+        // animación suave
+        right.style.transition = 'min-height 0.35s ease';
+        wrapper.style.transition = 'height 0.35s ease';
+
+        // ajustamos min-height del right y altura del wrapper
+        right.style.minHeight = alturaContenido + 40 + "px"; // +40px padding
+        wrapper.style.height = 'auto';
     }
-})
+}
 
-// Paso 2: Validar respuestas y cambiar contraseña
-btnCambiar.addEventListener('click', async () => {
-    const respuesta1 = document.getElementById('respuesta1').value
-    const respuesta2 = document.getElementById('respuesta2').value
-    const nueva_contrasena = document.getElementById('nueva_contrasena').value
-    const repetir_contrasena = document.getElementById('repetir_contrasena').value
+// ejecutar al cargar pagina
+window.addEventListener('load', ajustarAlturaWrapper);
 
-    if(nueva_contrasena !== repetir_contrasena){
-        mensaje.innerText = "Las contraseñas no coinciden"
-        return
+// ====================== TECLA ENTER ======================
+document.addEventListener("keydown", function(e){
+    if(e.key === "Enter"){
+        if(document.getElementById("paso1").classList.contains("active")){
+            inicioRecuperacion();
+        }
+        else if(document.getElementById("paso2").classList.contains("active")){
+            verifyAnswers();
+        }
+        else if(document.getElementById("paso4").classList.contains("active")){
+            changePassword();
+        }
+    }
+});
+
+// ====================== FASE 1: VERIFICAR USUARIO ======================
+function inicioRecuperacion(){
+    const id = document.getElementById('id_usuario').value.trim();
+    const msg = document.getElementById("msg_paso1");
+
+    msg.className = "mensaje-estado";
+    msg.innerText = "";
+
+    if(!id){
+        msg.classList.add("mensaje-error");
+        msg.innerText = "Ingrese el nombre de usuario";
+        return;
     }
 
-    const res = await fetch('/recuperar_respuestas', {
+    msg.innerText = "Verificando usuario...";
+
+    fetch('/recuperar', {
         method: 'POST',
-        body: new URLSearchParams({respuesta1, respuesta2, nueva_contrasena})
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: new URLSearchParams({id_usuario: id})
     })
-    const data = await res.json()
-    if (data.ok) {
-        mensaje.style.color = 'green'
-        mensaje.innerText = data.mensaje
-        setTimeout(()=>{ window.location.href = '/inicio' }, 1200)
-    } else {
-        mensaje.style.color = 'red'
-        mensaje.innerText = data.mensaje
+    .then(r=>r.json())
+    .then(data=>{
+        if(data.ok){
+            document.getElementById('texto_pregunta1').innerText = data.pregunta1;
+            document.getElementById('texto_pregunta2').innerText = data.pregunta2;
+            msg.classList.add("mensaje-ok");
+            msg.innerText = "Usuario verificado";
+            setTimeout(()=>{ nextStep(2); }, 800);
+        } else {
+            msg.classList.add("mensaje-error");
+            msg.innerText = data.mensaje || "Usuario no encontrado";
+        }
+    })
+    .catch(err=>{
+        console.error(err);
+        msg.classList.add("mensaje-error");
+        msg.innerText = "Error de red";
+    });
+}
+
+// ====================== FASE 2: VALIDAR RESPUESTAS ======================
+function verifyAnswers(){
+    const r1 = document.getElementById('respuesta1').value.trim();
+    const r2 = document.getElementById('respuesta2').value.trim();
+    const msg = document.getElementById("msg_paso2");
+
+    msg.className = "mensaje-estado";
+    msg.innerText = "";
+
+    if(!r1 || !r2){
+        msg.classList.add("mensaje-error");
+        msg.innerText = "Complete ambas respuestas";
+        return;
     }
-})
+
+    msg.innerText = "Verificando respuestas...";
+
+    fetch('/recuperar_respuestas', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: new URLSearchParams({respuesta1: r1, respuesta2: r2})
+    })
+    .then(r=>r.json())
+    .then(data=>{
+        if(data.ok){
+            window._recuperar_respuestas = {r1, r2};
+            msg.classList.add("mensaje-ok");
+            msg.innerText = "Respuestas correctas";
+            setTimeout(()=>{ nextStep(3); }, 600);
+            setTimeout(()=>{ nextStep(4); }, 2000);
+        } else {
+            msg.classList.add("mensaje-error");
+            msg.innerText = data.mensaje || "Respuestas incorrectas";
+        }
+        if(data.bloqueado){
+            iniciarTemporizador(data.segundos_restantes);
+            return;
+        }
+    })
+    .catch(err=>{
+        console.error(err);
+        msg.classList.add("mensaje-error");
+        msg.innerText = "Error de red";
+    });
+}
+
+function iniciarTemporizador(segundos){
+    const msg = document.getElementById("msg_paso2");
+
+    const intervalo = setInterval(()=>{
+        const minutos = Math.floor(segundos / 60);
+        const seg = segundos % 60;
+
+        msg.className = "mensaje-estado mensaje-error";
+        msg.innerText = `Demasiados intentos. Intenta en ${minutos}:${seg.toString().padStart(2,"0")}`;
+
+        segundos--;
+
+        if(segundos < 0){
+            clearInterval(intervalo);
+            msg.innerText = "";
+        }
+
+    },1000);
+}
+
+// ====================== FASE 3: CAMBIO DE CONTRASEÑA ======================
+function changePassword(){
+    const pass = document.getElementById('nueva_contrasena').value;
+    const confirm = document.getElementById('confirmar_contrasena').value;
+    const msg = document.getElementById("msg_paso4");
+
+    msg.className = "mensaje-estado";
+    msg.innerText = "";
+
+    if(!pass || !confirm){
+        msg.classList.add("mensaje-error");
+        msg.innerText = "Llene ambos campos de contraseña";
+        return;
+    }
+
+    if(!validarPasswordRec(pass)){
+        msg.classList.add("mensaje-error");
+        msg.innerText = "La contraseña debe tener mínimo 6 caracteres";
+        return;
+    }
+
+    if(pass !== confirm){
+        msg.classList.add("mensaje-error");
+        msg.innerText = "Las contraseñas deben coincidir";
+        return;
+    }
+
+    msg.innerText = "Actualizando contraseña...";
+
+    const {r1, r2} = window._recuperar_respuestas || {};
+
+    fetch('/recuperar_respuestas', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: new URLSearchParams({respuesta1: r1, respuesta2: r2, nueva_contrasena: pass})
+    })
+    .then(r=>r.json())
+    .then(data=>{
+        if(data.ok){
+            msg.classList.add("mensaje-ok");
+            msg.innerText = "Contraseña actualizada";
+            setTimeout(()=>{ nextStep(5); }, 800);
+        } else {
+            msg.classList.add("mensaje-error");
+            msg.innerText = data.mensaje || "Error al actualizar";
+        }
+    })
+    .catch(err=>{
+        console.error(err);
+        msg.classList.add("mensaje-error");
+        msg.innerText = "Error de red";
+    });
+}
+
+// ====================== VOLVER AL ESTADO INICIAL ======================
+function reiniciar(){
+    nextStep(1);
+    document.getElementById('id_usuario').value = '';
+    document.getElementById('respuesta1').value = '';
+    document.getElementById('respuesta2').value = '';
+    document.getElementById('nueva_contrasena').value = '';
+    document.getElementById('confirmar_contrasena').value = '';
+    document.getElementById('texto_pregunta1').innerText = '';
+    document.getElementById('texto_pregunta2').innerText = '';
+    window._recuperar_respuestas = {};
+    ajustarAlturaWrapper();
+}
+
+// ====================== VALIDACION DINAMICA CONTRASEÑA ======================
+const inputNuevaRec = document.getElementById("nueva_contrasena");
+const ruleLengthRec = document.getElementById("ruleLengthRec");
+const ruleLetterRec = document.getElementById("ruleLetterRec");
+const ruleNumberRec = document.getElementById("ruleNumberRec");
+const rulesBoxRec = document.getElementById("passwordRulesRecuperar");
+
+function actualizarReglaRec(el, condicion, texto){
+    if(condicion){
+        el.classList.add("valid");
+        el.classList.remove("invalid");
+        el.innerHTML = "✔ " + texto;
+    }else{
+        el.classList.add("invalid");
+        el.classList.remove("valid");
+        el.innerHTML = "✖ " + texto;
+    }
+}
+
+function validarPasswordRec(pass){
+    const cumpleLongitud = pass.length >= 6;
+    const cumpleLetra = /[A-Za-z]/.test(pass);
+    const cumpleNumero = /[0-9]/.test(pass);
+
+    actualizarReglaRec(ruleLengthRec, cumpleLongitud, "Mínimo 6 caracteres");
+    actualizarReglaRec(ruleLetterRec, cumpleLetra, "Al menos una letra");
+    actualizarReglaRec(ruleNumberRec, cumpleNumero, "Al menos un número");
+
+    return cumpleLongitud && cumpleLetra && cumpleNumero;
+}
+
+if(inputNuevaRec){
+    inputNuevaRec.addEventListener("input", ()=>{
+        const valor = inputNuevaRec.value;
+
+        if(valor.length === 0){
+            rulesBoxRec.classList.remove("active");
+        } else {
+            rulesBoxRec.classList.add("active");
+        }
+        validarPasswordRec(valor);
+        ajustarAlturaWrapper(); // reajustar altura si se abre/cierra reglas
+    });
+}
+
+// ====================== AJUSTE DINAMICO PARA TODOS LOS INPUTS ======================
+document.querySelectorAll(".right input").forEach(input=>{
+    input.addEventListener("input", ajustarAlturaWrapper);
+});
 </script>
 
 </body>

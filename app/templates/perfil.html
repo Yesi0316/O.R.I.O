@@ -38,42 +38,46 @@ Sube tu foto de perfil. Un retrato en primer plano es ideal.
     <div class="row">
         <div class="field">
             <label>Nombre</label>
-            <input type="text" id="nombre" placeholder="Tu nombre">
+            <input type="text" id="nombre" placeholder="Tu nombre" disabled>
         </div>
 
         <div class="field">
             <label>Apellido</label>
-            <input type="text" id="apellido" placeholder="Tu apellido">
+            <input type="text" id="apellido" placeholder="Tu apellido" disabled>
         </div>
     </div>
 
     <div class="row">
         <div class="field">
             <label>Teléfono</label>
-            <input type="text" id="telefono" placeholder="Tu teléfono">
+            <input type="text" id="telefono" placeholder="Tu teléfono" disabled>
         </div>
 
         <div class="field">
             <label>Correo</label>
-            <input type="email" id="correo" placeholder="Tu correo">
+            <input type="email" id="correo" placeholder="Tu correo" disabled>
         </div>
-
-
-
-
-        
-
     </div>
 </div>
 
-<button class="save-btn" id="guardarBtn">
-    <i class="fas fa-floppy-disk"></i> Guardar cambios
-</button>
+<div class="buttons-container">
+    <button class="save-btn" id="guardarBtn">
+        <i class="fas fa-pen"></i> Editar perfil
+    </button>
+
+    <button class="cancel-btn" id="cancelBtn" style="display:none;">
+        <i class="fas fa-times"></i> Cancelar
+    </button>
+</div>
 
 <script>
 const fileInput = document.getElementById("fileInput");
 const preview = document.getElementById("preview");
 const guardarBtn = document.getElementById("guardarBtn");
+const cancelBtn = document.getElementById("cancelBtn");
+
+// objeto para conservar los valores originales y detectar cambios
+let originalData = { nombre: '', apellido: '', telefono: '', correo: '' };
 
 // Cargar datos del perfil cuando carga la página
 document.addEventListener('DOMContentLoaded', function() {
@@ -92,47 +96,49 @@ async function cargarDatos() {
             document.getElementById('telefono').value = data.datos.TELEFONO || '';
             document.getElementById('correo').value = data.datos.CORREO || '';
             
-            if (data.datos.FOTO_PERFIL && data.datos.FOTO_PERFIL !== 'https://via.placeholder.com/200') {
-                preview.src = data.datos.FOTO_PERFIL;
-            }
+            // Cargar la foto de perfil si existe
+            preview.src = (data.datos.FOTO_PERFIL && data.datos.FOTO_PERFIL !== 'https://via.placeholder.com/200') 
+                ? data.datos.FOTO_PERFIL 
+                : 'https://via.placeholder.com/200';
+        } else {
+            console.error('Error al cargar datos:', data.error);
         }
     } catch (error) {
         console.error('Error cargando datos:', error);
+        alert('Error al cargar los datos del perfil');
     }
 }
 
 // Subir foto de perfil
 fileInput.addEventListener("change", async function(){
     const file = this.files[0];
-
     if(file){
-        const reader = new FileReader();
+        const maxSize = 5 * 1024 * 1024;
+        if (file.size > maxSize) {
+            alert('La foto es muy grande. Máximo 5MB');
+            return;
+        }
 
+        const reader = new FileReader();
         reader.onload = function(e){
             preview.src = e.target.result;
             preview.classList.add("animate");
-
-            setTimeout(()=>{
-                preview.classList.remove("animate");
-            }, 400);
+            setTimeout(()=> preview.classList.remove("animate"), 400);
         }
-
         reader.readAsDataURL(file);
 
-        // Subir foto al servidor
+        // Subir al servidor
         const formData = new FormData();
         formData.append('foto', file);
 
         try {
-            const res = await fetch('/subir_foto_perfil', {
-                method: 'POST',
-                body: formData
-            });
+            const res = await fetch('/subir_foto_perfil', { method:'POST', body: formData });
             const data = await res.json();
-
             if (!data.ok) {
-                alert('Error al subir la foto: ' + data.error);
-                location.reload();
+                alert('Error al subir la foto: ' + (data.error || 'Error desconocido'));
+                cargarDatos();
+            } else {
+                alert('Foto de perfil actualizada correctamente');
             }
         } catch (error) {
             console.error('Error subiendo foto:', error);
@@ -141,69 +147,126 @@ fileInput.addEventListener("change", async function(){
     }
 });
 
-// Guardar cambios
+// Guardar cambios / Editar perfil
 guardarBtn.addEventListener('click', async function() {
-    const nombre = document.getElementById('nombre').value.trim();
-    const apellido = document.getElementById('apellido').value.trim();
-    const telefono = document.getElementById('telefono').value.trim();
-    const correo = document.getElementById('correo').value.trim();
+    if (guardarBtn.classList.contains('editing')) {
+        // Guardar cambios
+        const nombre = document.getElementById('nombre').value.trim();
+        if (!nombre) { alert('Por favor ingresa tu nombre'); return; }
 
-    if (!nombre) {
-        alert('Por favor ingresa tu nombre');
-        return;
-    }
+        const apellido = document.getElementById('apellido').value.trim();
+        const telefono = document.getElementById('telefono').value.trim();
+        const correo = document.getElementById('correo').value.trim();
 
-    const formData = new FormData();
-    formData.append('nombre', nombre);
-    formData.append('apellido', apellido);
-    formData.append('telefono', telefono);
-    formData.append('correo', correo);
+        const formData = new FormData();
+        formData.append('nombre', nombre);
+        formData.append('apellido', apellido);
+        formData.append('telefono', telefono);
+        formData.append('correo', correo);
 
-    try {
-        const res = await fetch('/guardar_perfil', {
-            method: 'POST',
-            body: formData
-        });
-        const data = await res.json();
-
-        if (data.ok) {
-            alert('¡Perfil actualizado correctamente!');
-        } else {
-            alert('Error: ' + data.error);
+        try {
+            const res = await fetch('/guardar_perfil', { method:'POST', body: formData });
+            const data = await res.json();
+            if (data.ok) {
+                alert('¡Perfil actualizado correctamente!');
+                originalData = { nombre, apellido, telefono, correo };
+                deshabilitarEdicion();
+            } else {
+                alert('Error: ' + (data.error || 'Error desconocido'));
+            }
+        } catch (error) {
+            console.error('Error guardando:', error);
+            alert('Error al guardar los cambios');
         }
-    } catch (error) {
-        console.error('Error guardando:', error);
-        alert('Error al guardar los cambios');
+    } else {
+        habilitarEdicion();
     }
 });
 
-/* cambiar modos de visualización */
-function aplicarModo(modo) {
-    // eliminar únicamente nuestras clases de tema
-    document.body.classList.remove('modo-oscuro', 'modo-alto-contraste');
-    if (modo === 'oscuro') {
-        document.body.classList.add('modo-oscuro');
-    } else if (modo === 'alto-contraste') {
-        document.body.classList.add('modo-alto-contraste');
+// Habilitar campos para edición
+function habilitarEdicion() {
+    ['nombre','apellido','telefono','correo'].forEach(id => document.getElementById(id).disabled = false);
+
+    originalData = {
+        nombre: document.getElementById('nombre').value,
+        apellido: document.getElementById('apellido').value,
+        telefono: document.getElementById('telefono').value,
+        correo: document.getElementById('correo').value
+    };
+
+    guardarBtn.innerHTML = '<i class="fas fa-floppy-disk"></i> Guardar cambios';
+    guardarBtn.classList.add('editing');
+    guardarBtn.disabled = true;
+
+    cancelBtn.style.display = 'inline-block';
+    monitorCambios();
+}
+
+// Deshabilitar campos (modo lectura)
+function deshabilitarEdicion() {
+    ['nombre','apellido','telefono','correo'].forEach(id => document.getElementById(id).disabled = true);
+
+    guardarBtn.innerHTML = '<i class="fas fa-pen"></i> Editar perfil';
+    guardarBtn.classList.remove('editing');
+    guardarBtn.disabled = false;
+
+    cancelBtn.style.display = 'none';
+    removeChangeListeners();
+}
+
+// Verifica cambios para habilitar botón guardar
+function verificarCambios() {
+    const changed = ['nombre','apellido','telefono','correo']
+        .some(id => document.getElementById(id).value !== originalData[id]);
+    guardarBtn.disabled = !changed;
+}
+
+let changeListeners = [];
+function monitorCambios() {
+    ['nombre','apellido','telefono','correo'].forEach(id => {
+        const el = document.getElementById(id);
+        const listener = () => verificarCambios();
+        el.addEventListener('input', listener);
+        changeListeners.push({el,listener});
+    });
+}
+function removeChangeListeners() {
+    changeListeners.forEach(({el,listener}) => el.removeEventListener('input', listener));
+    changeListeners = [];
+}
+
+// Cancelar edición
+cancelBtn.addEventListener('click', function(){
+    if (['nombre','apellido','telefono','correo'].some(id => document.getElementById(id).value !== originalData[id])) {
+        if (!confirm('¿Seguro que desea salir de las ediciones del perfil? Los cambios se descartarán.')) return;
     }
+    ['nombre','apellido','telefono','correo'].forEach(id => {
+        document.getElementById(id).value = originalData[id];
+    });
+    deshabilitarEdicion();
+});
+
+// Modo de visualización
+function aplicarModo(modo) {
+    document.body.classList.remove('modo-oscuro','modo-alto-contraste');
+    if (modo==='oscuro') document.body.classList.add('modo-oscuro');
+    else if (modo==='alto-contraste') document.body.classList.add('modo-alto-contraste');
 }
 
 const selectorModo = document.getElementById('selectorModo');
+if (selectorModo) {
+    selectorModo.addEventListener('change', function() {
+        const modo = this.value;
+        aplicarModo(modo);
+        localStorage.setItem('modo', modo);
+    });
+}
 
-// al cambiar selector guardamos y aplicamos
-selectorModo.addEventListener('change', function() {
-    const modo = this.value;
-    aplicarModo(modo);
-    localStorage.setItem('modo', modo);
-});
-
-// aplicar la preferencia guardada cuando se carga la página
 document.addEventListener('DOMContentLoaded', function() {
     const modo = localStorage.getItem('modo') || 'claro';
     aplicarModo(modo);
     if (selectorModo) selectorModo.value = modo;
 });
-
 </script>
 
 {% endblock %}

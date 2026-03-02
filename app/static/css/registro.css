@@ -242,6 +242,38 @@ button:hover{
     min-height:20px;
 }
 
+/* reglas de contraseña */
+.password-rules{
+    margin-top:10px;
+    margin-bottom:10px; 
+    padding:10px 12px;
+    border-radius:12px;
+    background:rgba(17,34,80,0.04);
+    border:1px solid rgba(17,34,80,0.08);
+    font-size:12px;
+    font-family:"Bodoni Moda", serif;
+    transition:0.3s ease;
+}
+
+.password-rules p{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin:4px 0;
+    color:rgba(17,34,80,0.6);
+    transition:0.3s;
+}
+
+.valid{
+    color:#1e7e4f !important;
+    font-weight:600;
+}
+
+.invalid{
+    color:#b23b3b !important;
+    font-weight:500;
+}
+
 /* ===== RESPONSIVE ===== */
 @media(max-width:900px){
     .content{

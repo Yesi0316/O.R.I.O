@@ -11,7 +11,7 @@ from .database import conectar_db
 """
 
 import os
-from flask import flask
+from flask import Flask
 from dotenv import load_dotenv
 
 # importar componentes internos del paquete
@@ -28,29 +28,27 @@ def create_app():
     load_dotenv()
 
     # crear instancia principal de flask
-    app = flask(__name__)
+    app = Flask(__name__)
 
     # configurar clave secreta desde variables de entorno
     app.secret_key = os.getenv("secret_key")
 
     # configurar carpeta de subidas
-    app.config["upload_folder"] = os.path.join(
-        os.path.dirname(__file__),
-        os.getenv("upload_folder", "uploads")
+    app.config["UPLOAD_FOLDER"] = os.path.join(
+        os.path.dirname(__file__), os.getenv("upload_folder", "uploads")
     )
 
     # configurar carpeta estatica para imagenes u otros archivos
-    app.config["static_img_folder"] = os.path.join(
-        os.path.dirname(__file__),
-        os.getenv("static_img_folder", "static")
+    app.config["STATIC_IMG_FOLDER"] = os.path.join(
+        os.path.dirname(__file__), os.getenv("static_img_folder", "static")
     )
 
     # limitar el tamano maximo de archivos a 16 mb
     app.config["max_content_length"] = 16 * 1024 * 1024
 
     # asegurar que las carpetas existan
-    os.makedirs(app.config["upload_folder"], exist_ok=True)
-    os.makedirs(app.config["static_img_folder"], exist_ok=True)
+    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+    os.makedirs(app.config["STATIC_IMG_FOLDER"], exist_ok=True)
 
     # registrar todas las rutas del sistema
     init_routes(app)

@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Libre+Baskerville:wght@400;700&display=swap');
 
-/* ===== PAGINA DE PERFIL ===== */
+/* PAGINA DE PERFIL */
 .title{
 font-family:'Bodoni Moda',serif;
 font-size:32px;
@@ -91,6 +91,7 @@ min-width:220px;
 label{
 font-size:13px;
 color:var(--royal);
+font-weight:500;
 }
 
 input{
@@ -100,45 +101,88 @@ margin-top:6px;
 border-radius:12px;
 border:1px solid #ddd;
 outline:none;
-transition:.3s;
+transition:.3s all ease;
 font-family:'Libre Baskerville',serif;
+font-size:14px;
 }
 
-input:focus{
+input:disabled{
+background-color:#f5f5f5;
+color:#888;
+cursor:not-allowed;
+border-color:#e0e0e0;
+opacity:0.7;
+}
+
+input:not(:disabled){
+background-color:#ffffff;
+color:#000;
+border-color:#d9d9d9;
+}
+
+input:not(:disabled):focus{
 border-color:var(--gold);
-box-shadow:0 0 0 2px rgba(224,197,143,.35);
+box-shadow:0 0 0 3px rgba(224,197,143,.2);
+background-color:#fffbf7;
 }
 
-/* BOTON GUARDAR */
-.save-btn{
-position:fixed;
-bottom:25px;
-right:35px;
-background:linear-gradient(135deg,var(--royal),var(--sapphire));
-color:white;
-border:none;
-padding:16px 26px;
-border-radius:18px;
-cursor:pointer;
-font-family:'Libre Baskerville',serif;
-box-shadow:0 15px 30px rgba(0,0,0,.25);
-transition:.35s;
-z-index:20;
+/* CONTENEDOR DE BOTONES FLOTANTE */
+.buttons-container {
+  position: fixed;
+  bottom: 25px;
+  right: 35px;
+  display: flex;
+  gap: 15px; /* espacio entre botones */
+  z-index: 999;
 }
 
-.save-btn:hover{
-transform:translateY(-3px) scale(1.05);
-box-shadow:0 20px 35px rgba(0,0,0,.35);
+/* BOTONES */
+.save-btn,
+.cancel-btn {
+  padding: 14px 28px;
+  border-radius: 18px;
+  cursor: pointer;
+  font-family: 'Libre Baskerville', serif;
+  font-weight: 600;
+  font-size: 16px;
+  box-shadow: 0 15px 30px rgba(0,0,0,.25);
+  transition: all .35s cubic-bezier(0.4,0,0.2,1);
+  min-width: 140px;
+  text-align: center;
+  border: none;
 }
 
-/* CELULAR */
+/* COLORES POR ESTADO */
+.save-btn.editing {
+  background: linear-gradient(135deg, var(--gold), #f2d9a6); /* dorado */
+  color: var(--royal);
+}
+.save-btn:not(.editing) {
+  background: linear-gradient(135deg, var(--royal), var(--sapphire)); /* azul */
+  color: white;
+}
+.cancel-btn {
+  background: linear-gradient(135deg, var(--royal), var(--sapphire)); /* azul */
+  color: white;
+}
+
+/* HOVER */
+.save-btn:hover,
+.cancel-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 20px 35px rgba(0,0,0,.35);
+}
+
+/* RESPONSIVE */
 @media(max-width:900px){
-
-.title{font-size:26px;}
-
-.save-btn{
-right:20px;
-bottom:20px;
-}
-
+  .buttons-container {
+    bottom: 100px;
+    right: 15px;
+    gap: 10px;
+  }
+  .save-btn, .cancel-btn {
+    padding: 12px 20px;
+    font-size: 14px;
+    min-width: 120px;
+  }
 }
