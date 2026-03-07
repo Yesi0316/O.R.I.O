@@ -1319,6 +1319,72 @@ def init_routes(app):
         except Exception as e:
             return jsonify({"ok": False, "error": str(e)}), 500
 
+    @app.route('/api/borrar_reporte', methods=['POST'])
+    @login_required
+    def api_borrar_reporte():
+        """Borra un reporte si pertenece al usuario en sesión.
+        Body JSON: { "id_reporte": "<id>", "tipo": "perdido"|"encontrado" }
+        """
+        try:
+            payload = request.get_json() or {}
+            id_reporte = payload.get('id_reporte')
+            tipo = payload.get('tipo')
+
+            if not id_reporte or tipo not in ('perdido', 'encontrado'):
+                return jsonify({'ok': False, 'error': 'Parámetros inválidos'}), 400
+
+            id_usuario = session.get('id_usuario')
+            if not id_usuario:
+                return jsonify({'ok': False, 'error': 'No autenticado'}), 401
+
+            db = conectar_db()
+            cursor = db.cursor()
+
+            # Determinar tabla y columna según tipo
+            if tipo == 'perdido':
+                # verificar propietario
+                cursor.execute('SELECT "ID_USUARIO" FROM "Reportes_perdidos" WHERE "ID_REPORTE" = %s', (id_reporte,))
+                row = cursor.fetchone()
+                if not row:
+                    cursor.close()
+                    db.close()
+                    return jsonify({'ok': False, 'error': 'Reporte no encontrado'}), 404
+                if row[0] != id_usuario:
+                    cursor.close()
+                    db.close()
+                    return jsonify({'ok': False, 'error': 'No autorizado'}), 403
+
+                cursor.execute('DELETE FROM "Reportes_perdidos" WHERE "ID_REPORTE" = %s', (id_reporte,))
+
+            else:  # encontrado
+                cursor.execute('SELECT "ID_USUARIO" FROM "Reportes_encontrados" WHERE "ID_REPORTE_ENC" = %s', (id_reporte,))
+                row = cursor.fetchone()
+                if not row:
+                    cursor.close()
+                    db.close()
+                    return jsonify({'ok': False, 'error': 'Reporte no encontrado'}), 404
+                if row[0] != id_usuario:
+                    cursor.close()
+                    db.close()
+                    return jsonify({'ok': False, 'error': 'No autorizado'}), 403
+
+                cursor.execute('DELETE FROM "Reportes_encontrados" WHERE "ID_REPORTE_ENC" = %s', (id_reporte,))
+
+            db.commit()
+            afectadas = cursor.rowcount if hasattr(cursor, 'rowcount') else None
+            cursor.close()
+            db.close()
+
+            return jsonify({'ok': True, 'deleted': bool(afectadas)}), 200
+
+        except Exception as e:
+            try:
+                cursor.close()
+                db.close()
+            except:
+                pass
+            return jsonify({'ok': False, 'error': str(e)}), 500
+
     @app.route("/configuracion")
     @login_required
     def configuracion():
@@ -1463,6 +1529,60 @@ def init_routes(app):
             return jsonify(
                 {"ok": True, "mensaje": "Contraseña actualizada correctamente"}
             )
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
+
+    # ----TEMA DE USUARIO----
+    @app.route("/api/tema/obtener", methods=["GET"])
+    @login_required
+    def api_obtener_tema():
+        """Obtiene el tema preferido del usuario desde la BD"""
+        try:
+            id_usuario = session["id_usuario"]
+            db = conectar_db()
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+            
+            cursor.execute(
+                'SELECT "TEMA_PREFERENCIA" FROM "Usuarios" WHERE "ID_USUARIO" = %s',
+                (id_usuario,)
+            )
+            usuario = cursor.fetchone()
+            cursor.close()
+            db.close()
+            
+            if not usuario:
+                return jsonify({"ok": False, "error": "Usuario no encontrado"}), 404
+            
+            tema = usuario.get("TEMA_PREFERENCIA", "claro")
+            return jsonify({"ok": True, "tema": tema})
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
+
+    @app.route("/api/tema/actualizar", methods=["POST"])
+    @login_required
+    def api_actualizar_tema():
+        """Actualiza el tema preferido del usuario en la BD"""
+        try:
+            id_usuario = session["id_usuario"]
+            tema = request.json.get("tema", "claro").strip().lower()
+            
+            # Validar que el tema sea uno de los permitidos
+            temas_permitidos = ["claro", "oscuro", "alto-contraste"]
+            if tema not in temas_permitidos:
+                return jsonify({"ok": False, "error": "Tema no válido"}), 400
+            
+            db = conectar_db()
+            cursor = db.cursor()
+            
+            cursor.execute(
+                'UPDATE "Usuarios" SET "TEMA_PREFERENCIA" = %s WHERE "ID_USUARIO" = %s',
+                (tema, id_usuario)
+            )
+            db.commit()
+            cursor.close()
+            db.close()
+            
+            return jsonify({"ok": True, "mensaje": "Tema actualizado correctamente"})
         except Exception as e:
             return jsonify({"ok": False, "error": str(e)}), 500
 

@@ -9,15 +9,26 @@
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
 
 <script>
-// aplicar el modo guardado en cualquier página
-window.addEventListener('DOMContentLoaded', function() {
-    const modo = localStorage.getItem('modo');
-    if (modo && modo !== 'claro') {
-        document.body.classList.add('modo-' + modo);
+// Cargar y aplicar el tema del usuario desde la BD
+window.addEventListener('DOMContentLoaded', async function() {
+    try {
+        const response = await fetch('/api/tema/obtener');
+        const data = await response.json();
+        
+        if (data.ok) {
+            const tema = data.tema;
+            if (tema && tema !== 'claro') {
+                document.body.classList.add('modo-' + tema);
+            }
+            // Guardar en sessionStorage como respaldo (será reemplazado en próxima sesión)
+            sessionStorage.setItem('tema_actual', tema);
+        }
+    } catch (e) {
+        console.error('Error cargando tema:', e);
+        // Fallback a claro por defecto
     }
 });
 </script>
@@ -27,6 +38,9 @@ window.addEventListener('DOMContentLoaded', function() {
 
 <!-- CSS EXTRA POR PAGINA -->
 {% block extra_css %}{% endblock %}
+
+<!-- modos al final para sobreescribir estilos de página y globales -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
 
 </head>
 

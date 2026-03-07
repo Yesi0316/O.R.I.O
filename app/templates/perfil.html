@@ -255,17 +255,34 @@ function aplicarModo(modo) {
 
 const selectorModo = document.getElementById('selectorModo');
 if (selectorModo) {
-    selectorModo.addEventListener('change', function() {
+    selectorModo.addEventListener('change', async function() {
         const modo = this.value;
         aplicarModo(modo);
-        localStorage.setItem('modo', modo);
+        // Guardar en BD
+        try {
+            await fetch('/api/tema/actualizar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tema: modo })
+            });
+        } catch (e) {
+            console.error('Error al guardar tema:', e);
+        }
     });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const modo = localStorage.getItem('modo') || 'claro';
-    aplicarModo(modo);
-    if (selectorModo) selectorModo.value = modo;
+document.addEventListener('DOMContentLoaded', async function() {
+    try {
+        const response = await fetch('/api/tema/obtener');
+        const data = await response.json();
+        const modo = data.ok ? data.tema : 'claro';
+        
+        aplicarModo(modo);
+        if (selectorModo) selectorModo.value = modo;
+    } catch (e) {
+        console.error('Error cargando tema:', e);
+        aplicarModo('claro');
+    }
 });
 </script>
 

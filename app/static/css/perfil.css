@@ -1,74 +1,111 @@
+/* ========================================
+   IMPORTACIÓN DE FUENTES
+   Se importan las fuentes desde Google Fonts
+   para usarlas en los títulos y textos
+   ======================================== */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Libre+Baskerville:wght@400;700&display=swap');
 
-/* PAGINA DE PERFIL */
+
+/* ========================================
+   PAGINA DE PERFIL
+   Estilos principales para los títulos
+   ======================================== */
+
+/* Título principal de la página de perfil */
 .title{
-font-family:'Bodoni Moda',serif;
-font-size:32px;
-color:var(--royal);
-margin-bottom:10px;
+font-family:'Bodoni Moda',serif; /* fuente elegante para títulos */
+font-size:32px; /* tamaño grande del título */
+color:var(--royal); /* color principal definido en variables */
+margin-bottom:10px; /* espacio inferior */
 }
 
+/* Subtítulo o texto descriptivo debajo del título */
 .subtitle{
-color:#444;
-margin-bottom:35px;
-font-size:14px;
+color:#444; /* color gris oscuro */
+margin-bottom:35px; /* separación con los elementos siguientes */
+font-size:14px; /* tamaño de texto pequeño */
 }
 
-/* TARJETAS */
+
+/* ========================================
+   TARJETAS
+   Contenedores visuales para foto y formulario
+   ======================================== */
+
+/* Estilos compartidos para ambas tarjetas */
 .photo-card,
 .form-card{
-background:white;
-border-radius:25px;
-padding:30px;
-box-shadow:0 15px 30px rgba(0,0,0,.08);
-margin-bottom:30px;
+background:white; /* fondo blanco */
+border-radius:25px; /* bordes redondeados */
+padding:30px; /* espacio interno */
+box-shadow:0 15px 30px rgba(0,0,0,.08); /* sombra suave */
+margin-bottom:50px; /* espacio entre tarjetas */
 }
 
+/* Tarjeta específica de la foto */
 .photo-card{
-text-align:center;
+text-align:center; /* centra los elementos */
 }
 
-/* PERFIL */
+
+/* ========================================
+   PERFIL
+   Imagen de perfil del usuario
+   ======================================== */
+
+/* Vista previa de la foto de perfil */
 .profile-preview{
-width:180px;
-height:180px;
-border-radius:50%;
-object-fit:cover;
-border:3px solid var(--gold);
-margin-bottom:20px;
-transition:.4s ease;
+width:180px; /* ancho */
+height:180px; /* alto */
+border-radius:50%; /* forma circular */
+object-fit:cover; /* la imagen se adapta sin deformarse */
+border:3px solid var(--gold); /* borde dorado */
+margin-bottom:20px; /* separación inferior */
+transition:.4s ease; /* animación suave */
 }
 
+/* Animación al actualizar la foto */
 .profile-preview.animate{
-transform:scale(1.08);
-box-shadow:0 0 25px rgba(224,197,143,.6);
+transform:scale(1.08); /* aumenta ligeramente el tamaño */
+box-shadow:0 0 25px rgba(224,197,143,.6); /* efecto de brillo */
 }
 
-/* BOTON */
+
+/* ========================================
+   BOTON PARA SUBIR FOTO
+   ======================================== */
+
 .upload-btn{
-background:linear-gradient(135deg,var(--gold),#f2d9a6);
-border:none;
-padding:14px 28px;
-border-radius:14px;
-cursor:pointer;
-font-family:'Libre Baskerville',serif;
-color:var(--royal);
-font-weight:600;
-transition:.3s;
+background:linear-gradient(135deg,var(--gold),#f2d9a6); /* degradado dorado */
+border:none; /* sin borde */
+padding:14px 28px; /* tamaño del botón */
+border-radius:14px; /* bordes redondeados */
+cursor:pointer; /* cambia el cursor */
+font-family:'Libre Baskerville',serif; /* fuente elegante */
+color:var(--royal); /* color del texto */
+font-weight:600; /* grosor del texto */
+transition:.3s; /* animación */
 }
 
+/* Efecto al pasar el mouse */
 .upload-btn:hover{
-transform:scale(1.05);
-box-shadow:0 10px 25px rgba(0,0,0,.15);
+transform:scale(1.05); /* aumenta ligeramente */
+box-shadow:0 10px 25px rgba(0,0,0,.15); /* sombra más intensa */
 }
 
+/* Texto informativo debajo del botón */
 .min-info{
 margin-top:10px;
 font-size:12px;
-color:#666;
+color:#666; /* gris medio */
 }
 
-/* FORMULARIO */
+
+/* ========================================
+   FORMULARIO DE DATOS DEL PERFIL
+   ======================================== */
+
+/* Título de cada sección del formulario */
 .section-title{
 font-family:'Bodoni Moda',serif;
 color:var(--royal);
@@ -76,26 +113,30 @@ margin-bottom:20px;
 font-size:22px;
 }
 
+/* Fila que agrupa campos del formulario */
 .row{
-display:flex;
-gap:20px;
-margin-bottom:18px;
-flex-wrap:wrap;
+display:flex; /* organización horizontal */
+gap:20px; /* espacio entre campos */
+margin-bottom:18px; /* separación entre filas */
+flex-wrap:wrap; /* permite que bajen en pantallas pequeñas */
 }
 
+/* Contenedor de cada campo */
 .field{
-flex:1;
-min-width:220px;
+flex:1; /* ocupa el espacio disponible */
+min-width:220px; /* ancho mínimo */
 }
 
+/* Etiquetas de los campos */
 label{
 font-size:13px;
 color:var(--royal);
 font-weight:500;
 }
 
+/* Campos de entrada */
 input{
-width:100%;
+width:100%; /* ocupa todo el ancho */
 padding:12px;
 margin-top:6px;
 border-radius:12px;
@@ -106,13 +147,23 @@ font-family:'Libre Baskerville',serif;
 font-size:14px;
 }
 
+
+/* ========================================
+   ESTADO DE INPUT DESHABILITADO
+   ======================================== */
+
 input:disabled{
-background-color:#f5f5f5;
-color:#888;
-cursor:not-allowed;
+background-color:#f5f5f5; /* fondo gris claro */
+color:#888; /* texto gris */
+cursor:not-allowed; /* cursor prohibido */
 border-color:#e0e0e0;
 opacity:0.7;
 }
+
+
+/* ========================================
+   INPUTS ACTIVOS
+   ======================================== */
 
 input:not(:disabled){
 background-color:#ffffff;
@@ -120,23 +171,34 @@ color:#000;
 border-color:#d9d9d9;
 }
 
+/* Efecto al seleccionar el input */
 input:not(:disabled):focus{
 border-color:var(--gold);
 box-shadow:0 0 0 3px rgba(224,197,143,.2);
 background-color:#fffbf7;
 }
 
-/* CONTENEDOR DE BOTONES FLOTANTE */
+
+/* ========================================
+   CONTENEDOR DE BOTONES FLOTANTE
+   Botones guardar y cancelar
+   ======================================== */
+
 .buttons-container {
-  position: fixed;
-  bottom: 25px;
-  right: 35px;
+  position: fixed; /* permanece fijo en pantalla */
+  bottom: 25px; /* distancia desde abajo */
+  right: 35px; /* distancia desde la derecha */
   display: flex;
   gap: 15px; /* espacio entre botones */
-  z-index: 999;
+  z-index: 999; /* se muestra encima de otros elementos */
 }
 
-/* BOTONES */
+
+/* ========================================
+   BOTONES
+   Estilos generales de los botones
+   ======================================== */
+
 .save-btn,
 .cancel-btn {
   padding: 14px 28px;
@@ -152,37 +214,60 @@ background-color:#fffbf7;
   border: none;
 }
 
-/* COLORES POR ESTADO */
+
+/* ========================================
+   COLORES SEGÚN ESTADO
+   ======================================== */
+
+/* Botón guardar cuando se está editando */
 .save-btn.editing {
   background: linear-gradient(135deg, var(--gold), #f2d9a6); /* dorado */
   color: var(--royal);
 }
+
+/* Botón guardar cuando no está en edición */
 .save-btn:not(.editing) {
   background: linear-gradient(135deg, var(--royal), var(--sapphire)); /* azul */
   color: white;
 }
+
+/* Botón cancelar */
 .cancel-btn {
   background: linear-gradient(135deg, var(--royal), var(--sapphire)); /* azul */
   color: white;
 }
 
-/* HOVER */
+
+/* ========================================
+   EFECTOS HOVER
+   ======================================== */
+
 .save-btn:hover,
 .cancel-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 20px 35px rgba(0,0,0,.35);
+  transform: scale(1.05); /* aumento ligero */
+  box-shadow: 0 20px 35px rgba(0,0,0,.35); /* sombra más fuerte */
 }
 
-/* RESPONSIVE */
+
+/* ========================================
+   RESPONSIVE
+   Ajustes para pantallas pequeñas
+   ======================================== */
+
 @media(max-width:900px){
+
+  /* Ajusta la posición de los botones */
   .buttons-container {
     bottom: 100px;
     right: 15px;
     gap: 10px;
   }
+
+  /* Reduce tamaño de botones */
   .save-btn, .cancel-btn {
     padding: 12px 20px;
     font-size: 14px;
     min-width: 120px;
   }
+
 }

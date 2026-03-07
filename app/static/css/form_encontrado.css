@@ -1,104 +1,142 @@
+/* =========================================================
+   IMPORTACIÓN DE FUENTES DE GOOGLE
+   Se importan dos fuentes:
+   - Poppins (para texto general)
+   - Libre Baskerville (para títulos o contenido elegante)
+   ========================================================= */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Libre+Baskerville:wght@400;700&display=swap');
 
+/* =========================================================
+   VARIABLES GLOBALES (COLORES Y FUENTES DEL DISEÑO)
+   ========================================================= */
 :root {
-    --blue-bg: #112250;
-    --gold: #E0C58F;
-    --royal: #112250;
-    --font-title: 'Libre Baskerville', serif;
-    --font-body: 'Libre Baskerville', serif;
+    --blue-bg: #112250; /* Azul oscuro usado en el fondo */
+    --gold: #E0C58F; /* Color dorado usado para detalles y botones */
+    --royal: #112250; /* Azul principal del sistema */
+    --font-title: 'Libre Baskerville', serif; /* Fuente para títulos */
+    --font-body: 'Libre Baskerville', serif; /* Fuente para texto */
 }
 
-/* RESET */
+/* =========================================================
+   RESET GENERAL
+   Elimina márgenes y padding por defecto y usa box-sizing
+   ========================================================= */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+/* =========================================================
+   ESTILOS GENERALES DEL BODY
+   ========================================================= */
 body {
     margin: 0;
-    min-height: 100vh;
-    font-family: 'Poppins', sans-serif;
+    min-height: 100vh; /* Altura mínima igual a la pantalla */
+    font-family: 'Poppins', sans-serif; /* Fuente principal */
+
+    /* Fondo compuesto por varios degradados */
     background:
         radial-gradient(circle at 20% 20%, #4c6fb7 0%, transparent 35%),
         radial-gradient(circle at 80% 80%, #1b2d57 0%, transparent 40%),
         linear-gradient(135deg, #3C5B8F, #112250);
-    background-attachment: fixed;
+
+    background-attachment: fixed; /* Mantiene el fondo fijo al hacer scroll */
 }
 
-/* CONTENEDOR PRINCIPAL */
+/* =========================================================
+   CONTENEDOR PRINCIPAL DE LA SECCIÓN
+   ========================================================= */
 #malasPracticas {
     width: 100%;
     display: flex;
-    justify-content: center; /* CENTRA TODO */
+    justify-content: center; /* Centra el contenido horizontalmente */
     padding: 40px 20px;
     position: relative;
 }
 
-/* ESTRELLAS */
+/* =========================================================
+   ESTRELLAS DECORATIVAS DEL FONDO
+   ========================================================= */
 .star {
     position: absolute;
     background-color: var(--gold);
-    border-radius: 50%;
+    border-radius: 50%; /* Forma circular */
     opacity: 0.8;
-    animation: twinkle 2s infinite alternate;
+    animation: twinkle 2s infinite alternate; /* Animación de brillo */
     z-index: 1;
 }
 
+/* Animación que hace que las estrellas parpadeen */
 @keyframes twinkle {
     0% { opacity: 0.2; }
     50% { opacity: 1; }
     100% { opacity: 0.2; }
 }
 
-/* FORMULARIO */
+/* =========================================================
+   CONTENEDOR DEL FORMULARIO
+   ========================================================= */
 .form-container {
     position: relative;
-    z-index: 2;
+    z-index: 2; /* Para que esté por encima de las estrellas */
     background: white;
     padding: 45px;
     border-radius: 18px;
     width: 100%;
-    max-width: 750px;
-    box-shadow: 0 15px 30px rgba(0,0,0,.08);
+    max-width: 750px; /* Ancho máximo del formulario */
+    box-shadow: 0 15px 30px rgba(0,0,0,.08); /* Sombra suave */
 }
 
-/* BOTÓN VOLVER */
+/* =========================================================
+   BOTÓN VOLVER
+   ========================================================= */
 .back-btn-container {
     margin-bottom: 25px;
 }
 
-/* HEADER */
+/* =========================================================
+   ENCABEZADO DEL FORMULARIO
+   ========================================================= */
 .form-header {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 15px; /* Espacio entre logo y título */
     margin-bottom: 25px;
 }
 
+/* Logo del formulario */
 .form-logo {
-    width: 50px;
+    width: 40px;
     height: 80px;
-    object-fit: contain;
+    object-fit: contain; /* Ajusta la imagen sin deformarla */
 }
 
+/* Título principal */
 h1 {
     font-family: var(--font-title);
     color: var(--royal);
 }
 
-/* COLUMNAS PC */
+/* =========================================================
+   COLUMNAS DEL FORMULARIO EN PC
+   ========================================================= */
 .form-columns {
     display: flex;
     gap: 20px;
 }
 
+/* Columnas izquierda y derecha */
 .left-column,
 .right-column {
     width: 50%;
 }
 
-/* INPUTS */
+/* =========================================================
+   INPUTS DEL FORMULARIO
+   ========================================================= */
+
+/* Etiquetas */
 label {
     display: block;
     margin-top: 12px;
@@ -106,6 +144,7 @@ label {
     color: var(--royal);
 }
 
+/* Campos de entrada */
 input, textarea, select {
     width: 100%;
     padding: 10px;
@@ -115,11 +154,14 @@ input, textarea, select {
     font-family: var(--font-body);
 }
 
+/* Área de texto */
 textarea {
     min-height: 110px;
 }
 
-/* BOTONES */
+/* =========================================================
+   BOTONES DEL FORMULARIO
+   ========================================================= */
 .btn-area {
     margin-top: 22px;
     display: flex;
@@ -127,6 +169,7 @@ textarea {
     gap: 15px;
 }
 
+/* Botón principal */
 .btn-config {
     padding: 10px 24px;
     background: linear-gradient(135deg, var(--gold), #f2d9a6);
@@ -138,12 +181,18 @@ textarea {
     transition: .25s;
 }
 
+/* Hover del botón */
 .btn-config:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(224,197,143,.3);
 }
 
-/* MODO OSCURO */
+/* =========================================================
+   MODO OSCURO
+   Cambia los colores cuando el body tiene la clase
+   "modo-oscuro"
+   ========================================================= */
+
 body.modo-oscuro .form-container {
     background: #2d3748 !important;
     border: 1px solid #3f4a5c !important;
@@ -167,7 +216,7 @@ body.modo-oscuro select {
 
 body.modo-oscuro input::placeholder,
 body.modo-oscuro textarea::placeholder {
-    color: #777 !important;
+    color: #cccccc !important;
 }
 
 body.modo-oscuro input:focus,
@@ -183,6 +232,7 @@ body.modo-oscuro select option {
     color: #e8e8e8 !important;
 }
 
+/* Botón volver en modo oscuro */
 body.modo-oscuro .back-btn {
     background: linear-gradient(135deg, #E0C58F, #d4b77b) !important;
     color: #0f1419 !important;
@@ -192,6 +242,7 @@ body.modo-oscuro .back-btn:hover {
     box-shadow: 0 6px 16px rgba(224, 197, 143, 0.3) !important;
 }
 
+/* Botones principales en modo oscuro */
 body.modo-oscuro .btn-config {
     background: linear-gradient(135deg, #E0C58F, #d4b77b) !important;
     color: #0f1419 !important;
@@ -201,11 +252,15 @@ body.modo-oscuro .btn-config:hover {
     box-shadow: 0 6px 16px rgba(224, 197, 143, 0.3) !important;
 }
 
+/* Estrellas en modo oscuro */
 body.modo-oscuro .star {
     background-color: #E0C58F !important;
 }
 
-/* ---------------- RESPONSIVE ---------------- */
+/* =========================================================
+   RESPONSIVE DESIGN
+   Adaptación a diferentes tamaños de pantalla
+   ========================================================= */
 
 /* TABLET */
 @media (max-width: 900px) {
@@ -217,6 +272,7 @@ body.modo-oscuro .star {
 /* MÓVIL */
 @media (max-width: 700px) {
 
+    /* Cambia columnas a una sola */
     .form-columns {
         flex-direction: column;
     }
@@ -226,6 +282,7 @@ body.modo-oscuro .star {
         width: 100%;
     }
 
+    /* Botones en columna */
     .btn-area {
         flex-direction: column;
     }
@@ -246,21 +303,25 @@ body.modo-oscuro .star {
         padding: 25px;
     }
 
+    /* Encabezado vertical */
     .form-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
     }
 
+    /* Tamaño del título */
     h1 {
         font-size: 20px;
     }
 
+    /* Ajuste del logo */
     .form-logo {
         width: 40px;
         height: 40px;
     }
 
+    /* Oculta estrellas para mejorar rendimiento en móviles */
     .star {
         display: none;
     }

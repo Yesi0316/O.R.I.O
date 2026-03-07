@@ -365,32 +365,34 @@ let config = {
 ================================ */
 async function cargarConfig() {
   try {
+    // Cargar tema desde BD
+    const resTema = await fetch('/api/tema/obtener');
+    const dataTema = await resTema.json();
+    
+    if (dataTema.ok) {
+      config.tema = dataTema.tema;
+      document.getElementById('selectTema').value = config.tema;
+      
+      document.body.classList.remove('modo-oscuro', 'modo-alto-contraste');
+      if (config.tema === 'oscuro') {
+        document.body.classList.add('modo-oscuro');
+      } else if (config.tema === 'alto-contraste') {
+        document.body.classList.add('modo-alto-contraste');
+      }
+    }
+    
+    // Cargar otras configuraciones desde API
     const res = await fetch('/api/configuracion');
     const data = await res.json();
 
     if (data.ok && data.config) {
-      config = data.config;
+      config.privacidad = data.config.privacidad;
+      config.notificaciones = data.config.notificaciones;
+      config.email_reportes = data.config.email_reportes;
 
-      document.getElementById('selectTema').value = config.tema;
       document.getElementById('selectPrivacidad').value = config.privacidad;
-
-      document.body.classList.remove('modo-oscuro', 'modo-alto-contraste');
-
-      if (config.tema === 'oscuro') {
-        document.body.classList.add('modo-oscuro');
-        localStorage.setItem('modo', 'oscuro');
-      } 
-      else if (config.tema === 'alto-contraste') {
-        document.body.classList.add('modo-alto-contraste');
-        localStorage.setItem('modo', 'alto-contraste');
-      } 
-      else {
-        localStorage.setItem('modo', 'claro');
-      }
-
       document.getElementById('toggleNotif')
         .classList.toggle('active', config.notificaciones);
-
       document.getElementById('toggleEmail')
         .classList.toggle('active', config.email_reportes);
     }
@@ -419,9 +421,8 @@ function toggleEmail() {
 /* ================================
    SELECTS
 ================================ */
-document.getElementById('selectTema').addEventListener('change', function() {
+document.getElementById('selectTema').addEventListener('change', async function() {
   config.tema = this.value;
-  localStorage.setItem('modo', this.value);
 
   document.body.classList.remove('modo-oscuro', 'modo-alto-contraste');
 
@@ -431,7 +432,16 @@ document.getElementById('selectTema').addEventListener('change', function() {
     document.body.classList.add('modo-alto-contraste');
   }
 
-  guardarConfig();
+  // Guardar tema en BD
+  try {
+    await fetch('/api/tema/actualizar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tema: this.value })
+    });
+  } catch (e) {
+    console.error('Error al guardar tema:', e);
+  }
 });
 
 document.getElementById('selectPrivacidad').addEventListener('change', function() {

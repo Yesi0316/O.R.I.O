@@ -1,40 +1,68 @@
+/* ========================================
+   IMPORTACIÓN DE FUENTES
+   Se importan las fuentes desde Google Fonts
+   para utilizarlas en textos y títulos
+   ======================================== */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Libre+Baskerville:wght@400;700&display=swap');
 
-/* ===== MISMA PALETA ===== */
+
+/* ========================================
+   PALETA DE COLORES GLOBAL
+   Variables reutilizables en todo el diseño
+   ======================================== */
 :root{
-    --royal-blue:#112250;
-    --sapphire:#3C507D;
-    --quicksand:#E0C58F;
-    --swan:#F5F0E9;
-    --shell:#D9CBC2;
+    --royal-blue:#112250; /* azul principal oscuro */
+    --sapphire:#3C507D;   /* azul secundario */
+    --quicksand:#E0C58F;  /* color dorado */
+    --swan:#F5F0E9;       /* blanco crema */
+    --shell:#D9CBC2;      /* gris claro */
 }
 
+
+/* ========================================
+   FUENTE PERSONALIZADA
+   Usa Baskerville si está disponible en el sistema
+   ======================================== */
 @font-face{
     font-family:"BaskervilleCustom";
     src:local("Baskerville"), local("Libre Baskerville");
 }
 
+
+/* ========================================
+   RESET GENERAL
+   Elimina márgenes y padding por defecto
+   ======================================== */
 *{ margin:0; padding:0; box-sizing:border-box; }
 
+
+/* ========================================
+   ESTILO BASE DEL BODY
+   ======================================== */
 body{
-    min-height:100vh;
-    background:linear-gradient(135deg,var(--royal-blue),var(--sapphire));
-    display:flex;
+    min-height:100vh; /* altura mínima de toda la pantalla */
+    background:linear-gradient(135deg,var(--royal-blue),var(--sapphire)); /* fondo degradado */
+    display:flex; /* layout flexible */
     flex-direction:column;
-    overflow-x:hidden;
+    overflow-x:hidden; /* evita scroll horizontal */
 }
 
 
 
-/* ===== ESTRELLAS ===== */
+/* ========================================
+   EFECTO DECORATIVO DE ESTRELLAS
+   ======================================== */
+
+/* Contenedor de estrellas */
 .stars{
     position:fixed;
     inset:0;
-    pointer-events:none;
+    pointer-events:none; /* no interfiere con clics */
     overflow:hidden;
     z-index:0;
 }
 
+/* Estrella individual */
 .star{
     position:absolute;
     width:3px;
@@ -45,30 +73,40 @@ body{
     animation:fall 4s linear infinite;
 }
 
+/* Animación de caída de las estrellas */
 @keyframes fall{
     0%{ transform:translateY(-100px); opacity:0;}
     10%{opacity:1;}
     100%{ transform:translateY(100vh) translateX(80px); opacity:0;}
 }
 
-/* ===== HEADER ===== */
+
+/* ========================================
+   HEADER
+   Contenedor del logo y título
+   ======================================== */
+
 header{
     padding:25px 60px;
     color:var(--swan);
     position:relative;
     z-index:2;
 }
+
+/* Imagen del logo */
 .logo-image{
     width:60px;   
     height:auto;
 }
 
+/* Contenedor del logo y texto */
 .logo-container{
     display:flex;
     align-items:center;
     gap:15px;
 }
 
+/* Círculo decorativo del logo */
 .logo-circle{
     width:50px;
     height:50px;
@@ -82,18 +120,24 @@ header{
     color:var(--royal-blue);
 }
 
+/* Texto del logo */
 .logo-text{
     font-family:"BaskervilleCustom", serif;
     font-size:28px;
 }
 
+/* Subtítulo debajo del logo */
 .subtitle{
     font-family:"Bodoni Moda", serif;
     font-size:14px;
     opacity:0.8;
 }
 
-/* ===== MAIN ===== */
+
+/* ========================================
+   CONTENEDOR PRINCIPAL
+   ======================================== */
+
 .main-container{
     flex:1;
     display:flex;
@@ -105,6 +149,7 @@ header{
     overflow:hidden;  
 }
 
+/* Tarjeta principal que contiene todo el contenido */
 .content{
     width:100%;
     max-width:1100px;
@@ -118,7 +163,12 @@ header{
     overflow:hidden;  
 }
 
-/* ===== LEFT ===== */
+
+/* ========================================
+   LADO IZQUIERDO
+   Sección decorativa con imagen y texto
+   ======================================== */
+
 .left-side{
     flex:1;
     background:linear-gradient(160deg,var(--sapphire),var(--royal-blue));
@@ -131,6 +181,7 @@ header{
     color:var(--swan);
 }
 
+/* Imagen ilustrativa */
 .left-side img{
     width:100%;
     max-width:420px;
@@ -138,45 +189,60 @@ header{
     animation:floatImage 4s ease-in-out infinite;
 }
 
+/* Animación de flotación */
 @keyframes floatImage{
     0%{ transform:translateY(0);}
     50%{ transform:translateY(-15px);}
     100%{ transform:translateY(0);}
 }
 
+/* Título del lado izquierdo */
 .left-side h1{
     font-family:"BaskervilleCustom", serif;
     font-size:36px;
     margin-bottom:10px;
 }
 
-/* ===== RIGHT ===== */
+
+/* ========================================
+   LADO DERECHO
+   Contenedor del formulario
+   ======================================== */
+
 .right-side{
     flex:1;
     display:flex;
     justify-content:center;
-    align-items:flex-start;  /* ← FIX IMPORTANTE */
+    align-items:flex-start;  
     padding:30px 20px;
     overflow-y:auto;
     min-height:0;
 }
 
+/* Contenedor interno del formulario */
 .form-container{
     width:100%;
     max-width:380px;
     padding-bottom:20px;
 }
 
+/* Título del formulario */
 .form-container h2{
     font-family:"BaskervilleCustom", serif;
     color:var(--royal-blue);
     margin-bottom:20px;
 }
 
+
+/* ========================================
+   CAMPOS DEL FORMULARIO
+   ======================================== */
+
 .input-group{
     margin-bottom:10px;
 }
 
+/* Campos de entrada */
 .input-group input{
     width:100%;
     padding:12px 14px;
@@ -188,9 +254,16 @@ header{
     transition:0.3s;
 }
 
+/* Efecto cuando el input está activo */
 .input-group input:focus{
     border-color:var(--sapphire);
 }
+
+
+/* ========================================
+   SECCIÓN DE SEGURIDAD
+   (cambio de contraseña o validación)
+   ======================================== */
 
 .security-section{
     margin:18px 0 12px;
@@ -207,6 +280,11 @@ header{
     margin-bottom:10px;
 }
 
+
+/* ========================================
+   BOTONES
+   ======================================== */
+
 button{
     width:100%;
     padding:12px;
@@ -219,9 +297,15 @@ button{
     cursor:pointer;
 }
 
+/* Hover del botón */
 button:hover{
     background:#d4b678;
 }
+
+
+/* ========================================
+   ENLACES ADICIONALES
+   ======================================== */
 
 .extra-links{
     margin-top:15px;
@@ -234,6 +318,12 @@ button:hover{
     color:var(--sapphire);
 }
 
+
+/* ========================================
+   MENSAJE DE ESTADO
+   (errores o confirmaciones)
+   ======================================== */
+
 .mensaje{
     margin-top:10px;
     text-align:center;
@@ -242,7 +332,11 @@ button:hover{
     min-height:20px;
 }
 
-/* reglas de contraseña */
+
+/* ========================================
+   REGLAS DE CONTRASEÑA
+   ======================================== */
+
 .password-rules{
     margin-top:10px;
     margin-bottom:10px; 
@@ -255,6 +349,7 @@ button:hover{
     transition:0.3s ease;
 }
 
+/* Cada regla individual */
 .password-rules p{
     display:flex;
     align-items:center;
@@ -264,18 +359,26 @@ button:hover{
     transition:0.3s;
 }
 
+/* Regla válida */
 .valid{
     color:#1e7e4f !important;
     font-weight:600;
 }
 
+/* Regla inválida */
 .invalid{
     color:#b23b3b !important;
     font-weight:500;
 }
 
-/* ===== RESPONSIVE ===== */
+
+/* ========================================
+   RESPONSIVE
+   Ajustes para pantallas pequeñas
+   ======================================== */
+
 @media(max-width:900px){
+
     .content{
       flex-direction:column;
       border-radius:20px;
@@ -296,13 +399,22 @@ button:hover{
     }
 }
 
-/* ===== FOOTER ===== */
+
+/* ========================================
+   FOOTER
+   ======================================== */
+
 footer{
     padding:20px;
     text-align:center;
     font-size:13px;
     color:var(--swan);
 }
+
+
+/* ========================================
+   CONTROL GLOBAL DE SCROLL HORIZONTAL
+   ======================================== */
 
 html, body{
     width:100%;

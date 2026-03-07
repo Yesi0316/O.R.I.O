@@ -12,6 +12,7 @@ aplicación lo importan con `from app.database import ...`.
 
 import os
 import psycopg2
+import time
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 
@@ -49,29 +50,28 @@ ESTADOS_DEFAULT = ["Bueno", "Regular", "Malo"]
 
 
 def conectar_db():
-    """Establece conexión a la base de datos PostgreSQL.
+    """Establece conexión a PostgreSQL con reintentos (para Docker)."""
+    
+    os.environ.setdefault("PGCLIENTENCODING", "utf8")
 
-    Returns:
-        psycopg2.connection: Conexión a la BD o None si hay error
+    intentos = 10
 
-    Raises:
-        RuntimeError: Si hay problema de codificación UTF-8
-    """
-    try:
-        os.environ.setdefault("PGCLIENTENCODING", "utf8")
+    for intento in range(intentos):
+        try:
+            conexion = psycopg2.connect(
+                options="-c client_encoding=UTF8",
+                **DB_CONFIG
+            )
 
-        conexion = psycopg2.connect(options="-c client_encoding=UTF8", **DB_CONFIG)
-        return conexion
+            print("✓ Conectado a PostgreSQL")
+            return conexion
 
-    except UnicodeDecodeError as e:
-        raise RuntimeError(
-            "UnicodeDecodeError durante la conexión a PostgreSQL. "
-            "Revisa que la base de datos, usuario y tablas no tengan tildes."
-        ) from e
+        except psycopg2.Error as e:
+            print(f"Intento {intento+1}/{intentos}: PostgreSQL aún no está listo...")
+            time.sleep(2)
 
-    except psycopg2.Error as e:
-        print("Error al conectar:", e)
-        return None
+    print("✗ No se pudo conectar a la base de datos.")
+    return None
 
 
 # ========================
@@ -160,7 +160,8 @@ TABLAS = {
             "RESPUESTA_1" TEXT NOT NULL,
             "RESPUESTA_2" TEXT NOT NULL,
             "INTENTOS_RECUPERACION" INTEGER DEFAULT 0,
-            "BLOQUEADO_HASTA" TIMESTAMP
+            "BLOQUEADO_HASTA" TIMESTAMP,
+            "TEMA_PREFERENCIA" TEXT DEFAULT 'claro'
         );
     """,
     "Objetos": """
@@ -279,6 +280,28 @@ def crear_tabla_Reportes_encontrados():
 def crear_tabla_Reportes_perdidos():
     """Crea la tabla Reportes_perdidos."""
     ejecutar_sql(TABLAS["Reportes_perdidos"], "Tabla Reportes_perdidos")
+
+
+def aplicar_migraciones():
+    """Aplica migraciones a la base de datos para versiones nuevas."""
+    conexion = conectar_db()
+    if not conexion:
+        return
+    
+    cursor = conexion.cursor()
+    try:
+        # Migración: Agregar columna TEMA_PREFERENCIA si no existe
+        cursor.execute("""
+            ALTER TABLE public."Usuarios"
+            ADD COLUMN IF NOT EXISTS "TEMA_PREFERENCIA" TEXT DEFAULT 'claro'
+        """)
+        conexion.commit()
+        print("✓ Migraciones aplicadas correctamente")
+    except Exception as e:
+        print(f"✗ Error aplicando migraciones: {e}")
+    finally:
+        cursor.close()
+        conexion.close()
 
 
 def crear_tablas():

@@ -1,32 +1,55 @@
+/* =========================================================
+   IMPORTACIÓN DE FUENTES
+   Se cargan desde Google Fonts las fuentes:
+   - Poppins (para texto general)
+   - Libre Baskerville (para títulos elegantes)
+   ========================================================= */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Libre+Baskerville:wght@400;700&display=swap');
 
+/* =========================================================
+   VARIABLES GLOBALES
+   Colores y fuentes reutilizables en todo el CSS
+   ========================================================= */
 :root {
-    --blue-bg: #112250;
-    --gold: #E0C58F;
-    --royal: #112250;
-    --font-title: 'Libre Baskerville', serif;
-    --font-body: 'Bodoni Moda', serif;
+    --blue-bg: #112250; /* Azul oscuro del fondo */
+    --gold: #E0C58F; /* Dorado usado en botones y detalles */
+    --royal: #112250; /* Azul principal del sistema */
+    --font-title: 'Libre Baskerville', serif; /* Fuente para títulos */
+    --font-body: 'Bodoni Moda', serif; /* Fuente para inputs y contenido */
 }
 
-/* RESET SEGURO */
+/* =========================================================
+   RESET BÁSICO
+   Asegura que todos los elementos calculen correctamente
+   su tamaño incluyendo padding y borde
+   ========================================================= */
 * {
     box-sizing: border-box;
 }
 
-/* BODY NORMAL (NO FLEX, NO ROMPE NAVBAR) */
+/* =========================================================
+   ESTILOS GENERALES DEL BODY
+   ========================================================= */
 body {
     margin: 0;
     min-height: 100vh;
+
+    /* Fondo compuesto por degradados radiales y lineales */
     background:
         radial-gradient(circle at 20% 20%, #4c6fb7 0%, transparent 35%),
         radial-gradient(circle at 80% 80%, #1b2d57 0%, transparent 40%),
         linear-gradient(135deg, #3C5B8F, #112250);
+
     background-repeat: no-repeat;
-    background-attachment: fixed;
-    font-family: 'Poppins', sans-serif;
+    background-attachment: fixed; /* Mantiene el fondo fijo al hacer scroll */
+
+    font-family: 'Poppins', sans-serif; /* Fuente principal */
 }
 
-/* CONTENEDOR PRINCIPAL CENTRADO SIN ROMPER LAYOUT */
+/* =========================================================
+   CONTENEDOR PRINCIPAL
+   Centra el formulario sin afectar otros layouts como navbar
+   ========================================================= */
 #malasPracticas {
     width: 100%;
     display: flex;
@@ -35,26 +58,31 @@ body {
     position: relative;
 }
 
-/* ESTRELLAS */
+/* =========================================================
+   ESTRELLAS DECORATIVAS DEL FONDO
+   ========================================================= */
 .star {
     position: absolute;
     background-color: var(--gold);
-    border-radius: 50%;
+    border-radius: 50%; /* Forma circular */
     opacity: 0.8;
-    animation: twinkle 2s infinite alternate;
+    animation: twinkle 2s infinite alternate; /* Animación de brillo */
     z-index: 1;
 }
 
+/* Animación de parpadeo de las estrellas */
 @keyframes twinkle {
     0% { opacity: 0.2; }
     50% { opacity: 1; }
     100% { opacity: 0.2; }
 }
 
-/* TARJETA */
+/* =========================================================
+   TARJETA DEL FORMULARIO
+   ========================================================= */
 .form-container {
     position: relative;
-    z-index: 2;
+    z-index: 2; /* Para estar encima de las estrellas */
     background: white;
     padding: 45px;
     border-radius: 18px;
@@ -64,7 +92,9 @@ body {
     box-shadow: 0 15px 30px rgba(0,0,0,.08);
 }
 
-/* VOLVER */
+/* =========================================================
+   BOTÓN VOLVER
+   ========================================================= */
 .back-btn-container {
     margin-bottom: 25px;
 }
@@ -81,12 +111,15 @@ body {
     transition: .25s;
 }
 
+/* Animación hover del botón */
 .back-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(224,197,143,.3);
 }
 
-/* HEADER */
+/* =========================================================
+   ENCABEZADO DEL FORMULARIO
+   ========================================================= */
 .form-header {
     display: flex;
     align-items: center;
@@ -94,12 +127,14 @@ body {
     margin-bottom: 25px;
 }
 
+/* Logo del formulario */
 .form-logo {
     width: 50px;
     height: 50px;
     object-fit: contain;
 }
 
+/* Título principal */
 h1 {
     font-family: var(--font-title);
     color: var(--royal);
@@ -107,7 +142,9 @@ h1 {
     margin: 0;
 }
 
-/* COLUMNAS PC (SE RESPETA DISEÑO) */
+/* =========================================================
+   COLUMNAS DEL FORMULARIO (ESCRITORIO)
+   ========================================================= */
 .form-columns {
     display: flex;
     gap: 20px;
@@ -118,7 +155,9 @@ h1 {
     width: 50%;
 }
 
-/* INPUTS */
+/* =========================================================
+   INPUTS DEL FORMULARIO
+   ========================================================= */
 label {
     display: block;
     margin-top: 12px;
@@ -139,16 +178,20 @@ select {
     font-family: var(--font-body);
 }
 
+/* Área de texto */
 textarea {
     min-height: 110px;
 }
 
+/* Placeholder de los inputs */
 input::placeholder,
 textarea::placeholder {
     color: #999;
 }
 
-/* BOTONES */
+/* =========================================================
+   BOTONES DEL FORMULARIO
+   ========================================================= */
 .btn-area {
     margin-top: 22px;
     display: flex;
@@ -169,17 +212,21 @@ textarea::placeholder {
     margin-top: 12px;
 }
 
+/* Hover del botón */
 .btn-config:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(224,197,143,.3);
 }
 
-/* SELECT */
+/* =========================================================
+   ESTILO PERSONALIZADO DEL SELECT
+   ========================================================= */
 .select-wrap {
     position: relative;
     width: 100%;
 }
 
+/* Flecha personalizada del select */
 .select-wrap::after {
     content: "▾";
     position: absolute;
@@ -193,6 +240,7 @@ textarea::placeholder {
     pointer-events: none;
 }
 
+/* Select personalizado */
 select {
     appearance: none;
     background: transparent;
@@ -200,11 +248,16 @@ select {
     cursor: pointer;
 }
 
+/* Opciones del select */
 select option {
     color: black;
 }
 
-/* MODO OSCURO */
+/* =========================================================
+   MODO OSCURO
+   Se activa cuando el body tiene la clase "modo-oscuro"
+   ========================================================= */
+
 body.modo-oscuro .form-container {
     background: #2d3748 !important;
     border: 1px solid #3f4a5c !important;
@@ -228,7 +281,7 @@ body.modo-oscuro select {
 
 body.modo-oscuro input::placeholder,
 body.modo-oscuro textarea::placeholder {
-    color: #777 !important;
+    color: #cccccc !important;
 }
 
 body.modo-oscuro input:focus,
@@ -270,7 +323,10 @@ body.modo-oscuro .star {
     background-color: #E0C58F !important;
 }
 
-/* ---------------- RESPONSIVE ---------------- */
+/* =========================================================
+   RESPONSIVE DESIGN
+   Adaptación a diferentes tamaños de pantalla
+   ========================================================= */
 
 /* TABLET */
 @media (max-width: 900px) {

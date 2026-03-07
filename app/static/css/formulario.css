@@ -1,70 +1,125 @@
+/* =========================================================
+   RESET GENERAL
+   Elimina márgenes y paddings por defecto y define
+   el modelo de caja para todos los elementos
+   ========================================================= */
 *{
      margin: 0;
     padding: 0;
     box-sizing: border-box; 
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* Fuente general */
 }
 
+/* =========================================================
+   LISTAS
+   Se eliminan los estilos por defecto de las listas
+   ========================================================= */
 ul{
     list-style: none;
 }
+
+/* =========================================================
+   ENLACES
+   Quita el subrayado por defecto de los links
+   ========================================================= */
 a{
     text-decoration: none;
 }
+
+/* =========================================================
+   INPUTS
+   Estilo general para los campos de entrada
+   ========================================================= */
 input{
-    width: 100%;
+    width: 100%; /* Ocupa todo el ancho del contenedor */
     height: 35px;
     border: none;
-    border-bottom: 1px solid #ccc;
-    outline: none;
+    border-bottom: 1px solid #ccc; /* Línea inferior estilo minimalista */
+    outline: none; /* Elimina el borde azul al hacer focus */
 }
 
+/* Color del texto placeholder */
 input::placeholder{
     color: #ccc;
 }
+
+/* =========================================================
+   BODY
+   Fondo general de la página
+   ========================================================= */
 body{
     background-color: #f2f2f2;
  }
+
+/* =========================================================
+   FORMULARIO PRINCIPAL
+   ========================================================= */
 form{
     background-color: #cae6e9;
-    width: 1500px;
-    height: 800px;
+    width: 1500px; /* Ancho del formulario */
+    height: 800px; /* Altura del formulario */
     padding: 20px;
-margin: 0 auto;
+margin: 0 auto; /* Centra el formulario horizontalmente */
 }
+
+/* =========================================================
+   NAVBAR DEL FORMULARIO
+   ========================================================= */
 nav{
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid #ccc;
+    display: flex; /* Distribuye los elementos en fila */
+    justify-content: space-between; /* Espacio entre elementos */
+    border-bottom: 1px solid #ccc; /* Línea inferior */
 }
+
+/* Lista dentro del formulario */
 .formulario-ul{
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 10px; /* Espacio entre elementos */
 }
+
+/* Enlaces dentro de la lista */
 .li-formulario a{
     color: #000;
     font-weight: bold;
 }
+
+/* Estado cuando el enlace tiene foco */
 .li-formulario a:focus{
     border: 1px solid #ccc;
     padding: 10px;
 }
+
+/* =========================================================
+   CONTENEDOR DE LOS INPUTS
+   ========================================================= */
 .inputs{
     width: 70%;
-    margin: 0 auto;
+    margin: 0 auto; /* Centra el bloque */
 }
+
+/* =========================================================
+   TÍTULO DEL FORMULARIO
+   ========================================================= */
 .h2-registro{
     text-align: center;
     font-size: 28px;
     color: #000;
     margin-top: 20px;
 }
+
+/* =========================================================
+   ETIQUETAS DE LOS INPUTS
+   ========================================================= */
 label{
     display: block;
     margin-top: 10px;
      color: #000;
 }
+
+/* =========================================================
+   BOTÓN DEL FORMULARIO
+   ========================================================= */
 button{
     display: block;
     width: 250px;
@@ -74,75 +129,105 @@ button{
     font-weight: bold;
     color: #fff;
     border-radius: 5px;
-    margin: 20px auto;
+    margin: 20px auto; /* Centra el botón */
 }
+
+/* =========================================================
+   TEXTO INFERIOR
+   ========================================================= */
 p{
     text-align: center;
 }
+
+/* Enlaces dentro de párrafos */
 p a{
     color: #1E90FF;
 }
 
-/* MODO OSCURO */
+/* =========================================================
+   MODO OSCURO
+   Se activa cuando el body tiene la clase "modo-oscuro"
+   ========================================================= */
+
+/* Fondo general */
 body.modo-oscuro {
     background-color: #1e2330 !important;
 }
 
+/* Fondo del formulario */
 body.modo-oscuro form {
     background-color: #2d3748 !important;
     color: #e8e8e8;
 }
 
+/* Línea inferior del nav */
 body.modo-oscuro nav {
     border-bottom-color: #3f4a5c !important;
 }
 
+/* Links del menú */
 body.modo-oscuro .li-formulario a {
     color: #e8e8e8 !important;
 }
 
+/* Título */
 body.modo-oscuro .h2-registro {
     color: #E0C58F !important;
 }
 
+/* Labels */
 body.modo-oscuro label {
     color: #e8e8e8 !important;
 }
 
+/* Inputs */
 body.modo-oscuro input {
     background-color: #1a1f2e !important;
     color: #e8e8e8 !important;
     border-color: #3f4a5c !important;
 }
 
+/* Placeholder en modo oscuro */
 body.modo-oscuro input::placeholder {
-    color: #777 !important;
+    color: #cccccc !important;
 }
 
+/* Focus en inputs */
 body.modo-oscuro input:focus {
     border-color: #E0C58F !important;
     box-shadow: 0 0 0 3px rgba(224, 197, 143, 0.1) !important;
 }
 
+/* Botón */
 body.modo-oscuro button {
     background-color: #E0C58F !important;
     color: #0f1419 !important;
     border-color: #E0C58F !important;
 }
 
+/* Hover del botón */
 body.modo-oscuro button:hover {
     background-color: #d4b77b !important;
     box-shadow: 0 6px 16px rgba(224, 197, 143, 0.3) !important;
 }
 
+/* Links dentro de párrafos */
 body.modo-oscuro p a {
     color: #6BA3FF !important;
 }
 
+/* =========================================================
+   RESPONSIVE DESIGN
+   Ajustes para pantallas pequeñas
+   ========================================================= */
 @media screen and (max-width: 600px){
+
+    /* El formulario ocupa todo el ancho */
     form{
         width: 100%;
     }
+
+    /* Mantiene el estilo del focus en links */
     .li-formulario a:focus{
     border: 1px solid #ccc;
     padding: 10px;

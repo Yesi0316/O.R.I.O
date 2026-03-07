@@ -25,8 +25,8 @@ min-height:100vh;
 /* CONTENEDOR */
 .hero{
 position:relative;
-width:1200px;
-height:650px;
+width:1500px;
+height:700px;
 border-radius:25px;
 overflow:hidden;
 box-shadow:0 25px 60px rgba(0,0,0,.5);
@@ -153,3 +153,84 @@ cursor:pointer;
 background:var(--royal);
 }
 
+/* NAVBAR */
+nav{
+width:100%;
+max-width:1500px;
+height:90px;
+margin:0 auto;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+padding:0 60px;
+
+position:absolute;
+top:0;
+left:50%;
+transform:translateX(-50%);
+z-index:5;
+
+/* apariencia de navbar */
+background:rgba(17,34,80,0.35);
+backdrop-filter:blur(10px);
+border-bottom:1px solid rgba(255,255,255,0.15);
+}
+
+/* CONTENEDOR LOGO */
+.logo{
+display:flex;
+align-items:center;
+gap:14px;
+}
+
+/* IMAGEN LOGO */
+.logo-image{
+width:44px;
+height:44px;
+object-fit:contain;
+display:block;
+}
+
+/* TEXTO LOGO */
+.logo-text{
+font-family:'Libre Baskerville', serif;
+font-size:24px;
+font-weight:700;
+color:var(--gold);
+line-height:1;
+}
+
+/* SUBTITULO */
+.subtitle{
+font-size:11px;
+font-family:'Poppins', sans-serif;
+color:var(--swan);
+opacity:.8;
+margin-top:2px;
+}
+
+/* LINKS NAV */
+.nav-links{
+display:flex;
+align-items:center;
+list-style:none;
+gap:40px;
+}
+
+/* LINKS */
+.nav-links li a{
+text-decoration:none;
+color:var(--swan);
+font-size:15px;
+font-family:'Poppins', sans-serif;
+font-weight:500;
+letter-spacing:.5px;
+transition:.25s;
+}
+
+/* HOVER */
+.nav-links li a:hover{
+color:var(--gold);
+}

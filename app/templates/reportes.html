@@ -100,6 +100,7 @@ function renderizar(){
           </div>
           <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;">
             <a class="tarjeta-btn" href="/detalles/${r.ID_OBJETO}">Ver</a>
+            <button class="tarjeta-btn tarjeta-borrar" onclick="borrarReporte('${(r.id_reporte||r.ID_REPORTE||r.ID_REPORTE_ENC)}','${r.tipo}')" style="background:#e74c3c;border:none;color:#fff;padding:6px 8px;border-radius:4px;cursor:pointer;">Borrar</button>
           </div>
         </div>
       </div>
@@ -114,6 +115,31 @@ filtroTipo.addEventListener('change', renderizar);
 filtroCategoria.addEventListener('change', renderizar);
 
 cargarReportes();
+
+async function borrarReporte(id, tipo){
+  if(!confirm('¿Seguro que deseas borrar este reporte?')) return;
+  try{
+    const res = await fetch('/api/borrar_reporte', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({id_reporte: id, tipo: tipo})
+    });
+    const data = await res.json();
+    if(!data.ok){
+      alert(data.error || 'No se pudo borrar el reporte');
+      return;
+    }
+    // eliminar del array local y re-renderizar
+    allReportes = allReportes.filter(r => {
+      const rid = r.id_reporte || r.ID_REPORTE || r.ID_REPORTE_ENC || r.id;
+      return String(rid) !== String(id);
+    });
+    renderizar();
+  }catch(e){
+    console.error(e);
+    alert('Error al borrar el reporte');
+  }
+}
 </script>
 
 {% endblock %}

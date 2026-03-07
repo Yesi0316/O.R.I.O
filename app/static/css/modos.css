@@ -4,7 +4,7 @@
     --royal-blue: #112250;
     --royal: #112250;
     --sapphire: #3C507D;
-    --gold: #E0C58F;
+    --gold: hsl(40, 57%, 72%);
     --cream: #F5F0E9;
 }
 
@@ -12,7 +12,7 @@
 body.modo-oscuro {
     /* Fondo oscuro */
     background: linear-gradient(135deg, #0f1419, #1a1f2e) !important;
-    color: #e8e8e8;
+    color: #ffffff;
 
     /* Actualizar variables de color */
     --royal-blue: #0f1419;
@@ -25,7 +25,7 @@ body.modo-oscuro {
 /* MODO OSCURO - Sidebar */
 body.modo-oscuro .sidebar {
     background: rgba(15, 20, 25, 0.95) !important;
-    color: #e8e8e8;
+    color: #ffffff;
     border-right: 1px solid #2d3748;
 }
 
@@ -35,12 +35,12 @@ body.modo-oscuro .sidebar-profile {
 }
 
 body.modo-oscuro .menu a {
-    color: #b0b0b0 !important;
+    color: #ffffff !important;
 }
 
 body.modo-oscuro .menu a:hover {
     background: rgba(224, 197, 143, 0.1) !important;
-    color: #e8e8e8 !important;
+    color: #ffffff !important;
 }
 
 body.modo-oscuro .menu a.active {
@@ -57,7 +57,7 @@ body.modo-oscuro .toggle {
 /* MODO OSCURO - Main content */
 body.modo-oscuro .main {
     background: #1e2330 !important;
-    color: #e8e8e8;
+    color: #ffffff;
     border-radius: 35px;
 }
 
@@ -68,7 +68,7 @@ body.modo-oscuro .photo-card,
 body.modo-oscuro .activity-box,
 body.modo-oscuro .config-section {
     background: #2d3748 !important;
-    color: #e8e8e8 !important;
+    color: #ffffff !important;
     border: 1px solid #3f4a5c !important;
 }
 
@@ -86,11 +86,11 @@ body.modo-oscuro .title {
 body.modo-oscuro .card span,
 body.modo-oscuro .activity-item strong,
 body.modo-oscuro .form-label {
-    color: #e8e8e8 !important;
+    color: #ffffff !important;
 }
 
 body.modo-oscuro .activity-item {
-    color: #b0b0b0;
+    color: #ffffff;
     border-radius: 15px;
 }
 
@@ -109,13 +109,13 @@ body.modo-oscuro input[type="password"],
 body.modo-oscuro select,
 body.modo-oscuro textarea {
     background: #1a1f2e !important;
-    color: #e8e8e8 !important;
+    color: #ffffff !important;
     border: 1px solid #3f4a5c !important;
 }
 
 body.modo-oscuro input::placeholder,
 body.modo-oscuro textarea::placeholder {
-    color: #777 !important;
+    color: #cccccc !important;
 }
 
 body.modo-oscuro input:focus,
@@ -148,6 +148,36 @@ body.modo-oscuro .btn-config:hover {
     transform: translateY(-2px) !important;
 }
 
+/* Jerarquía de texto en modo oscuro */
+body.modo-oscuro {
+    color: #f1f5f9;
+}
+
+body.modo-oscuro p,
+body.modo-oscuro span,
+body.modo-oscuro li,
+body.modo-oscuro label {
+    color: #e2e8f0;
+}
+
+body.modo-oscuro small,
+body.modo-oscuro .subtitle,
+body.modo-oscuro .min-info,
+body.modo-oscuro .config-label p {
+    color: #b6c2cf !important;
+}
+
+body.modo-oscuro strong,
+body.modo-oscuro b {
+    color: #ffffff;
+}
+
+body.modo-oscuro .subtitle,
+body.modo-oscuro .min-info,
+body.modo-oscuro .config-label p {
+    color: #d1d5db !important;
+}
+
 /* MODO OSCURO - Modal */
 body.modo-oscuro .profile-modal-backdrop {
     background: rgba(0, 0, 0, 0.7) !important;
@@ -155,7 +185,7 @@ body.modo-oscuro .profile-modal-backdrop {
 
 body.modo-oscuro .profile-modal {
     background: #2d3748 !important;
-    color: #e8e8e8 !important;
+    color: #ffffff !important;
     border: 1px solid #3f4a5c !important;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5) !important;
 }
@@ -188,12 +218,13 @@ body.modo-oscuro .header h1 {
 
 body.modo-oscuro .header p,
 body.modo-oscuro .subtitle {
-    color: #b0b0b0 !important;
+    color: #ffffff !important;
 }
 
 /* MODO OSCURO - Grid de tarjetas */
 body.modo-oscuro .grid-resultados {
     /* Grid mantiene fondo heredado */
+    display: grid;
 }
 
 body.modo-oscuro .tarjeta-resultado {
@@ -212,13 +243,13 @@ body.modo-oscuro .tarjeta-titulo {
 
 body.modo-oscuro .tarjeta-categoria,
 body.modo-oscuro .tarjeta-color {
-    color: #b0b0b0 !important;
+    color: #ffffff !important;
 }
 
 /* MODO OSCURO - Search bar */
 body.modo-oscuro .search-bar input {
     background: #1a1f2e !important;
-    color: #e8e8e8 !important;
+    color: #ffffff !important;
     border: 1px solid #3f4a5c !important;
 }
 
@@ -229,7 +260,7 @@ body.modo-oscuro .search-bar input:focus {
 
 body.modo-oscuro .filter-select {
     background: #1a1f2e !important;
-    color: #e8e8e8 !important;
+    color: #ffffff !important;
     border: 2px solid #3f4a5c !important;
 }
 
@@ -256,126 +287,201 @@ body.modo-oscuro .toggle-switch.active {
 
 
 /* MODO DE ALTO CONTRASTE */
-body.modo-alto-contraste {
+html body.modo-alto-contraste {
     /* colores base para que las demás reglas heredadas puedan usar variables */
-    --royal-blue: #000000;
-    --royal: #000000;
-    --sapphire: #000000;
-    --gold: #FFFFFF;
-    --cream: #000000;
-    --shell: #000000;
 
-    /* contrastes adicionales */
-    --negro: #000000;
-    --blanco: #FFFFFF;
-    --gris: #ffffff37;
+    --royal-blue:#FFF;
+    --royal:#FFF;
+    --sapphire:#FFF;
+    --gold:#FFF;
+    --cream: #000;
+    
 
-    background: #777 !important;
-    color: #FFFFFF !important;
+    color: #FFF;
+    background: #000;
 }
-body.modo-alto-contraste a,
-body.modo-alto-contraste .btn,
-body.modo-alto-contraste .save-btn,
-body.modo-alto-contraste .upload-btn,
-body.modo-alto-contraste .btn-form,
-body.modo-alto-contraste .tarjeta-btn,
-body.modo-alto-contraste .btn-config,
-body.modo-alto-contraste .fab-btn {
+html body.modo-alto-contraste a,
+html body.modo-alto-contraste .btn,
+html body.modo-alto-contraste .save-btn,
+html body.modo-alto-contraste .btn-form,
+html body.modo-alto-contraste .tarjeta-btn,
+html body.modo-alto-contraste .btn-config,
+html body.modo-alto-contraste .fab-btn {
     background: #000 !important;
     color: #FFF !important;
     border-color: #FFF !important;
 }
 
-body.modo-alto-contraste .sidebar,
-body.modo-alto-contraste .main,
-body.modo-alto-contraste .card,
-body.modo-alto-contraste .form-card,
-body.modo-alto-contraste .photo-card,
-body.modo-alto-contraste .activity-box,
-body.modo-alto-contraste .config-section {
+html body.modo-alto-contraste .sidebar,
+html body.modo-alto-contraste .main,
+html body.modo-alto-contraste .card,
+html body.modo-alto-contraste .form-card,
+html body.modo-alto-contraste .photo-card,
+html body.modo-alto-contraste .activity-box,
+html body.modo-alto-contraste .config-section {
     background: #000 !important;
     color: #FFF !important;
     border-color: #FFF !important;
 
 }
 
-body.modo-alto-contraste input,
-body.modo-alto-contraste select,
-body.modo-alto-contraste textarea {
+html body.modo-alto-contraste input,
+html body.modo-alto-contraste select,
+html body.modo-alto-contraste textarea {
     background: #000 !important;
     color: #FFF !important;
     border: 1px solid #FFF !important;
 }
 
-body.modo-alto-contraste input::placeholder,
-body.modo-alto-contraste textarea::placeholder {
+html body.modo-alto-contraste input::placeholder,
+html body.modo-alto-contraste textarea::placeholder {
     color: #CCC !important;
 }
 
-body.modo-alto-contraste .toggle {
+html body.modo-alto-contraste .toggle {
     background: #FFF !important;
     color: #000 !important;
     border: white 1px solid !important;
 }
 
 
-body.modo-alto-contraste .tarjeta-resultado {
+html body.modo-alto-contraste .tarjeta-resultado {
     background: #FFF !important;
-    border: 1px solid #3f4a5c !important;
+    border: 2px solid #000 !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
 }
 
-body.modo-alto-contraste .tarjeta-resultado:hover {
-    box-shadow: 0 8px 20px rgba(224, 197, 143, 0.15) !important;
+html body.modo-alto-contraste .tarjeta-resultado:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4) !important;
 }
 
-body.modo-alto-contraste .tarjeta-titulo {
-    color:#FFF !important;
+html body.modo-alto-contraste .tarjeta-titulo {
+    color: #000 !important;
 }
 
-body.modo-alto-contraste .tarjeta-categoria,
-body.modo-alto-contraste .tarjeta-color {
-    color: #b0b0b0 !important;
+html body.modo-alto-contraste .tarjeta-categoria,
+html body.modo-alto-contraste .tarjeta-color {
+    color: #000 !important;
 }
 
-body.modo-alto-contraste .search-bar input {
+html body.modo-alto-contraste .search-bar input {
     background: #000 !important;
     color: #FFF !important;
     border: 1px solid #FFF !important;
 }
 
-body.modo-alto-contraste .search-bar input:focus {
+html body.modo-alto-contraste .search-bar input:focus {
     border-color: #FFF !important;
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1) !important;
 }
 
-body .body.modo-alto-contraste .contenedor-datos{
-    color: #FFF !important;
-    .p{
-        color: #FFF !important;
-    }
+html body.modo-alto-contraste .contenedor-datos {
+    color: #000 !important;
 }
 
-body.modo-alto-contraste .filter-select {
+html body.modo-alto-contraste .filter-select {
     background: #000 !important;
     color: #FFF !important;
     border: 2px solid #FFF !important;
 }
 
-body.modo-alto-contraste .filter-select:hover,
-body.modo-alto-contraste .filter-select:focus {
+html body.modo-alto-contraste .filter-select:hover,
+html body.modo-alto-contraste .filter-select:focus {
     border-color: #FFF !important;
     box-shadow: 0 0 2px rgba(255, 255, 255, 0.1) !important;
 }
 
-body .modo-alto-contraste .contenedor-datos .p{
+html body.modo-alto-contraste .contenedor-datos p {
     color: #FFF !important;
 }
 
-body.modo-alto-contraste * {
-    border-color: #FFF !important;
+body.modo-alto-contraste .card,
+body.modo-alto-contraste .form-card,
+body.modo-alto-contraste .photo-card,
+body.modo-alto-contraste .activity-box,
+body.modo-alto-contraste .config-section,
+body.modo-alto-contraste .sidebar{
+    border: 1px solid #FFF !important;
+    color: #FFF;
 }
 
 
+html body.modo-alto-contraste .btn:hover {
+    background-color: #FFF !important;
+    color: #000 !important;
+}
 
+body.modo-alto-contraste .menu a.active {
+    background: linear-gradient(135deg, #FFF, #CCC) !important;
+    color: #000 !important;
+    box-shadow: 0 10px 25px rgba(224, 197, 143, 0.2) !important;
+}
+
+ .modo-alto-contraste .subtitle{
+    color: #CCC !important;
+}
+
+ .modo-alto-contraste .min-info{
+    color: #CCC !important;
+ }
+
+ .modo-alto-contraste .config-label p {
+    color: #CCC !important;
+ }
+
+  .modo-alto-contraste .fab{
+    background: #FFF !important ;
+    color: #000 !important;
+}
+html body.modo-alto-contraste .tarjeta-contenido{
+    background:  #000 !important;
+    color: #FFF !important;
+    border: 3px solid #FFF !important;
+    border-radius: 10%;
+}
+
+html   body.modo-alto-contraste  .tarjeta-titulo{
+    color:  #FFF !important;
+}
+
+html body.modo-alto-contraste .tarjeta-categoria{
+    color:  #FFF !important;
+}
+
+html body.modo-alto-contraste .tarjeta-color{
+    color:  #FFF !important;
+}
+
+html body.modo-alto-contraste .tarjeta-btn{
+    background: #FFF !important;
+    color: #000 !important;
+
+}
+
+html body.modo-alto-contraste .tarjeta-btn:hover,
+html body.modo-alto-contraste .upload-btn,
+html body.modo-alto-contraste .fab-btn{
+    background: #000 !important;
+    color: #FFF !important;
+    border: 2px solid #FFF
+}
+
+html body.modo-alto-contraste .tarjeta-img{
+    border: 3px solid #FFF !important;
+    border-radius: 10%
+}
+
+html body.modo-alto-contraste .save-btn{
+    border-color: 3px #FFF !important;
+}
+
+html body.modo-alto-contraste .upload-btn{
+    background: #000 !important;
+    color:#FFF !important;
+    border-color: 3px #FFF !important;
+}
+
+html body.modo-alto-contraste .fab-btn{
+    border: 2px solid #FFF !important;
+}
 

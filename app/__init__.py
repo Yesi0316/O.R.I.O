@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 
 # importar componentes internos del paquete
 from .routes import init_routes
-from .database import crear_tablas, inicializar_datos_default
+from .database import crear_tablas, inicializar_datos_default, aplicar_migraciones
 
 
 def create_app():
@@ -31,11 +31,11 @@ def create_app():
     app = Flask(__name__)
 
     # configurar clave secreta desde variables de entorno
-    app.secret_key = os.getenv("secret_key")
+    app.secret_key = os.getenv("SECRET_KEY")
 
     # configurar carpeta de subidas
     app.config["UPLOAD_FOLDER"] = os.path.join(
-        os.path.dirname(__file__), os.getenv("upload_folder", "uploads")
+        os.path.dirname(__file__), os.getenv("UPLOAD_FOLDER", "uploads")
     )
 
     # configurar carpeta estatica para imagenes u otros archivos
@@ -57,6 +57,7 @@ def create_app():
     # se usa el contexto de aplicacion porque algunas extensiones lo requieren
     with app.app_context():
         crear_tablas()
+        aplicar_migraciones()
         inicializar_datos_default()
 
     # devolver la aplicacion configurada

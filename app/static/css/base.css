@@ -1,56 +1,74 @@
-
+/* =========================================================
+   VARIABLES GLOBALES (COLORES PRINCIPALES DEL DISEÑO)
+   ========================================================= */
 :root{
---sapphire:#3C507D;
---royal:#112250;
---gold:#E0C58F;
---cream:#F5F0E9;
+--sapphire:#3C507D; /* Azul zafiro usado en degradados y elementos */
+--royal:#112250;    /* Azul oscuro principal del diseño */
+--gold:#E0C58F;     /* Dorado utilizado para destacar botones y estados activos */
+--cream:#F5F0E9;    /* Color crema usado para fondos claros */
 }
 
+/* =========================================================
+   RESET GENERAL
+   Elimina márgenes y padding por defecto y usa box-sizing
+   para que el tamaño de los elementos sea más controlable
+   ========================================================= */
 *{margin:0;padding:0;box-sizing:border-box;}
 
+/* =========================================================
+   BODY - CONTENEDOR PRINCIPAL DE LA PÁGINA
+   ========================================================= */
 body{
-display:flex;
-min-height:100vh;
-height: auto;
-font-family:'Libre Baskerville',serif;
-background:linear-gradient(135deg,var(--royal),var(--sapphire));
-overflow-x:hidden;
+display:flex; /* Permite colocar sidebar y contenido en fila */
+min-height:100vh; /* Altura mínima igual al alto de la pantalla */
+height: auto; /* Permite que el contenido crezca si es necesario */
+font-family:'Libre Baskerville',serif; /* Fuente principal */
+background:linear-gradient(135deg,var(--royal),var(--sapphire)); /* Fondo degradado */
+overflow-x:hidden; /* Evita scroll horizontal */
 }
 
-/* ===== SIDEBAR ===== */
+/* =========================================================
+   SIDEBAR - MENÚ LATERAL
+   ========================================================= */
 
 .sidebar{
-width:250px;
-background:rgba(17,34,80,.95);
-backdrop-filter:blur(12px);
-color:var(--cream);
-padding:30px 20px;
-transition:.4s ease;
+width:250px; /* Ancho normal del sidebar */
+background:rgba(17,34,80,.95); /* Fondo azul oscuro con transparencia */
+backdrop-filter:blur(12px); /* Efecto de desenfoque tipo vidrio */
+color:var(--cream); /* Color del texto */
+padding:30px 20px; /* Espaciado interno */
+transition:.4s ease; /* Animación al contraerse o expandirse */
 display:flex;
-flex-direction:column;
+flex-direction:column; /* Elementos organizados verticalmente */
 align-items:center;
 position:relative;
-box-shadow:5px 0 25px rgba(0,0,0,.3);
+box-shadow:5px 0 25px rgba(0,0,0,.3); /* Sombra lateral */
 }
 
+/* Sidebar cuando está colapsado */
 .sidebar.collapsed{ width:85px; }
+
+/* =========================================================
+   PERFIL DEL USUARIO EN SIDEBAR
+   ========================================================= */
 
 .sidebar-profile{
 width:75px;
 height:75px;
-border-radius:50%;
+border-radius:50%; /* Forma circular */
 background:linear-gradient(135deg,var(--sapphire),var(--royal));
 display:flex;
 align-items:center;
 justify-content:center;
 color:white;
 font-size:24px;
-border:2px solid var(--gold);
+border:2px solid var(--gold); /* Borde dorado */
 margin-bottom:40px;
 cursor:pointer;
 transition:.35s;
 }
 
+/* Animación al pasar el mouse */
 .sidebar-profile:hover{
 transform:scale(1.08);
 box-shadow:0 0 18px rgba(224,197,143,.6);
@@ -61,22 +79,27 @@ box-shadow:0 0 18px rgba(224,197,143,.6);
     width:100%;
     height:100%;
     border-radius:50%;
-    object-fit:cover;
+    object-fit:cover; /* Ajusta la imagen sin deformarla */
     display:block;
     box-shadow:0 6px 18px rgba(0,0,0,0.25);
     border:3px solid rgba(224,197,143,0.12);
 }
 
-/* Modal de perfil */
+/* =========================================================
+   MODAL DE PERFIL
+   Ventana emergente para mostrar información del usuario
+   ========================================================= */
+
 .profile-modal-backdrop{
     position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.5);
-    display:none;
+    inset:0; /* Ocupa toda la pantalla */
+    background:rgba(0,0,0,0.5); /* Fondo oscuro transparente */
+    display:none; /* Oculto por defecto */
     align-items:center;
     justify-content:center;
-    z-index:5000;
+    z-index:5000; /* Siempre encima de todo */
 }
+
 .profile-modal{
     background:white;
     border-radius:12px;
@@ -86,18 +109,26 @@ box-shadow:0 0 18px rgba(224,197,143,.6);
     box-shadow:0 12px 40px rgba(0,0,0,0.35);
     color:var(--royal);
 }
+
+/* Encabezado del modal */
 .profile-modal .head{
     display:flex;
     gap:12px;
     align-items:center;
 }
+
+/* Imagen dentro del modal */
 .profile-modal img{
     width:72px;
     height:72px;
     border-radius:10px;
     object-fit:cover;
 }
+
+/* Información del usuario */
 .profile-modal .info b{display:block; color:var(--sapphire);}
+
+/* Botón de cerrar modal */
 .profile-modal .close-btn{
     background:transparent;
     border:none;
@@ -106,8 +137,13 @@ box-shadow:0 0 18px rgba(224,197,143,.6);
     cursor:pointer;
 }
 
+/* =========================================================
+   MENÚ DEL SIDEBAR
+   ========================================================= */
+
 .menu{ width:100%; }
 
+/* Enlaces del menú */
 .menu a{
 display:flex;
 align-items:center;
@@ -121,13 +157,17 @@ transition:.25s ease;
 opacity:.9;
 }
 
+/* Efecto hover */
 .menu a:hover{
 background:rgba(224,197,143,.15);
 transform:translateX(4px);
 opacity:1;
 }
 
-/* ESTADO ACTIVO PREMIUM */
+/* =========================================================
+   ESTADO ACTIVO PREMIUM
+   Indica la página actual del menú
+   ========================================================= */
 
 .menu a.active{
 background:linear-gradient(135deg,var(--gold),#f2d9a6);
@@ -137,9 +177,12 @@ box-shadow:0 10px 25px rgba(0,0,0,.2);
 opacity:1;
 }
 
+/* Oculta texto del menú cuando el sidebar está colapsado */
 .sidebar.collapsed .menu span{ display:none; }
 
-/* ===== TOGGLE ===== */
+/* =========================================================
+   BOTÓN TOGGLE (ABRIR / CERRAR SIDEBAR)
+   ========================================================= */
 
 .toggle{
 position:absolute;
@@ -158,23 +201,29 @@ box-shadow:0 5px 15px rgba(0,0,0,.25);
 transition:.25s;
 }
 
+/* Animación hover */
 .toggle:hover{
 transform:scale(1.1);
 }
 
-/* ===== MAIN ===== */
+/* =========================================================
+   MAIN - CONTENIDO PRINCIPAL DE LA PÁGINA
+   ========================================================= */
 
 .main{
-flex:1;
+flex:1; /* Ocupa el espacio restante al lado del sidebar */
 background:var(--cream);
 border-top-left-radius:35px;
 border-bottom-left-radius:35px;
 padding:40px;
-overflow:auto;
+overflow:auto; /* Scroll si el contenido es grande */
 transition:.35s;
 }
 
-/* ===== FAB ===== */
+/* =========================================================
+   FAB (FLOATING ACTION BUTTON)
+   Botón flotante con menú radial
+   ========================================================= */
 
 .fab{
 position:fixed;
@@ -195,10 +244,12 @@ transition:.35s ease;
 z-index:20;
 }
 
+/* Estado activo del FAB */
 .fab.active{
 transform:rotate(45deg) scale(1.05);
 }
 
+/* Contenedor del menú del FAB */
 .fab-menu{
 position:fixed;
 bottom:30px;
@@ -208,10 +259,12 @@ height:70px;
 pointer-events:none;
 }
 
+/* Activa interacción cuando el menú está abierto */
 .fab-menu.active{
 pointer-events:auto;
 }
 
+/* Botones secundarios del FAB */
 .fab-btn{
 position:absolute;
 width:60px;
@@ -229,20 +282,26 @@ text-decoration:none;
 color:var(--royal);
 }
 
+/* Animación al abrir el menú */
 .fab-menu.active .fab-btn{
 opacity:1;
 transform:scale(1);
 }
 
+/* Hover de los botones */
 .fab-btn:hover{
 transform:scale(1.08);
 box-shadow:0 18px 35px rgba(0,0,0,.25);
 }
 
+/* Posición de cada botón */
 .fab-btn:nth-child(1){ bottom:90px; right:0; }
 .fab-btn:nth-child(2){ bottom:65px; right:85px; }
 
-/* ===== MOBILE PRO NAVBAR ===== */
+/* =========================================================
+   MOBILE PRO NAVBAR
+   Adaptación del diseño para dispositivos móviles
+   ========================================================= */
 
 @media (max-width:900px){
 
@@ -250,7 +309,9 @@ body{
 flex-direction:column;
 }
 
-/* BOTTOM NAV  */
+/* =========================================================
+   SIDEBAR SE CONVIERTE EN NAVBAR INFERIOR
+   ========================================================= */
 
 .sidebar{
 position:fixed;
@@ -275,7 +336,7 @@ z-index:9999;
 box-shadow:0 10px 30px rgba(0,0,0,.25);
 }
 
-/* Ocultar cosas de PC */
+/* Ocultar elementos solo de PC */
 .sidebar-profile{ display:none; }
 .toggle{ display:none; }
 
@@ -286,7 +347,7 @@ width:100%;
 justify-content:space-around;
 }
 
-/* Botones */
+/* Botones del menú en móvil */
 .menu a{
 flex-direction:column;
 gap:3px;
@@ -300,20 +361,22 @@ transition:.3s ease;
 position:relative;
 }
 
-/* Hover suave */
+/* Hover */
 .menu a:hover{
 background:rgba(224,197,143,.12);
 color:var(--cream);
 transform:translateY(-2px);
 }
 
-/* ACTIVO NIVEL APP */
+/* =========================================================
+   ESTADO ACTIVO ESTILO APP
+   ========================================================= */
 
 .menu a.active{
 color:var(--gold);
 }
 
-/* Indicador elegante */
+/* Indicador de página activa */
 .menu a.active::before{
 content:"";
 position:absolute;
@@ -325,7 +388,7 @@ background:var(--gold);
 box-shadow:0 0 12px rgba(224,197,143,.9);
 }
 
-/* Animación icono */
+/* Animación del icono activo */
 .menu a i{
 font-size:18px;
 transition:.3s ease;
@@ -335,13 +398,13 @@ transition:.3s ease;
 transform:scale(1.15);
 }
 
-/* MAIN */
+/* MAIN en móvil */
 .main{
 border-radius:0;
 padding:25px 15px 120px 15px;
 }
 
-/* FAB */
+/* Ajuste del botón flotante */
 .fab{
 bottom:100px;
 right:20px;
@@ -352,4 +415,3 @@ bottom:100px;
 right:20px;
 }
 }
-

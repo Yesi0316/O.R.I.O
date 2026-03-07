@@ -1,6 +1,28 @@
 services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=ORIO_DB
+      - DB_USER=postgres
+      - DB_PASSWORD=my_password
+      - SECRET_KEY=ffggfghgjfghgfhfghfghfgh
+      - UPLOAD_FOLDER=uploads
+      - STATIC_IMG_FOLDER=static/img
+    volumes:
+      - .:/app
+      - ./uploads:/app/uploads
+    depends_on:
+      - db
+
   db:
-    image: "postgres:16"
+    image: postgres:16
     container_name: postgres_db
     restart: unless-stopped
     environment:
@@ -11,14 +33,7 @@ services:
       - ./db_data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    mem_limit: 200M
-    cpus: "0.25"
-  
+
   adminer:
     image: adminer
     container_name: adminer
@@ -27,6 +42,3 @@ services:
       - "8081:8080"
     depends_on:
       - db
-
-volumes:
-  db_data:
