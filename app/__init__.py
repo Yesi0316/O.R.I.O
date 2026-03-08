@@ -44,7 +44,7 @@ def create_app():
     )
 
     # limitar el tamano maximo de archivos a 16 mb
-    app.config["max_content_length"] = 16 * 1024 * 1024
+    app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
 
     # asegurar que las carpetas existan
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)

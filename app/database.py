@@ -154,6 +154,7 @@ TABLAS = {
         CREATE TABLE IF NOT EXISTS public."Usuarios"(
             "ID_USUARIO" TEXT PRIMARY KEY,
             "NOMBRE" TEXT,
+            "GENERO" VARCHAR(10) CHECK ("GENERO" IN ('masculino','femenino')) NOT NULL,
             "CONTRASENA" TEXT NOT NULL,
             "PREGUNTA_1" TEXT NOT NULL,
             "PREGUNTA_2" TEXT NOT NULL,

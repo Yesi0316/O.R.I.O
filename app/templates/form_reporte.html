@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Registrar reporte{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/form_reporte.css') }}">
+{% endblock %}
+
+{% block content %}
+<div id="malasPracticas">
+
+<div class="form-container">
+
+<div class="back-btn-container">
+<button type="button" class="btn-config back-btn"
+onclick="(document.referrer ? history.back() : window.location='/menu')">
+← Volver
+</button>
+</div>
+
+<div class="form-header">
+<h1>Registrar objeto</h1>
+</div>
+
+<form id="reportForm" enctype="multipart/form-data">
+
+<!-- TIPO DE REPORTE -->
+<label>Tipo de reporte</label>
+<div class="select-wrap">
+<select id="tipo_reporte" name="tipo_reporte" required>
+<option value="" disabled selected>Seleccione una opción</option>
+<option value="perdido">Se me perdió un objeto</option>
+<option value="encontrado">Encontré un objeto</option>
+</select>
+</div>
+
+<div class="form-columns">
+
+<div class="left-column">
+
+<label>Nombre del objeto</label>
+<input type="text" name="nombre_objeto" maxlength="66" required>
+
+<label class="multiple">Estado del objeto</label>
+<div class="select-wrap">
+<select name="estado" required>
+<option value="Bueno">Bueno</option>
+<option value="Regular">Regular</option>
+<option value="Malo">Malo</option>
+</select>
+</div>
+
+<label>Color dominante</label>
+<input type="text" name="color_dominante" maxlength="22" required>
+
+<label id="label_lugar">Lugar</label>
+<input type="text" name="lugar" required>
+
+</div>
+
+<div class="right-column">
+
+<label id="label_fecha">Fecha</label>
+<input type="date" name="fecha" required>
+
+<label>Ficha del aprendiz</label>
+<input type="number" name="ficha" required>
+
+<label class="multiple">Categoría</label>
+<div class="select-wrap">
+<select name="categoria" required>
+{% if categorias %}
+{% for cat in categorias %}
+<option value="{{ cat.ID_CATEGORIA }}">{{ cat.ID_CATEGORIA }}</option>
+{% endfor %}
+{% else %}
+<option value="">Sin categorías</option>
+{% endif %}
+</select>
+</div>
+
+<label>Imagen del objeto (opcional)</label>
+<input type="file" name="imagen" accept="image/*">
+
+<label>Comentario (opcional)</label>
+<textarea name="comentario" maxlength="1000"
+placeholder="Detalles adicionales"></textarea>
+
+</div>
+
+</div>
+
+<div class="btn-area">
+<button type="submit" class="btn-config">Publicar</button>
+<button type="reset" class="btn-config">Limpiar</button>
+</div>
+
+<div id="MensajeAlerta" style="margin-top:12px;"></div>
+
+</form>
+</div>
+</div>
+
+<script>
+
+const tipo = document.getElementById("tipo_reporte");
+const labelLugar = document.getElementById("label_lugar");
+const labelFecha = document.getElementById("label_fecha");
+
+tipo.addEventListener("change", () => {
+
+if(tipo.value === "perdido"){
+labelLugar.innerText = "Lugar donde se perdió";
+labelFecha.innerText = "Fecha de pérdida";
+}
+
+if(tipo.value === "encontrado"){
+labelLugar.innerText = "Lugar donde encontró el objeto";
+labelFecha.innerText = "Fecha de encuentro";
+}
+
+});
+
+
+const form = document.getElementById('reportForm');
+
+form.addEventListener('submit', async (e) => {
+
+e.preventDefault();
+
+const formData = new FormData(form);
+const mensajeAlerta = document.getElementById('MensajeAlerta');
+
+try{
+
+mensajeAlerta.innerHTML = "Enviando reporte...";
+mensajeAlerta.style.color = "#006bb6";
+
+const response = await fetch('/submit_reporte',{
+method:'POST',
+body:formData
+});
+
+const result = await response.json();
+
+if(result.error){
+mensajeAlerta.innerHTML = result.mensaje;
+mensajeAlerta.style.color = "red";
+}else{
+
+mensajeAlerta.innerHTML = result.mensaje || "Reporte enviado";
+mensajeAlerta.style.color = "green";
+
+form.reset();
+
+setTimeout(()=>{
+window.location.href = "/menu";
+},2000);
+
+}
+
+}catch(error){
+
+mensajeAlerta.innerHTML = "Error al enviar los datos";
+mensajeAlerta.style.color = "red";
+
+}
+
+});
+
+</script>
+
+{% endblock %}

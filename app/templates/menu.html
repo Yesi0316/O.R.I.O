@@ -10,7 +10,13 @@
 {% block content %}
 
 <div class="header">
-<h1>Bienvenido Usuario</h1>
+<h1>
+{% if session.get("genero") == "femenino" %}
+Bienvenida {{ session.get("nombre") }}
+{% else %}
+Bienvenido {{ session.get("nombre") }}
+{% endif %}
+</h1>
 </div>
 
 <!-- BUSCADOR CON FILTROS EN UNA SOLA BARRA -->

@@ -49,6 +49,18 @@ Sube tu foto de perfil. Un retrato en primer plano es ideal.
 
     <div class="row">
         <div class="field">
+            <label>Género</label>
+
+            <select id="genero" disabled>
+                <option value="">Seleccionar</option>
+                <option value="masculino">Masculino</option>
+                <option value="femenino">Femenino</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="field">
             <label>Teléfono</label>
             <input type="text" id="telefono" placeholder="Tu teléfono" disabled>
         </div>
@@ -77,7 +89,7 @@ const guardarBtn = document.getElementById("guardarBtn");
 const cancelBtn = document.getElementById("cancelBtn");
 
 // objeto para conservar los valores originales y detectar cambios
-let originalData = { nombre: '', apellido: '', telefono: '', correo: '' };
+let originalData = { nombre: '', apellido: '', telefono: '', correo: '', genero: '' };
 
 // Cargar datos del perfil cuando carga la página
 document.addEventListener('DOMContentLoaded', function() {
@@ -95,8 +107,8 @@ async function cargarDatos() {
             document.getElementById('apellido').value = data.datos.APELLIDO || '';
             document.getElementById('telefono').value = data.datos.TELEFONO || '';
             document.getElementById('correo').value = data.datos.CORREO || '';
-            
-            // Cargar la foto de perfil si existe
+            document.getElementById('genero').value = data.datos.GENERO || '';
+
             preview.src = (data.datos.FOTO_PERFIL && data.datos.FOTO_PERFIL !== 'https://via.placeholder.com/200') 
                 ? data.datos.FOTO_PERFIL 
                 : 'https://via.placeholder.com/200';
@@ -127,7 +139,6 @@ fileInput.addEventListener("change", async function(){
         }
         reader.readAsDataURL(file);
 
-        // Subir al servidor
         const formData = new FormData();
         formData.append('foto', file);
 
@@ -149,49 +160,59 @@ fileInput.addEventListener("change", async function(){
 
 // Guardar cambios / Editar perfil
 guardarBtn.addEventListener('click', async function() {
+
     if (guardarBtn.classList.contains('editing')) {
-        // Guardar cambios
+
         const nombre = document.getElementById('nombre').value.trim();
         if (!nombre) { alert('Por favor ingresa tu nombre'); return; }
 
         const apellido = document.getElementById('apellido').value.trim();
         const telefono = document.getElementById('telefono').value.trim();
         const correo = document.getElementById('correo').value.trim();
+        const genero = document.getElementById('genero').value;
 
         const formData = new FormData();
         formData.append('nombre', nombre);
         formData.append('apellido', apellido);
         formData.append('telefono', telefono);
         formData.append('correo', correo);
+        formData.append('genero', genero);
 
         try {
             const res = await fetch('/guardar_perfil', { method:'POST', body: formData });
             const data = await res.json();
+
             if (data.ok) {
                 alert('¡Perfil actualizado correctamente!');
-                originalData = { nombre, apellido, telefono, correo };
+                originalData = { nombre, apellido, telefono, correo, genero };
                 deshabilitarEdicion();
             } else {
                 alert('Error: ' + (data.error || 'Error desconocido'));
             }
+
         } catch (error) {
             console.error('Error guardando:', error);
             alert('Error al guardar los cambios');
         }
+
     } else {
         habilitarEdicion();
     }
+
 });
 
 // Habilitar campos para edición
 function habilitarEdicion() {
-    ['nombre','apellido','telefono','correo'].forEach(id => document.getElementById(id).disabled = false);
+
+    ['nombre','apellido','telefono','correo','genero']
+    .forEach(id => document.getElementById(id).disabled = false);
 
     originalData = {
         nombre: document.getElementById('nombre').value,
         apellido: document.getElementById('apellido').value,
         telefono: document.getElementById('telefono').value,
-        correo: document.getElementById('correo').value
+        correo: document.getElementById('correo').value,
+        genero: document.getElementById('genero').value
     };
 
     guardarBtn.innerHTML = '<i class="fas fa-floppy-disk"></i> Guardar cambios';
@@ -199,90 +220,144 @@ function habilitarEdicion() {
     guardarBtn.disabled = true;
 
     cancelBtn.style.display = 'inline-block';
+
     monitorCambios();
 }
 
-// Deshabilitar campos (modo lectura)
+// Deshabilitar campos
 function deshabilitarEdicion() {
-    ['nombre','apellido','telefono','correo'].forEach(id => document.getElementById(id).disabled = true);
+
+    ['nombre','apellido','telefono','correo','genero']
+    .forEach(id => document.getElementById(id).disabled = true);
 
     guardarBtn.innerHTML = '<i class="fas fa-pen"></i> Editar perfil';
     guardarBtn.classList.remove('editing');
     guardarBtn.disabled = false;
 
     cancelBtn.style.display = 'none';
+
     removeChangeListeners();
 }
 
-// Verifica cambios para habilitar botón guardar
+// Verifica cambios
 function verificarCambios() {
-    const changed = ['nombre','apellido','telefono','correo']
-        .some(id => document.getElementById(id).value !== originalData[id]);
+
+    const changed = ['nombre','apellido','telefono','correo','genero']
+    .some(id => document.getElementById(id).value !== originalData[id]);
+
     guardarBtn.disabled = !changed;
+
 }
 
 let changeListeners = [];
+
 function monitorCambios() {
-    ['nombre','apellido','telefono','correo'].forEach(id => {
+
+    ['nombre','apellido','telefono','correo','genero']
+    .forEach(id => {
+
         const el = document.getElementById(id);
+
         const listener = () => verificarCambios();
+
         el.addEventListener('input', listener);
+
         changeListeners.push({el,listener});
+
     });
+
 }
+
 function removeChangeListeners() {
+
     changeListeners.forEach(({el,listener}) => el.removeEventListener('input', listener));
+
     changeListeners = [];
+
 }
 
 // Cancelar edición
 cancelBtn.addEventListener('click', function(){
-    if (['nombre','apellido','telefono','correo'].some(id => document.getElementById(id).value !== originalData[id])) {
+
+    if (['nombre','apellido','telefono','correo','genero']
+    .some(id => document.getElementById(id).value !== originalData[id])) {
+
         if (!confirm('¿Seguro que desea salir de las ediciones del perfil? Los cambios se descartarán.')) return;
+
     }
-    ['nombre','apellido','telefono','correo'].forEach(id => {
+
+    ['nombre','apellido','telefono','correo','genero']
+    .forEach(id => {
+
         document.getElementById(id).value = originalData[id];
+
     });
+
     deshabilitarEdicion();
+
 });
 
 // Modo de visualización
 function aplicarModo(modo) {
+
     document.body.classList.remove('modo-oscuro','modo-alto-contraste');
+
     if (modo==='oscuro') document.body.classList.add('modo-oscuro');
+
     else if (modo==='alto-contraste') document.body.classList.add('modo-alto-contraste');
+
 }
 
 const selectorModo = document.getElementById('selectorModo');
+
 if (selectorModo) {
+
     selectorModo.addEventListener('change', async function() {
+
         const modo = this.value;
+
         aplicarModo(modo);
-        // Guardar en BD
+
         try {
+
             await fetch('/api/tema/actualizar', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ tema: modo })
             });
+
         } catch (e) {
+
             console.error('Error al guardar tema:', e);
+
         }
+
     });
+
 }
 
 document.addEventListener('DOMContentLoaded', async function() {
+
     try {
+
         const response = await fetch('/api/tema/obtener');
+
         const data = await response.json();
+
         const modo = data.ok ? data.tema : 'claro';
-        
+
         aplicarModo(modo);
+
         if (selectorModo) selectorModo.value = modo;
+
     } catch (e) {
+
         console.error('Error cargando tema:', e);
+
         aplicarModo('claro');
+
     }
+
 });
 </script>
 

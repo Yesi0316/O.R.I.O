@@ -4,53 +4,61 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/motor.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/detalles_reportes.css') }}">
 {% endblock %}
 
 {% block content %}
 
-<div class="contenedor detalle-container">
+<div class="detalle-container">
 
     {% if error %}
         <div class="detalle-card">
-            <div class="error" style="text-align:center; padding:40px; color:var(--crimson);">
-                {{ error }}
-            </div>
+            <div class="error">{{ error }}</div>
             <a href="/" class="btn-volver">Volver al inicio</a>
         </div>
     {% else %}
-        <div class="contenedor-principal detalle-card">  
+        <div class="detalle-card">
+
+            <!-- IZQUIERDA: IMAGEN GRANDE -->
             <div class="contenedor-imagen">
                 {% if item.IMAGEN %}
                     <img class="imagen" src="{{ item.IMAGEN }}" alt="Imagen del objeto">
                 {% else %}
-                    <div class="info-detalle"><span class="label">Imagen:</span> No hay imagen del objeto</div>
+                    <div class="imagen-placeholder">No hay imagen del objeto</div>
                 {% endif %}
             </div>
 
-            <div class="contenedor-datos">
+            <!-- DERECHA: DETALLES -->
+            <div class="detalle-info">
                 <h1>Detalles del Objeto</h1>
-                {% if item.tipo %}
-                    <p class="info-detalle tipo-report"><span class="label">Tipo de reporte:</span> {{ item.tipo|capitalize }}</p>
-                {% endif %}
-                <p class="info-detalle"><span class="label">Nombre:</span> {{ item.NOMBRE }}</p>
-                <p class="info-detalle"><span class="label">Categoría:</span> {{ item.CATEGORIA }}</p>
-                <p class="info-detalle"><span class="label">Color:</span> {{ item.COLOR }}</p>
-                <p class="info-detalle"><span class="label">Fecha Reporte:</span> {{ item.FECHA }}</p>
-                <p class="info-detalle"><span class="label">Persona que reportó:</span> {{ item.NOMBRE_USUARIO or 'No disponible' }}</p>
 
-                <p class="info-detalle"><span class="label">Observaciones:</span><br>
-                    {% if item.OBSERVACIONES %}
-                        {{ item.OBSERVACIONES }}
-                    {% else %}
-                        No hay observaciones para este objeto
-                    {% endif %}
-                </p>
+                {% if item.tipo %}
+                    <p><strong>Tipo de reporte:</strong> {{ item.tipo|capitalize }}</p>
+                {% endif %}
+
+                <p><strong>Nombre:</strong> {{ item.NOMBRE }}</p>
+                <p><strong>Categoría:</strong> {{ item.CATEGORIA }}</p>
+                <p><strong>Color:</strong> {{ item.COLOR }}</p>
+                <p><strong>Fecha Reporte:</strong> {{ item.FECHA }}</p>
+                <p><strong>Persona que reportó:</strong> {{ item.NOMBRE_USUARIO or 'No disponible' }}</p>
+
+                <div class="observaciones">
+                    <strong>Observaciones:</strong>
+                    <p>
+                        {% if item.OBSERVACIONES %}
+                            {{ item.OBSERVACIONES }}
+                        {% else %}
+                            No hay observaciones para este objeto
+                        {% endif %}
+                    </p>
+                </div>
 
                 <a href="javascript:history.back()" class="btn-volver">Volver</a>
             </div>
+
         </div>
     {% endif %}
+
 </div>
 
 {% endblock %}

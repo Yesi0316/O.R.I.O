@@ -3,7 +3,7 @@
    Se cargan fuentes desde Google Fonts para usarlas
    en títulos y textos del diseño.
    ====================================================== */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Libre+Baskerville:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Libre+Baskerville:wght@400;700&family=Bodoni+Moda:wght@400;600;700&display=swap');
 
 /* ======================================================
    VARIABLES DE COLORES
@@ -14,6 +14,14 @@
 --royal:#112250;    /* azul oscuro principal */
 --gold:#E0C58F;     /* dorado elegante */
 --cream:#F5F0E9;    /* fondo claro */
+}
+
+body{
+background:linear-gradient(
+180deg,
+#f8f6f2 0%,
+#f5f0e9 100%
+);
 }
 
 /* ======================================================
@@ -60,7 +68,8 @@ outline:none;
 box-shadow:0 8px 20px rgba(0,0,0,.08);
 font-family:'Libre Baskerville',serif;
 transition:.3s;
-background:white;
+background:rgba(255,255,255,0.9);
+backdrop-filter:blur(6px);
 }
 
 /* efecto al hacer focus */
@@ -84,10 +93,12 @@ margin-bottom:40px;
 background:white;
 padding:30px;
 border-radius:22px;
+border:1px solid rgba(0,0,0,0.03);
 box-shadow:0 10px 25px rgba(0,0,0,.08);
 transition:.3s;
 position:relative;
 overflow:hidden;
+will-change: transform;
 }
 
 /* línea decorativa superior */
@@ -250,6 +261,7 @@ transition:.25s;
 display:flex;
 flex-direction:column;
 height:100%;
+will-change: transform;
 }
 
 /* hover */
@@ -319,7 +331,7 @@ margin-top:4px;
 /* hover botón */
 .tarjeta-btn:hover{
 transform:scale(1.05);
-box-shadow:0 4px 12px rgba(224,197,143,.3);
+box-shadow:0 6px 16px rgba(224,197,143,.35);
 }
 
 /* ======================================================
@@ -389,6 +401,14 @@ opacity:1;
 transform:scale(1);
 }
 
+.fab-btn:nth-child(1){
+transition-delay:.05s;
+}
+
+.fab-btn:nth-child(2){
+transition-delay:.1s;
+}
+
 /* posición botones */
 .fab-btn:nth-child(1){ bottom:90px; right:0; }
 .fab-btn:nth-child(2){ bottom:65px; right:85px; }
@@ -431,4 +451,9 @@ grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
 gap:12px;
 }
 
+}
+
+:focus-visible{
+outline:2px solid var(--gold);
+outline-offset:2px;
 }
