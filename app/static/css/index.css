@@ -70,13 +70,130 @@ height:100%;
 background:linear-gradient(to right, rgba(17,34,80,.5), rgba(17,34,80,.2));
 }
 
-/* Responsive: reducir el desplazamiento en pantallas pequeñas */
+/* =========================
+RESPONSIVE
+========================= */
+
+/* laptops pequeñas */
 @media (max-width:1200px){
-	.slide{ background-position: calc(50% + 60px) center; }
+
+.hero{
+width:95%;
+height:650px;
 }
 
+.hero-left{
+width:55%;
+}
+
+.hero-content{
+left:60px;
+max-width:350px;
+}
+
+.hero-content h1{
+font-size:38px;
+}
+
+}
+
+/* tablets */
 @media (max-width:900px){
-	.slide{ background-position: center; }
+
+.hero{
+height:620px;
+}
+
+nav{
+padding:0 30px;
+}
+
+.nav-links{
+gap:25px;
+}
+
+.hero-left{
+width:65%;
+}
+
+.hero-content{
+left:40px;
+max-width:320px;
+}
+
+.hero-content h1{
+font-size:34px;
+}
+
+.hero-content p{
+font-size:14px;
+}
+
+}
+
+/* tablets pequeñas */
+@media (max-width:700px){
+
+.hero{
+height:650px;
+}
+
+.nav-links{
+display:none;
+}
+
+.hero-left{
+width:100%;
+}
+
+.hero-content{
+left:50%;
+transform:translate(-50%,-50%);
+text-align:center;
+max-width:90%;
+}
+
+.dots{
+left:50%;
+transform:translateX(-50%);
+}
+
+}
+
+/* celulares */
+@media (max-width:480px){
+
+.hero{
+height:600px;
+border-radius:0;
+}
+
+nav{
+height:70px;
+padding:0 20px;
+}
+
+.logo-text{
+font-size:20px;
+}
+
+.subtitle{
+display:none;
+}
+
+.hero-content h1{
+font-size:28px;
+}
+
+.hero-content p{
+font-size:13px;
+}
+
+.btn{
+padding:12px 28px;
+font-size:14px;
+}
+
 }
 
 /* PARTE BLANCA CON SVG */

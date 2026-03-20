@@ -1502,3 +1502,17 @@ def init_routes(app):
         except Exception as e:
             print(f"Error en actividad: {e}")
             return jsonify({"eventos": []}), 500
+
+# -------------------------------------
+# RUTA PASARELA DE PAGO
+# -------------------------------------
+    @app.route("/pasarela_pago")
+    def pasarela_pago():
+        return render_template("pasarela_pago.html")
+
+# -------------------------------------
+# RUTA REPORTE DE PROBLE
+# -------------------------------------
+    @app.route("/reporte_problema")
+    def reporte_problem():
+        return render_template("reporte_problemas.html")

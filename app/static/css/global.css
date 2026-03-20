@@ -1,29 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Libre+Baskerville:wght@400;700&display=swap');
 
-:root {
-  /* ─── COLORES PRINCIPALES ─── */
-  --royal-blue: #112250; 
-  --sapphire: #3C507D;
-  --gold: #E0C58F;
-  --cream: #F5F0E9;
-  --shell: #D9CBC2;
-  
-  /* ─── SOMBRAS ─── */
-  --shadow-sm: 0 5px 15px rgba(0, 0, 0, 0.25);
-  --shadow-md: 0 12px 25px rgba(0, 0, 0, 0.25);
-  --shadow-lg: 0 15px 30px rgba(0, 0, 0, 0.25);
-  --shadow-glow: 0 0 30px rgba(0, 0, 0, 0.25);
-  
-  /* ─── ESPACIADO ─── */
-  --border-radius-sm: 12px;
-  --border-radius-md: 18px;
-  --border-radius-lg: 25px;
-  
-  /* ─── ANIMACIONES ─── */
-  --transition: 0.3s ease;
-  --transition-card: 0.25s ease;
-}
-
 /* ========================================
    ESTILOS BASE
    ======================================== */

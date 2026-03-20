@@ -51,7 +51,6 @@ ESTADOS_DEFAULT = ["Bueno", "Regular", "Malo"]
 
 def conectar_db():
     """Establece conexión a PostgreSQL con reintentos (para Docker)."""
-    
     os.environ.setdefault("PGCLIENTENCODING", "utf8")
 
     intentos = 10
@@ -322,7 +321,7 @@ def crear_tablas():
     crear_tabla_Objetos()
     crear_tabla_Reportes_encontrados()
     crear_tabla_Reportes_perdidos()
-
+    
 
 def inicializar_datos_default():
     """

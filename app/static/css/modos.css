@@ -310,6 +310,7 @@ html body.modo-alto-contraste .fab-btn {
     background: #000 !important;
     color: #FFF !important;
     border-color: #FFF !important;
+    border: 1px solid #FFF !important;
 }
 
 html body.modo-alto-contraste .sidebar,
@@ -458,9 +459,10 @@ html body.modo-alto-contraste .tarjeta-btn{
 
 }
 
+
 html body.modo-alto-contraste .tarjeta-btn:hover,
-html body.modo-alto-contraste .upload-btn,
-html body.modo-alto-contraste .fab-btn{
+html body.modo-alto-contraste .upload-btn:hover,
+html body.modo-alto-contraste .fab-btn:hover{
     background: #000 !important;
     color: #FFF !important;
     border: 2px solid #FFF
@@ -485,3 +487,13 @@ html body.modo-alto-contraste .fab-btn{
     border: 2px solid #FFF !important;
 }
 
+html body.modo-alto-contraste .form-container{
+    color: #fff !important;
+    background: #000 !important;
+    border: 3px solid #FFF !important;
+
+}
+
+html body.modo-alto-contraste .toggle-switch {
+    background: #b6c2cf !;
+}

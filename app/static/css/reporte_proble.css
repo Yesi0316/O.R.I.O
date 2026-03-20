@@ -1,0 +1,181 @@
+  /* =========================================================
+   FUENTES
+========================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Libre+Baskerville:wght@400;700&display=swap');
+
+/* =========================================================
+   VARIABLES
+========================================================= */
+:root {
+    --blue-bg: #112250;
+    --gold: #E0C58F;
+    --royal: #112250;
+    --font-title: 'Libre Baskerville', serif;
+    --font-body: 'Libre Baskerville', serif;
+}
+
+
+
+/* RESET */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* =========================================================
+   BODY CON FONDO ORIGINAL
+========================================================= */
+body {
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+
+    background:
+        radial-gradient(circle at 20% 20%, #4c6fb7 0%, transparent 35%),
+        radial-gradient(circle at 80% 80%, #1b2d57 0%, transparent 40%),
+        linear-gradient(135deg, #3C5B8F, #112250);
+
+    background-attachment: fixed;
+}
+
+/* =========================================================
+   CONTENEDOR GENERAL
+========================================================= */
+#malasPracticas {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+/* =========================================================
+   CAJA DEL FORMULARIO
+========================================================= */
+.form-container {
+    background: white;
+    padding: 45px;
+    border-radius: 18px;
+    width: 100%;
+    max-width: 650px;
+    box-shadow: 0 15px 30px rgba(0,0,0,.08);
+}
+
+/* =========================================================
+   TÍTULO
+========================================================= */
+.form-header {
+    margin-bottom: 25px;
+}
+
+h1 {
+    font-family: var(--font-title);
+    color: var(--royal);
+}
+
+/* =========================================================
+   LABELS
+========================================================= */
+label {
+    display: block;
+    margin-top: 18px;
+    font-size: 15px;
+    color: var(--royal);
+}
+
+/* =========================================================
+   INPUTS Y TEXTAREA
+========================================================= */
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    font-family: var(--font-body);
+}
+
+textarea {
+    min-height: 130px;
+    resize: vertical;
+}
+
+/* =========================================================
+   BOTONES
+========================================================= */
+.back-btn-container {
+    margin-bottom: 20px;
+}
+
+.btn-area {
+    margin-top: 25px;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.btn-config {
+    padding: 10px 24px;
+    background: linear-gradient(135deg, var(--gold), #f2d9a6);
+    color: var(--royal);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: .25s;
+}
+
+.btn-config:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(224,197,143,.3);
+}
+
+/* =========================================================
+   MODO OSCURO
+========================================================= */
+body.modo-oscuro .form-container {
+    background: #2d3748;
+    border: 1px solid #3f4a5c;
+}
+
+body.modo-oscuro h1 {
+    color: #E0C58F;
+}
+
+body.modo-oscuro label {
+    color: #e8e8e8;
+}
+
+body.modo-oscuro input,
+body.modo-oscuro textarea {
+    background: #1a1f2e;
+    color: #e8e8e8;
+    border: 1px solid #3f4a5c;
+}
+
+body.modo-oscuro input::placeholder,
+body.modo-oscuro textarea::placeholder {
+    color: #cccccc;
+}
+
+body.modo-oscuro .btn-config {
+    background: linear-gradient(135deg, #E0C58F, #d4b77b);
+    color: #0f1419;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+@media (max-width: 700px) {
+
+    .form-container {
+        padding: 30px;
+    }
+
+    .btn-area {
+        flex-direction: column;
+    }
+
+    .btn-config {
+        width: 100%;
+    }
+}

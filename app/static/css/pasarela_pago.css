@@ -1,0 +1,208 @@
+
+:root{
+--royal:#112250;
+--sapphire:#3C507D;
+--gold:#E0C58F;
+--swan:#F5F0E9;
+--shell:#D9CBC2;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Libre Baskerville',serif;
+background:linear-gradient(180deg,var(--royal),#050b1d);
+color:var(--swan);
+
+min-height:100vh;
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+padding:40px;
+}
+
+.container{
+max-width:1200px;
+width:100%;
+}
+
+.titulo{
+font-family:'Bodoni Moda',serif;
+font-size:38px;
+color:var(--gold);
+text-align:center;
+margin-bottom:40px;
+}
+
+/* layout */
+
+.layout{
+display:flex;
+gap:40px;
+}
+
+/* CARTAS */
+
+.opciones{
+flex:1;
+display:flex;
+flex-direction:column;
+gap:20px;
+}
+
+.card{
+
+background:var(--sapphire);
+
+padding:20px;
+
+border-radius:15px;
+
+cursor:pointer;
+
+transition:.3s;
+
+border:2px solid transparent;
+
+}
+
+.card:hover{
+
+transform:translateY(-5px);
+
+}
+
+.card.activa{
+
+border:2px solid var(--gold);
+
+}
+
+.card h3{
+
+font-family:'Bodoni Moda',serif;
+color:var(--gold);
+margin-bottom:8px;
+
+}
+
+.descripcion{
+
+font-size:13px;
+color:var(--shell);
+
+}
+
+/* FORMULARIO */
+
+.pago{
+
+flex:1;
+
+background:var(--swan);
+color:var(--royal);
+
+padding:30px;
+
+border-radius:18px;
+
+box-shadow:0 10px 30px rgba(0,0,0,.4);
+
+display:none;
+
+}
+
+.resumen{
+
+margin-bottom:20px;
+font-weight:bold;
+
+}
+
+form{
+display:flex;
+flex-direction:column;
+gap:15px;
+}
+
+input{
+
+padding:12px;
+
+border-radius:8px;
+
+border:1px solid #ccc;
+
+}
+
+.fila{
+
+display:flex;
+gap:10px;
+
+}
+
+.fila div{
+flex:1;
+}
+
+button{
+
+margin-top:10px;
+
+background:var(--royal);
+color:white;
+
+border:none;
+
+padding:14px;
+
+border-radius:10px;
+
+cursor:pointer;
+
+}
+
+button:hover{
+background:var(--sapphire);
+}
+
+
+
+.btn-config {
+    padding: 10px 24px;
+    background: linear-gradient(135deg, var(--gold), #f2d9a6);
+    color: var(--royal);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: .25s;
+}
+
+/* Hover del botón */
+.btn-config:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(224,197,143,.3);
+}
+
+.back-btn-container {
+    margin-bottom: 25px;
+}
+
+
+/* responsive */
+
+@media(max-width:900px){
+
+.layout{
+flex-direction:column;
+}
+
+}

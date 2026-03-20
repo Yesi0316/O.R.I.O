@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Opciones Premium</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Bodoni+Moda:wght@400;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="../static/css/pasarela_pago.css">
+</head>
+
+<body>
+
+<div class="container">
+<button type="button" class="btn-config back-btn"
+onclick="(document.referrer ? history.back() : window.location='/menu')">
+← Volver
+</button>
+<h1 class="titulo">Opciones Premium</h1>
+
+<div class="layout">
+
+<!-- CARTAS -->
+
+<div class="opciones">
+
+<div class="card" onclick="seleccionar('Usuario verificado', this)">
+<h3>Usuario verificado</h3>
+<div class="descripcion">
+Obtén la insignia de verificación en tu perfil.
+</div>
+</div>
+
+<div class="card" onclick="seleccionar('Cambio de estado prioritario', this)">
+<h3>Cambio de estado prioritario</h3>
+<div class="descripcion">
+Puede pagar para acelerar el proceso de validación.
+</div>
+</div>
+
+</div>
+
+
+<!-- FORMULARIO -->
+
+<div id="pago" class="pago">
+
+<div class="resumen" id="resumen"></div>
+
+<form>
+
+<label>Nombre del titular</label>
+<input type="text" placeholder="Nombre completo">
+
+<label>Número de tarjeta</label>
+<input type="text" placeholder="1234 5678 9012 3456">
+
+<div class="fila">
+
+<div>
+<label>Expiración</label>
+<input type="text" placeholder="MM/AA">
+</div>
+
+<div>
+<label>CVV</label>
+<input type="text" placeholder="123">
+</div>
+
+</div>
+
+<label>Correo electrónico</label>
+<input type="email" placeholder="correo@email.com">
+
+<button>Pagar</button>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+function seleccionar(opcion, elemento){
+
+document.querySelectorAll(".card").forEach(c=>{
+c.classList.remove("activa")
+})
+
+elemento.classList.add("activa")
+
+document.getElementById("pago").style.display="block"
+
+document.getElementById("resumen").innerText="Opción seleccionada: "+opcion
+
+}
+
+</script>
+
+</body>
+</html>
