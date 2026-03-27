@@ -176,7 +176,7 @@ font-weight:600;
 box-shadow:0 10px 25px rgba(0,0,0,.2);
 opacity:1;
 }
-
+                                                          
 /* Oculta texto del menú cuando el sidebar está colapsado */
 .sidebar.collapsed .menu span{ display:none; }
 
@@ -253,7 +253,7 @@ transition:.35s;
 }
 
 /* =========================================================
-   MOBILE PRO NAVBAR
+   MOBILE NAVBAR
    Adaptación del diseño para dispositivos móviles
    ========================================================= */
 
@@ -327,7 +327,7 @@ transform:translateY(-2px);
    ========================================================= */
 
 .menu a.active{
-color:var(--gold);
+color:#112250;
 }
 
 /* Indicador de página activa */
@@ -367,6 +367,31 @@ right:20px;
 .fab-menu{
 bottom:100px;
 right:20px;
+}
+
+/* =========================================================
+   BOTÓN PREMIUM RESPONSIVE PARA MÓVIL
+   ========================================================= */
+
+.premium-btn{
+width:50px;
+height:60px;
+padding:0;
+border-radius:50%;
+margin:0;
+font-size:0;
+gap:0;
+box-shadow:0 4px 12px rgba(0,0,0,.15);
+top: -5px;
+position:  relative ;
+}
+
+.premium-btn i{
+font-size:20px;
+}
+
+.premium-btn span{
+display:none;
 }
 }
 

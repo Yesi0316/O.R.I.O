@@ -3,11 +3,6 @@ from flask import Flask, render_template, request
 import os, uuid, datetime
 
 app= Flask(__name__)
-from flask import Flask, render_template, request
-
-import os, uuid, datetime
-
-app= Flask(__name__)
 
 
 #Datos bancarios de la persona que va a recibir el dinero
@@ -24,11 +19,11 @@ DATOS_PAGO ={
     #Transferencia bancaria
 
     "banco":{
-        "banco":"bancolombia",
-        "numero":"3215272622",
-        "tipo":"C.C",
-        "titular":"Mamá de Yessica",
-        "cedula":"27281858"  
+        "banco":"#",
+        "numero":"#",
+        "tipo":"#",
+        "titular":"#",
+        "cedula":"#"  
     },
 
     #Paypal 
@@ -50,25 +45,23 @@ DATOS_PAGO ={
 
 }
 
-
 PLANES={
 
-    1:{
+    "alertas en alta prioridad":{
         "nombre del plan":"#",
         "descripción del plan":"#",
-        "costo_plan":20000
+        "costo del plan":"20.000 COP"
     },
 
-    2:{
+    "#":{
         "nombre del plan":"#",
         "descripción":"#",
-        "costo_plan":15000
     },
 
     
-    3:{
+    "Combo":{
         "nombre del plan":"Plan todo en 1 + usuario verificado",
         "descripción":"Este plan ofece las alertas prioritarias, verificación del usuario y como extra la verificación para el usuario",
-        "costo_plan":30000
+        "Costo del plan":"30.000 COP"
     }
 }

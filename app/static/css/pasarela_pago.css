@@ -1,290 +1,253 @@
 
+/* ==========================================
+   VARIABLES GLOBALES (COLORES DEL SISTEMA)
+   Se definen colores reutilizables
+========================================== */
 :root{
---royal:#112250;
---sapphire:#3C507D;
---gold:#E0C58F;
---swan:#F5F0E9;
---shell:#D9CBC2;
+--royal:#112250;      /* Azul oscuro principal */
+--sapphire:#3C507D;   /* Azul secundario */
+--swan:#F5F0E9;       /* Fondo claro */
+--gold:#E0C58F;       /* Dorado/acento */
 }
 
 
-
-/* ===================================== */
-/* RESET GENERAL DEL NAVEGADOR */
-/* ===================================== */
-
+/* ============================= */
+/* RESET BÁSICO */
+/* Elimina márgenes por defecto
+   y aplica box-sizing global */
+/* ============================= */
 *{
-    margin:0;               /* Elimina márgenes automáticos */
-    padding:0;              /* Elimina rellenos automáticos */
-    box-sizing:border-box;  /* Mejora cálculo de tamaños */
-    font-family:'Segoe UI', sans-serif;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: Arial, sans-serif; /* Fuente general */
 }
 
-/* ===================================== */
-/* ESTILO GLOBAL DEL BODY */
-/* ===================================== */
-
+/* ============================= */
+/* FONDO GENERAL */
+/* Aplica color base del sitio */
+/* ============================= */
 body{
-    background:#F5F0E9; /* Fondo gris claro */
-    color:#E0C58F;      /* Color principal del texto */
+    background:#F5F0E9;
 }
 
-
-/* ===================================== */
-/* HEADER SUPERIOR */
-/* ===================================== */
-
-.header{
-    display:flex; /* Organiza elementos horizontalmente */
-    justify-content:space-between; /* Logo izquierda / Seguridad derecha */
-    align-items:center;
-    padding:5px 20px;
-
-    /* ÚNICO DEGRADADO PERMITIDO */
-    background:linear-gradient(to right,#3C507D,#112250);
-    color:white;
+/* ============================= */
+/* CONTENEDOR PRINCIPAL */
+/* Organiza las tarjetas en fila */
+/* ============================= */
+.contenedor{
+    display:flex;              /* Activa Flexbox */
+    justify-content:center;    /* Centra horizontalmente */
+    gap:20px;                  /* Espacio entre tarjetas */
+    padding:40px;              /* Espacio exterior */
+    flex-wrap:wrap;            /* Permite salto a otra línea */
 }
 
-/* Logo */
+/* ============================= */
+/* TARJETAS DE PLAN */
+/* Diseño tipo card */
+/* ============================= */
+.plan{
+    background:#ffffff;
+    width:300px;               /* Ancho fijo en desktop */
+    border-radius:10px;
+    overflow:hidden;           /* Oculta desbordes */
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+    text-align:center;
+    transition:0.3s;           /* Animación suave */
+}
+
+/* EFECTO HOVER (Elevación) */
+.plan:hover{
+    transform:translateY(-8px);
+}
+
+/* ============================= */
+/* ENCABEZADO DEL PLAN */
+/* Parte superior con degradado */
+/* ============================= */
+.header-plan{
+    padding:15px;
+    color:var(--swan);
+    font-weight:bold;
+}
+
+/* COLORES DIFERENTES POR PLAN
+   (Actualmente todos usan el mismo degradado) */
+.standard{
+    background:linear-gradient(to right, var(--sapphire), var(--royal));
+}
+
+.plus{
+    background:linear-gradient(to right,  var(--sapphire), var(--royal));
+}
+
+.premium{
+    background:linear-gradient(to right, var(--sapphire), var(--royal));
+}
+
+/* ============================= */
+/* CONTENIDO INTERNO */
+/* ============================= */
+.contenido{
+    padding:20px;
+}
+
+/* ============================= */
+/* LOGO CIRCULAR */
+/* ============================= */
 .logo{
-    font-size:26px;
-    font-weight:700;
-}
-
-/* Parte azul del logo */
-.logo span{
-    color:#112250;
-}
-
-/* Texto pequeño debajo del logo */
-.logo small{
-    display:block;
-    font-size:12px;
-    font-weight:400;
-    margin-top:4px;
-}
-
-/* Caja de seguridad */
-.secure-box{
-    text-align:right;
-    font-size:14px;
-}
-
-/* Texto secundario SSL */
-.secure-box span{
-    font-size:12px;
-    opacity:0.9;
-}
-
-
-/* ===================================== */
-/* CONTENIDO PRINCIPAL */
-/* ===================================== */
-
-.main{
-    width: 95%;
-    padding:60px 40px;
-    margin: 0 auto;
-}
-
-h1{
-    margin-bottom:40px;
-    font-weight:600;
-}
-
-
-/* ===================================== */
-/* GRID DE TARJETAS */
-/* ===================================== */
-
-.grid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr); /* 3 columnas iguales */
-    gap:30px; /* Espacio entre tarjetas */
-}
-
-/* ===================================== */
-/* TARJETA HORIZONTAL TODO INCLUIDO */
-/* ===================================== */
-
-.todo-incluido-horizontal{
-    margin-top:40px;
-    display:flex;              /* Hace que sea horizontal */
-    width: 100%;              /* Que ocupe todo el ancho disponible */
-    align-items:center;
-    justify-content:space-between;
-    padding:40px;
-    background:white;
-    border-radius:18px;
-    box-shadow:0 8px 25px rgba(0,0,0,0.06);
-}
-
-/* Contenedor del texto */
-.todo-incluido-horizontal .contenido{
-    max-width:70%;
-}
-
-/* Precio grande */
-.todo-incluido-horizontal .price{
-    font-size:32px;
-    font-weight:700;
-    margin:15px 0;
-}
-
-/* Botón alineado a la derecha */
-.todo-incluido-horizontal .btn{
-    width:auto;
-    padding:16px 40px;
-}
-
-
-/* ===================================== */
-/* TARJETAS GENERALES */
-/* ===================================== */
-
-.card{
-    background:white;
-    padding:35px;
-    border-radius:18px;
-    box-shadow:0 8px 25px rgba(0,0,0,0.06);
-}
-
-/* Texto secundario */
-.card p{
-    color:#6B7280;
-    margin:10px 0 20px 0;
-}
-
-/* Precio */
-.price{
-    font-size:26px;
-    font-weight:700;
-    margin-bottom:20px;
-}
-
-.price span{
-    font-size:14px;
-}
-
-
-/* ===================================== */
-/* LISTAS */
-/* ===================================== */
-
-ul{
-    list-style:none; /* Quita viñetas */
-    margin-bottom:25px;
-}
-
-ul li{
-    margin-bottom:8px;
-    color:#4B5563;
-}
-
-
-/* ===================================== */
-/* ICONOS CIRCULARES */
-/* ===================================== */
-
-.icon{
-    width:45px;
-    height:45px;
-    border-radius:50%;
-    display:flex;
+    width:60px;
+    height: 60px;
+    margin:5px auto;
+    border-radius:50%;         /* Forma circular */
+    background:var(--gold);
+    display:flex;              /* Centra imagen interna */
     align-items:center;
     justify-content:center;
-    margin-bottom:15px;
     color:white;
     font-weight:bold;
 }
 
-/* Azul plan verificado */
-.blue-circle{
-    background:#112250;
+/* Imagen dentro del círculo */
+.imagen-plan{
+    width: 100%;
+    height: 100%;
+    object-fit: contain;       /* Mantiene proporción */
 }
 
-/* Verde plan propietarios */
-.green-circle{
-    background:#112250;
+/* ============================= */
+/* TITULOS Y TEXTOS */
+/* ============================= */
+.titulo{
+    font-size:20px;
+    margin:10px 0;
 }
 
-
-/* ===================================== */
-/* COLORES DE TEXTO */
-/* ===================================== */
-
-.blue-text{
-    color:#E0C58F;
+.subtitulo{
+    color:gray;
+    font-size:14px;
 }
 
-.green-text{
-    color:#E0C58F;
+/* Estrellas decorativas */
+.estrellas{
+    color:var(--gold);
+    margin:10px 0;
 }
 
+/* Sistemas compatibles */
+.sistemas{
+    font-size:13px;
+    color:#777;
+    margin-bottom:10px;
+}
 
-/* ===================================== */
-/* BOTONES */
-/* ===================================== */
+/* ============================= */
+/* ETIQUETA DESTACADA */
+/* ============================= */
+.etiqueta{
+    background:var(--sapphire);
+    color:#ffffff;
+    padding:5px;
+    border-radius:20px;
+    font-size:13px;
+    margin:10px 0;
+}
 
-.btn{
+/* ============================= */
+/* LISTA DE BENEFICIOS */
+/* ============================= */
+.lista{
+    text-align:left;
+    margin-top:15px;
+}
+
+.lista li{
+    margin:8px 0;
+    font-size:14px;
+}
+
+/* ============================= */
+/* SELECT (Selector de opciones) */
+/* ============================= */
+.select{
     width:100%;
-    padding:14px;
+    padding:10px;
+    margin-top:15px;
+    border:1px solid #ccc;
+    border-radius:5px;
+}
+
+/* ============================= */
+/* BOTÓN PRINCIPAL */
+/* ============================= */
+.boton{
+    background:var(--gold);
     border:none;
-    border-radius:10px;
-    font-weight:600;
+    padding:12px;
+    width:100%;
+    margin-top:15px;
+    border-radius:25px;  /* Estilo píldora */
+    font-weight:bold;
     cursor:pointer;
 }
 
-/* Botón azul */
-.blue-btn{
-    background:#112250;
-    color:white;
-}
-
-/* Botón verde */
-.green-btn{
-    background:#112250;
-    color:white;
-}
-
-
-/* ===================================== */
-/* MÉTODOS DE PAGO */
-/* ===================================== */
-
-.methods{
-    display:grid;
-    grid-template-columns:1fr 1fr; /* 2 columnas */
-    gap:15px;
-    margin-bottom:25px;
-}
-
-.method{
-    background:#F1F3F6;
-    padding:18px;
-    border-radius:12px;
-    text-align:center;
-    font-weight:600;
-}
-
-/* Texto verde de seguridad */
-.secure-text{
+/* ============================= */
+/* PRECIO */
+/* ============================= */
+.precio{
     margin-top:15px;
-    font-size:14px;
-    color:#19A463;
 }
 
+.precio-antiguo{
+    text-decoration:line-through; /* Precio tachado */
+    color:gray;
+    font-size:13px;
+}
 
-/* ===================================== */
-/* FOOTER */
-/* ===================================== */
+.precio-nuevo{
+    font-size:22px;
+    font-weight:bold;
+}
 
-.footer{
-    margin-top:165px;
-    padding:25px;
-    text-align:center;
-    color:white;
+/* =============================== */
+/* RESPONSIVE MOVIL PLANES */
+/* Ajustes para pantallas pequeñas */
+/* =============================== */
+@media (max-width: 768px){
 
-    /* Mismo degradado del header */
-    background:linear-gradient(to right,#3C507D,#112250);
+    .contenedor{
+        padding: 20px;   /* Reduce espacio exterior */
+        gap: 15px;       /* Reduce separación */
+    }
+
+    .plan{
+        width: 100%;     /* Ocupa todo el ancho */
+        max-width: 380px;/* Límite visual agradable */
+    }
+
+    .contenido{
+        padding: 18px;
+    }
+
+    .titulo{
+        font-size: 18px;
+    }
+
+    .subtitulo{
+        font-size: 13px;
+    }
+
+    .lista li{
+        font-size: 13px;
+    }
+
+    .precio-nuevo{
+        font-size: 20px;
+    }
+
+    .boton{
+        padding: 14px;
+        font-size: 14px;
+    }
 }

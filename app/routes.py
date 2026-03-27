@@ -1115,7 +1115,7 @@ def init_routes(app):
 
     @app.route("/reportes")
     def reportes():
-        return render_template("reportes.html", active="reportes")
+        return render_template("mis_reportes.html", active="reportes")
 
     @app.route("/api/mis_reportes", methods=["GET"])
     @login_required
@@ -1523,13 +1523,6 @@ def init_routes(app):
             print(f"Error en actividad: {e}")
             return jsonify({"eventos": []}), 500
 
-# -------------------------------------
-# RUTA PASARELA DE PAGO
-# -------------------------------------
-    @app.route("/pasarela_pago")
-    def pasarela_pago():
-        return render_template("pasarela_pago.html")
-    
 
 # -------------------------------------
 # RUTA PARA PAGO SIMULADO
@@ -1548,16 +1541,33 @@ def init_routes(app):
             "mensaje": "Pago aprovado" if resultado == "aprobado" else "Pago rechazado" #Mensaje va a ser igual a Aprobado si resulrtado es igual a aprobado de lo contrario será rechazado
         }
 
-# ------------------------------------------------------
-# RUTA PAGO /va al form para ingresar tus datos y pagar
-# ------------------------------------------------------
+# -------------------------------------
+# RUTA PASARELA DE PAGO
+# -------------------------------------
+    @app.route("/pasarela_pago")
+    def pasarela_pago():
+        return render_template("pasarela_pago.html")
 
-    @app.route('/pago') 
-    def pago():
-        plan_id = int (request.args.get("plan_id"))
-        plan= PLANES.get(plan_id)
+# -------------------------------------
+# RUTA METDOS PARA PAGAR
+# -------------------------------------
+    @app.route("/metodos")
+    def metodos():
+        return render_template("metodos.html")
 
-        return render_template("pago.html", plan=plan)
+# -------------------------------------
+# RUTA FORMULARIO NORMAL DE PAGO
+# -------------------------------------
+    @app.route("/form_normal_pago")
+    def form_normal_pago():
+        return render_template("form_normal_pago")
+
+# -------------------------------------
+# RUTA FORMULARIO EMPRESA DE PAGO
+# -------------------------------------
+    @app.route("/form_empresa_pago")
+    def form_empresa_pago():
+        return render_template("form_empresa_pago")
 
 # -------------------------------------
 # RUTA REPORTE DE PROBLEMAS

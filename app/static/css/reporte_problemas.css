@@ -13,9 +13,10 @@ box-sizing:border-box;
 
 body{
 font-family: 'Poppins' , sans-serif;
-height:100vh;
+min-height:100vh;
 display:flex;
-justify-content:center;
+flex-direction:column;
+justify-content:flex-start; 
 align-items:center;
 background:linear-gradient(360deg, #4c6fb7, #112250, #4c6fb7);
 background-size:300% 300%;
@@ -29,7 +30,7 @@ animation:fondo 10s infinite alternate;
 
 .contenedor{
 background:white;
-padding:35px;
+padding:5px;
 width:90%;
 max-width:420px;
 border-radius:16px;
@@ -170,13 +171,16 @@ color:#333;
    FOOTER
    ====================================================== */
 footer{
-    width:100%;
-    padding:20px 40px;
+    padding:20px;
     text-align:center;
-    font-family:"Bodoni Moda", serif;
     font-size:13px;
     color:var(--swan);
 }
 
-/* texto secundario del footer */
-footer span{ opacity:0.7; }
+main{
+flex:1;
+display:flex;
+justify-content:center;
+align-items:center;
+width:100%;
+}

@@ -6,7 +6,7 @@
 <title>Bienvenidos a O.R.I.O</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="static/css/reportes_principal.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/reportes_principal.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
 </head>
 
@@ -72,9 +72,9 @@
 
   <!-- ===== TÍTULO CON IMÁGENES ===== -->
   <div class="titulo-container">
-    <img src="logo.jpeg" alt="Logo Izquierdo" class="logo-izquierdo">
+    <img src="{{ url_for('static', filename='img/logo.jpeg') }}" alt="Logo Izquierdo" class="logo-izquierdo">
     <h1>REGISTROS DE FORMULARIOS O.R.I.O</h1>
-    <img src="img3.jpeg" alt="Logo Derecho" class="logo-derecho">
+    <img src="{{ url_for('static', filename='img/img3.jpeg') }}" alt="Logo Derecho" class="logo-derecho">
   </div>
 
   <p>Selecciona el formulario que deseas completar:</p>

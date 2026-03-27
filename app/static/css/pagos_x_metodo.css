@@ -1,0 +1,165 @@
+/* ==========================================
+   VARIABLES GLOBALES (PALETA DE COLORES)
+   Se definen colores reutilizables para
+   mantener coherencia visual en todo el diseño
+========================================== */
+:root{
+--royal:#112250;      /* Azul oscuro principal */
+--sapphire:#3C507D;   /* Azul secundario */
+--swan:#F5F0E9;       /* Fondo claro elegante */
+--gold:#E0C58F;       /* Color dorado de acento */
+}
+
+/* ==========================================
+   FONDO GENERAL
+   Aplica color base y tipografía global
+========================================== */
+body{
+    background:var(--swan); /* Fondo claro */
+    font-family:Arial, sans-serif; /* Fuente general */
+}
+
+/* ==========================================
+   GRID PRINCIPAL (2x2)
+   Organiza las tarjetas en 2 columnas
+========================================== */
+.contenedor-pagos{
+    display:grid; /* Activa CSS Grid */
+    grid-template-columns: repeat(2, 1fr); /* 2 columnas iguales */
+    gap:30px; /* Espacio entre tarjetas */
+    padding:50px; /* Espaciado exterior */
+    max-width:700px; /* Ancho máximo */
+    margin:auto; /* Centrado horizontal */
+}
+
+/* ==========================================
+   TARJETAS DE PAGO
+   Diseño limpio con sombra y bordes suaves
+========================================== */
+.tarjeta-pago{
+    background:#ffffff; /* Fondo blanco */
+    border-radius:18px; /* Bordes redondeados */
+    padding:30px 20px; /* Espaciado interno */
+    text-align:center; /* Centra contenido */
+    box-shadow:0 8px 25px rgba(255, 0, 0, 0.08); /* Sombra suave */
+    transition:0.3s; /* Animación suave */
+    border:2px solid transparent; /* Borde invisible inicial */
+}
+
+/* ==========================================
+   EFECTO HOVER TARJETA
+   Eleva la tarjeta y muestra borde dorado
+========================================== */
+.tarjeta-pago:hover{
+    transform:translateY(-6px); /* Efecto flotante */
+    border:2px solid var(--gold);
+}
+
+/* ==========================================
+   CONTENEDOR DEL ICONO
+   Círculo decorativo para logos
+========================================== */
+.icono-pago{
+    width:80px;
+    height:80px;
+    margin:0 auto 15px; /* Centrado + separación inferior */
+    border-radius:50%; /* Forma circular */
+    background:var(--gold);
+    display:flex; /* Centra imagen internamente */
+    align-items:center;
+    justify-content:center;
+}
+
+/* ==========================================
+   IMAGEN DEL ICONO
+   Ajuste automático del tamaño
+========================================== */
+.icono-pago img{
+    max-width:80%;
+    height:80%;
+    object-fit:contain; /* Mantiene proporción */
+}
+
+/* ==========================================
+   AJUSTES INDIVIDUALES POR IMAGEN
+   Corrige tamaños específicos según logo
+========================================== */
+.img-nequi{ max-width:90%; height: 90%;}
+.img-paypal{ max-width:85%; height: 85%;}
+.img-bancolombia{ max-width:120%; height: 120%;}
+.img-efecty{ max-width:90%; height: 100%;}
+
+/* ==========================================
+   TÍTULO DE CADA TARJETA
+========================================== */
+.tarjeta-pago h3{
+    color:var(--royal);
+    margin:10px 0 5px;
+    font-size:18px;
+}
+
+/* ==========================================
+   DESCRIPCIÓN DE CADA TARJETA
+========================================== */
+.tarjeta-pago p{
+    font-size:13px;
+    color:var(--sapphire);
+}
+
+/* ==========================================
+   BOTÓN DE PAGO
+========================================== */
+.boton-pago{
+    margin-top:18px;
+    background:var(--royal);
+    color:white;
+    border:none;
+    padding:12px;
+    width:100%;
+    border-radius:30px; /* Botón estilo píldora */
+    cursor:pointer;
+    transition:0.3s;
+    font-weight:bold;
+}
+
+/* Hover del botón */
+.boton-pago:hover{
+    background:var(--sapphire);
+}
+
+/* ==========================================
+   RESPONSIVE PARA MÓVIL
+   Se adapta a una sola columna
+========================================== */
+@media (max-width: 768px){
+
+    .contenedor-pagos{
+        grid-template-columns: 1fr; /* 1 sola columna */
+        padding: 20px; /* Reduce padding lateral */
+        gap: 20px; /* Reduce separación */
+    }
+
+    .tarjeta-pago{
+        padding: 25px 18px;
+        border-radius: 14px;
+    }
+
+    .icono-pago{
+        width: 70px;
+        height: 70px;
+    }
+
+    .tarjeta-pago h3{
+        font-size: 16px;
+    }
+
+    .tarjeta-pago p{
+        font-size: 12px;
+    }
+
+    .boton-pago{
+        padding: 12px;
+        font-size: 14px;
+        border-radius: 25px;
+    }
+}
