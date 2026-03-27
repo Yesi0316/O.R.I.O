@@ -1,88 +1,186 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ============================= -->
+    <!-- CONFIGURACIÓN BÁSICA DEL SITIO -->
+    <!-- ============================= -->
+    <meta charset="UTF-8"> <!-- Permite caracteres especiales -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Responsive -->
+    <title>DataReport - Pasarela de Pago</title>
 
-<title>Opciones Premium</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Bodoni+Moda:wght@400;600&display=swap" rel="stylesheet">
-
-<link rel="stylesheet" href="../static/css/pasarela_pago.css">
+    <!-- Conexión con el archivo CSS externo -->
+    <link rel="stylesheet" href="../static/css/pasarela_pago.css">
 </head>
+
+
 
 <body>
 
-<div class="container">
-<button type="button" class="btn-config back-btn"
-onclick="(document.referrer ? history.back() : window.location='/menu')">
-← Volver
-</button>
-<h1 class="titulo">Opciones Premium</h1>
+    <!-- ============================= -->
+    <!-- HEADER / BARRA SUPERIOR -->
+    <!-- Contiene logo y seguridad SSL -->
+    <!-- ============================= -->
+    <header class="header">
 
-<div class="layout">
+        <!-- Logo principal -->
+        <div class="logo">
+            <h1>O.R.I.O</h1>
+            <!-- Texto secundario debajo del logo -->
+            <small>Organizador de Recursos e Identendificador de Objetos</small>
+        </div>
 
-<!-- CARTAS -->
-
-<div class="opciones">
-
-<div class="card" onclick="seleccionar('Usuario verificado', this)">
-<h3>Usuario verificado</h3>
-<div class="descripcion">
-Obtén la insignia de verificación en tu perfil.
-</div>
-</div>
-
-<div class="card" onclick="seleccionar('Cambio de estado prioritario', this)">
-<h3>Cambio de estado prioritario</h3>
-<div class="descripcion">
-Puede pagar para acelerar el proceso de validación.
-</div>
-</div>
-
-</div>
+        <!-- Indicador de pago seguro -->
+        <div class="secure-box">
+            🔒 PAGO SEGURO <br>
+            <span>SSL-ENCRIPTADO</span>
+        </div>
+    </header>
 
 
-<!-- FORMULARIO -->
+    <!-- ============================= -->
+    <!-- CONTENIDO PRINCIPAL -->
+    <!-- ============================= -->
+    <section class="main">
 
-<div id="pago" class="pago">
+        <!-- Título principal -->
+        <h1>Selecciona el tipo de reporte y realiza tu pago</h1>
 
-<div class="resumen" id="resumen"></div>
+        <!-- Grid que contiene las 3 tarjetas -->
+        <div class="grid">
 
-<form>
+            <!-- ===================================== -->
+            <!-- TARJETA 1: REPORTE VERIFICADO -->
+            <!-- ===================================== -->
+            <div class="card">
 
-<label>Nombre del titular</label>
-<input type="text" placeholder="Nombre completo">
+                <!-- Ícono circular azul -->
+                <div class="icon blue-circle">✓</div>
 
-<label>Número de tarjeta</label>
-<input type="text" placeholder="1234 5678 9012 3456">
+                <!-- Título del plan -->
+                <h2 class="blue-text">REPORTE VERIFICADO</h2>
 
-<div class="fila">
+                <!-- Descripción -->
+                <p>Información validada y certificada</p>
 
-<div>
-<label>Expiración</label>
-<input type="text" placeholder="MM/AA">
-</div>
+                <!-- Precio -->
+                <div class="price blue-text">
+                    $15.000 <span>COP</span>
+                </div>
 
-<div>
-<label>CVV</label>
-<input type="text" placeholder="123">
-</div>
+                <!-- Beneficios -->
+                <ul>
+                    <li>Datos completos</li>
+                    <li>Verificación oficial</li>
+                    <li>Entrega inmediata</li>
+                </ul>
 
-</div>
+                <!-- Botón de acción -->
+                 <a href="/pago?plan_id=1"></a>
+                <button class="btn blue-btn">PAGAR AHORA</button>
+            </div>
 
-<label>Correo electrónico</label>
-<input type="email" placeholder="correo@email.com">
 
-<button>Pagar</button>
+            <!-- ===================================== -->
+            <!-- TARJETA 2: REPORTE PROPIETARIOS -->
+            <!-- ===================================== -->
+            <div class="card">
 
-</form>
+                <!-- Ícono circular verde -->
+                <div class="icon green-circle">🏠</div>
 
-</div>
+                <h2 class="green-text">REPORTE PROPIETARIOS</h2>
 
-</div>
+                <p>Historial completo</p>
 
-</div>
+                <div class="price green-text">
+                    $25.000 <span>COP</span>
+                </div>
+
+                <ul>
+                    <li>Historial total</li>
+                    <li>Propietarios anteriores</li>
+                    <li>Documentos oficiales</li>
+                </ul>
+
+                <a href="/pago?plan_id=2">
+                    <button class="btn green-btn">PAGAR AHORA</button>
+                </a>
+
+            </div>
+
+
+
+            <!-- ===================================== -->
+            <!-- TARJETA 3: MÉTODOS DE PAGO -->
+            <!-- ===================================== -->
+             <div class="card todo-incluido">
+                <h2>Método de Pago</h2>
+
+                <!-- Grid interno para los métodos -->
+                <div class="methods">
+                    <div class="method">PSE</div>
+                    <div class="method">Nequi</div>
+                    <div class="method">Bancolombia</div>
+                    <div class="method">PayPal</div>
+                </div>
+
+                <!-- Botón confirmar -->
+                <button class="btn blue-btn">
+                    🔒 CONFIRMAR PAGO
+                </button>
+
+                <!-- Texto seguridad -->
+                <p class="secure-text">
+                    ✔ Pago 100% Seguro y Encriptado
+                </p>
+            </div>
+        </div>
+
+            
+             <!-- ===================================== -->
+            <!-- TARJETA 4: PLAN TODO INCLUIDO-->
+            <!-- ===================================== -->
+            <div class="card todo-incluido-horizontal">
+
+
+                <!-- Ícono circular azul -->
+                <div class="icon blue-circle">✓</div>
+
+                <!-- Título del plan -->
+                <h2 class="blue-text">Todo incluido</h2>
+
+                <!-- Descripción -->
+                <p>Información validada, certificada e historiial completo</p>
+
+                <!-- Precio -->
+                <div class="price blue-text">
+                    $30.000 <span>COP</span>
+                </div>
+
+                <!-- Beneficios -->
+                <ul>
+                    <li>Datos completos</li>
+                    <li>Verificación oficial</li>
+                    <li>Entrega inmediata</li>
+                    <li>Historial total</li>
+                    <li>Propietarios anteriores</li>
+                    <li>Documentos oficiales</li>
+                </ul>
+
+                <!-- Botón de acción -->
+            <a href="/pago?plan_id=3"> <!--Re dirije al usuario a la ruta de pago enlazada a el formulario de pago con el app id del plan de pago creada en pago.py-->
+                <button class="btn blue-btn">PAGAR AHORA</button>
+            </a>
+            </div>
+    </section>
+
+
+    <!-- ============================= -->
+    <!-- FOOTER / PIE DE PÁGINA -->
+    <!-- ============================= -->
+    <footer class="footer">
+        
+    </footer>
 
 <script>
 

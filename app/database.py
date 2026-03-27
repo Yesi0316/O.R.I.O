@@ -107,7 +107,8 @@ def ejecutar_sql(sql, descripcion=""):
 TABLAS = {
     "Categorias": """
         CREATE TABLE IF NOT EXISTS public."Categorias"(
-            "ID_CATEGORIA" TEXT PRIMARY KEY
+            "ID_CATEGORIA" TEXT PRIMARY KEY,
+            "NOMBRE" TEXT NOT NULL
         );
     """,
     "Paises": """
@@ -295,6 +296,10 @@ def aplicar_migraciones():
             ALTER TABLE public."Usuarios"
             ADD COLUMN IF NOT EXISTS "TEMA_PREFERENCIA" TEXT DEFAULT 'claro'
         """)
+        cursor.execute("""
+            ALTER TABLE public."Categorias"
+            ADD COLUMN IF NOT EXISTS "NOMBRE" TEXT
+        """)
         conexion.commit()
         print("✓ Migraciones aplicadas correctamente")
     except Exception as e:
@@ -338,8 +343,12 @@ def inicializar_datos_default():
         # Insertar categorías por defecto
         for cat in CATEGORIAS_DEFAULT:
             cursor.execute(
-                'INSERT INTO "Categorias" ("ID_CATEGORIA") VALUES (%s) ON CONFLICT DO NOTHING',
-                (cat,),
+                '''
+                INSERT INTO "Categorias" ("ID_CATEGORIA", "NOMBRE")
+                VALUES (%s, %s)
+                ON CONFLICT ("ID_CATEGORIA") DO UPDATE SET "NOMBRE" = EXCLUDED."NOMBRE"
+                ''',
+                (cat, cat),
             )
 
         # Insertar estados por defecto

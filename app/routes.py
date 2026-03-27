@@ -18,8 +18,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
 from .database import conectar_db
+from .pago import PLANES #Importa los planes del pago para poder usar los 
 from psycopg2.extras import RealDictCursor
-
 
 # -----------------------------
 # DECORADOR LOGIN REQUIRED
@@ -62,25 +62,45 @@ def init_routes(app):
         cursor.execute(
             """
             SELECT * FROM (
-                SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", o."ID_CATEGORIA" as CATEGORIA,
-                       r."FECHA", r."OBSERVACIONES", r."ID_USUARIO", u."NOMBRE" as NOMBRE_USUARIO,
-                       'perdido' AS tipo
+                SELECT 
+                    o."NOMBRE", 
+                    o."ID_OBJETO", 
+                    o."COLOR", 
+                    o."IMAGEN", 
+                    COALESCE(c."NOMBRE", o."ID_CATEGORIA") as CATEGORIA,
+                    r."FECHA", 
+                    r."OBSERVACIONES", 
+                    r."ID_USUARIO", 
+                    u."NOMBRE" as NOMBRE_USUARIO,
+                    'perdido' AS tipo
                 FROM "Objetos" o
                 LEFT JOIN "Reportes_perdidos" r ON o."ID_OBJETO" = r."ID_OBJETO"
                 LEFT JOIN "Usuarios" u ON r."ID_USUARIO" = u."ID_USUARIO"
+                LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
                 WHERE o."ID_OBJETO" = %s
+
                 UNION ALL
-                SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", o."ID_CATEGORIA" as CATEGORIA,
-                       r."FECHA", r."OBSERVACIONES", r."ID_USUARIO", u."NOMBRE" as NOMBRE_USUARIO,
-                       'encontrado' AS tipo
+
+                SELECT 
+                    o."NOMBRE", 
+                    o."ID_OBJETO", 
+                    o."COLOR", 
+                    o."IMAGEN", 
+                    COALESCE(c."NOMBRE", o."ID_CATEGORIA") as CATEGORIA,
+                    r."FECHA", 
+                    r."OBSERVACIONES", 
+                    r."ID_USUARIO", 
+                    u."NOMBRE" as NOMBRE_USUARIO,
+                    'encontrado' AS tipo
                 FROM "Objetos" o
                 LEFT JOIN "Reportes_encontrados" r ON o."ID_OBJETO" = r."ID_OBJETO"
                 LEFT JOIN "Usuarios" u ON r."ID_USUARIO" = u."ID_USUARIO"
+                LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
                 WHERE o."ID_OBJETO" = %s
             ) t
-            ORDER BY t."FECHA" DESC
+            ORDER BY t."FECHA" DESC NULLS LAST
             LIMIT 1
-        """,
+            """,
             (id_objeto, id_objeto),
         )
         item = cursor.fetchone()
@@ -1509,9 +1529,38 @@ def init_routes(app):
     @app.route("/pasarela_pago")
     def pasarela_pago():
         return render_template("pasarela_pago.html")
+    
 
 # -------------------------------------
-# RUTA REPORTE DE PROBLE
+# RUTA PARA PAGO SIMULADO
+# -------------------------------------
+
+
+    @app.route("/simula_pago", methods=['POST']) #Ruta para hacer pagos únicamente simulados
+    def simular_pago(): 
+        data = request.json #data contiene datos del frontend mandado desde JS 
+
+        #Simulación quue rechaza o recibe los pagos
+        resultado = random.choice(["aprobado","rechazado"]) #El resultrado de la transacción aleatorio
+
+        return {
+            "status": resultado,
+            "mensaje": "Pago aprovado" if resultado == "aprobado" else "Pago rechazado" #Mensaje va a ser igual a Aprobado si resulrtado es igual a aprobado de lo contrario será rechazado
+        }
+
+# ------------------------------------------------------
+# RUTA PAGO /va al form para ingresar tus datos y pagar
+# ------------------------------------------------------
+
+    @app.route('/pago') 
+    def pago():
+        plan_id = int (request.args.get("plan_id"))
+        plan= PLANES.get(plan_id)
+
+        return render_template("pago.html", plan=plan)
+
+# -------------------------------------
+# RUTA REPORTE DE PROBLEMAS
 # -------------------------------------
     @app.route("/reporte_problema")
     def reporte_problem():

@@ -30,14 +30,10 @@
 
             <!-- DERECHA: DETALLES -->
             <div class="detalle-info">
-                <h1>Detalles del Objeto</h1>
-
-                {% if item.tipo %}
-                    <p><strong>Tipo de reporte:</strong> {{ item.tipo|capitalize }}</p>
-                {% endif %}
+                <h1>Detalles del Objeto {{ item.tipo|capitalize }}</h1>
 
                 <p><strong>Nombre:</strong> {{ item.NOMBRE }}</p>
-                <p><strong>Categoría:</strong> {{ item.CATEGORIA }}</p>
+                <p><strong>Categoría:</strong> {{ item.categoria or 'no disponible'}}</p>
                 <p><strong>Color:</strong> {{ item.COLOR }}</p>
                 <p><strong>Fecha Reporte:</strong> {{ item.FECHA }}</p>
                 <p><strong>Persona que reportó:</strong> {{ item.NOMBRE_USUARIO or 'No disponible' }}</p>
@@ -53,9 +49,10 @@
                     </p>
                 </div>
 
-                <a href="javascript:history.back()" class="btn-volver">Volver</a>
-
-                <button class="btn-reporte">Reportar</button>
+                <div class="acciones">
+                    <a href="javascript:history.back()" class="btn btn-volver">Volver</a>
+                    <a href="/reporte_problema" class="btn btn-reporte">Reportar</a>
+               </div>
 
             </div>
 

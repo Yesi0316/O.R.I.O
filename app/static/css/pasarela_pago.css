@@ -7,202 +7,284 @@
 --shell:#D9CBC2;
 }
 
+
+
+/* ===================================== */
+/* RESET GENERAL DEL NAVEGADOR */
+/* ===================================== */
+
 *{
-margin:0;
-padding:0;
-box-sizing:border-box;
+    margin:0;               /* Elimina márgenes automáticos */
+    padding:0;              /* Elimina rellenos automáticos */
+    box-sizing:border-box;  /* Mejora cálculo de tamaños */
+    font-family:'Segoe UI', sans-serif;
 }
+
+/* ===================================== */
+/* ESTILO GLOBAL DEL BODY */
+/* ===================================== */
 
 body{
-font-family:'Libre Baskerville',serif;
-background:linear-gradient(180deg,var(--royal),#050b1d);
-color:var(--swan);
-
-min-height:100vh;
-
-display:flex;
-justify-content:center;
-align-items:center;
-
-padding:40px;
+    background:#F5F0E9; /* Fondo gris claro */
+    color:#E0C58F;      /* Color principal del texto */
 }
 
-.container{
-max-width:1200px;
-width:100%;
+
+/* ===================================== */
+/* HEADER SUPERIOR */
+/* ===================================== */
+
+.header{
+    display:flex; /* Organiza elementos horizontalmente */
+    justify-content:space-between; /* Logo izquierda / Seguridad derecha */
+    align-items:center;
+    padding:5px 20px;
+
+    /* ÚNICO DEGRADADO PERMITIDO */
+    background:linear-gradient(to right,#3C507D,#112250);
+    color:white;
 }
 
-.titulo{
-font-family:'Bodoni Moda',serif;
-font-size:38px;
-color:var(--gold);
-text-align:center;
-margin-bottom:40px;
+/* Logo */
+.logo{
+    font-size:26px;
+    font-weight:700;
 }
 
-/* layout */
-
-.layout{
-display:flex;
-gap:40px;
+/* Parte azul del logo */
+.logo span{
+    color:#112250;
 }
 
-/* CARTAS */
-
-.opciones{
-flex:1;
-display:flex;
-flex-direction:column;
-gap:20px;
+/* Texto pequeño debajo del logo */
+.logo small{
+    display:block;
+    font-size:12px;
+    font-weight:400;
+    margin-top:4px;
 }
+
+/* Caja de seguridad */
+.secure-box{
+    text-align:right;
+    font-size:14px;
+}
+
+/* Texto secundario SSL */
+.secure-box span{
+    font-size:12px;
+    opacity:0.9;
+}
+
+
+/* ===================================== */
+/* CONTENIDO PRINCIPAL */
+/* ===================================== */
+
+.main{
+    width: 95%;
+    padding:60px 40px;
+    margin: 0 auto;
+}
+
+h1{
+    margin-bottom:40px;
+    font-weight:600;
+}
+
+
+/* ===================================== */
+/* GRID DE TARJETAS */
+/* ===================================== */
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr); /* 3 columnas iguales */
+    gap:30px; /* Espacio entre tarjetas */
+}
+
+/* ===================================== */
+/* TARJETA HORIZONTAL TODO INCLUIDO */
+/* ===================================== */
+
+.todo-incluido-horizontal{
+    margin-top:40px;
+    display:flex;              /* Hace que sea horizontal */
+    width: 100%;              /* Que ocupe todo el ancho disponible */
+    align-items:center;
+    justify-content:space-between;
+    padding:40px;
+    background:white;
+    border-radius:18px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.06);
+}
+
+/* Contenedor del texto */
+.todo-incluido-horizontal .contenido{
+    max-width:70%;
+}
+
+/* Precio grande */
+.todo-incluido-horizontal .price{
+    font-size:32px;
+    font-weight:700;
+    margin:15px 0;
+}
+
+/* Botón alineado a la derecha */
+.todo-incluido-horizontal .btn{
+    width:auto;
+    padding:16px 40px;
+}
+
+
+/* ===================================== */
+/* TARJETAS GENERALES */
+/* ===================================== */
 
 .card{
-
-background:var(--sapphire);
-
-padding:20px;
-
-border-radius:15px;
-
-cursor:pointer;
-
-transition:.3s;
-
-border:2px solid transparent;
-
+    background:white;
+    padding:35px;
+    border-radius:18px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.06);
 }
 
-.card:hover{
-
-transform:translateY(-5px);
-
+/* Texto secundario */
+.card p{
+    color:#6B7280;
+    margin:10px 0 20px 0;
 }
 
-.card.activa{
-
-border:2px solid var(--gold);
-
+/* Precio */
+.price{
+    font-size:26px;
+    font-weight:700;
+    margin-bottom:20px;
 }
 
-.card h3{
-
-font-family:'Bodoni Moda',serif;
-color:var(--gold);
-margin-bottom:8px;
-
-}
-
-.descripcion{
-
-font-size:13px;
-color:var(--shell);
-
-}
-
-/* FORMULARIO */
-
-.pago{
-
-flex:1;
-
-background:var(--swan);
-color:var(--royal);
-
-padding:30px;
-
-border-radius:18px;
-
-box-shadow:0 10px 30px rgba(0,0,0,.4);
-
-display:none;
-
-}
-
-.resumen{
-
-margin-bottom:20px;
-font-weight:bold;
-
-}
-
-form{
-display:flex;
-flex-direction:column;
-gap:15px;
-}
-
-input{
-
-padding:12px;
-
-border-radius:8px;
-
-border:1px solid #ccc;
-
-}
-
-.fila{
-
-display:flex;
-gap:10px;
-
-}
-
-.fila div{
-flex:1;
-}
-
-button{
-
-margin-top:10px;
-
-background:var(--royal);
-color:white;
-
-border:none;
-
-padding:14px;
-
-border-radius:10px;
-
-cursor:pointer;
-
-}
-
-button:hover{
-background:var(--sapphire);
+.price span{
+    font-size:14px;
 }
 
 
+/* ===================================== */
+/* LISTAS */
+/* ===================================== */
 
-.btn-config {
-    padding: 10px 24px;
-    background: linear-gradient(135deg, var(--gold), #f2d9a6);
-    color: var(--royal);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: .25s;
+ul{
+    list-style:none; /* Quita viñetas */
+    margin-bottom:25px;
 }
 
-/* Hover del botón */
-.btn-config:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(224,197,143,.3);
-}
-
-.back-btn-container {
-    margin-bottom: 25px;
+ul li{
+    margin-bottom:8px;
+    color:#4B5563;
 }
 
 
-/* responsive */
+/* ===================================== */
+/* ICONOS CIRCULARES */
+/* ===================================== */
 
-@media(max-width:900px){
-
-.layout{
-flex-direction:column;
+.icon{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:15px;
+    color:white;
+    font-weight:bold;
 }
 
+/* Azul plan verificado */
+.blue-circle{
+    background:#112250;
+}
+
+/* Verde plan propietarios */
+.green-circle{
+    background:#112250;
+}
+
+
+/* ===================================== */
+/* COLORES DE TEXTO */
+/* ===================================== */
+
+.blue-text{
+    color:#E0C58F;
+}
+
+.green-text{
+    color:#E0C58F;
+}
+
+
+/* ===================================== */
+/* BOTONES */
+/* ===================================== */
+
+.btn{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    font-weight:600;
+    cursor:pointer;
+}
+
+/* Botón azul */
+.blue-btn{
+    background:#112250;
+    color:white;
+}
+
+/* Botón verde */
+.green-btn{
+    background:#112250;
+    color:white;
+}
+
+
+/* ===================================== */
+/* MÉTODOS DE PAGO */
+/* ===================================== */
+
+.methods{
+    display:grid;
+    grid-template-columns:1fr 1fr; /* 2 columnas */
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.method{
+    background:#F1F3F6;
+    padding:18px;
+    border-radius:12px;
+    text-align:center;
+    font-weight:600;
+}
+
+/* Texto verde de seguridad */
+.secure-text{
+    margin-top:15px;
+    font-size:14px;
+    color:#19A463;
+}
+
+
+/* ===================================== */
+/* FOOTER */
+/* ===================================== */
+
+.footer{
+    margin-top:165px;
+    padding:25px;
+    text-align:center;
+    color:white;
+
+    /* Mismo degradado del header */
+    background:linear-gradient(to right,#3C507D,#112250);
 }
