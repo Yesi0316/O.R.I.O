@@ -1,11 +1,14 @@
 import os
 import random
+import traceback
 import uuid
 import re
 from datetime import datetime, timedelta
 from functools import wraps
 
+
 from flask import (
+    app,
     request,
     jsonify,
     render_template,
@@ -16,9 +19,9 @@ from flask import (
 )
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+from app.correo import enviar_factura
 
 from .database import conectar_db
-from .pago import PLANES #Importa los planes del pago para poder usar los 
 from psycopg2.extras import RealDictCursor
 
 # -----------------------------
@@ -404,6 +407,7 @@ def init_routes(app):
             # esto imprime el error completo
             traceback.print_exc()
             return jsonify({"ok": False, "mensaje": "Error en el servidor"}), 500
+    
 
     # -------------------------------------
     # RUTA CERRAR SESION
@@ -1529,49 +1533,141 @@ def init_routes(app):
 # -------------------------------------
 
 
-    @app.route("/simula_pago", methods=['POST']) #Ruta para hacer pagos únicamente simulados
-    def simular_pago(): 
-        data = request.json #data contiene datos del frontend mandado desde JS 
+    @app.route("/simular_pago", methods=['POST'])
+    def simular_pago():
 
-        #Simulación quue rechaza o recibe los pagos
-        resultado = random.choice(["aprobado","rechazado"]) #El resultrado de la transacción aleatorio
+        data = request.get_json()
 
-        return {
-            "status": resultado,
-            "mensaje": "Pago aprovado" if resultado == "aprobado" else "Pago rechazado" #Mensaje va a ser igual a Aprobado si resulrtado es igual a aprobado de lo contrario será rechazado
-        }
+        nombre = data.get("nombre")
+        apellidos = data.get("apellidos")
+        email = data.get("email")
+        pais_id = data.get("pais_id")
+        direccion = data.get("direccion")
+        ciudad = data.get("ciudad")
+        cp = int(data.get("cp"))
+        metodo_pago = int(data.get("metodo_pago"))
+        plan_id = int(data.get("plan_id"))
 
+        print("METODO:", metodo_pago)
+        print("PLAN:", plan_id)
+
+        resultado = random.choice(["aprobado", "rechazado"])
+
+        if resultado == "rechazado":
+            return jsonify({
+                "status": "rechazado",
+                "mensaje": "Pago rechazado"
+            })
+
+        else:
+            try:
+                conexion = conectar_db()
+                cursor = conexion.cursor(cursor_factory=RealDictCursor)
+
+                cursor.execute("""
+                    INSERT INTO "Facturas" 
+                    ("EMAIL", "NOMBRES", "APELLIDOS", "DIRECCION", "CODIGO_POSTAL", "CIUDAD", "ID_PAIS", "ID_METODO", "ID_PLAN")
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """, (email, nombre, apellidos, direccion, cp, ciudad, pais_id, metodo_pago, plan_id))
+
+                conexion.commit()
+                cursor.close()
+                conexion.close()
+
+                conexion = conectar_db()
+                cursor = conexion.cursor(cursor_factory=RealDictCursor)
+
+                cursor.execute("""
+                    SELECT m."NAME_METODO", p."NAME", p."PRECIO"
+                    FROM "Metodos_pago" m, "Planes" p
+                    WHERE m."ID_METODO" = %s
+                    AND p."ID_PLAN" = %s
+                """, (metodo_pago, plan_id))
+
+                resultado = cursor.fetchone()
+                nombre_metodo = resultado["NAME_METODO"]
+                nombre_plan = resultado["NAME"]
+                precio = resultado["PRECIO"]
+
+                #Obtener pais
+                cursor.execute("""
+                    SELECT "NOMBRE" FROM "Paises"
+                    WHERE "ID_PAIS" = %s
+                """, (pais_id,))
+                pais_nombre = cursor.fetchone()["NOMBRE"]
+
+                #enviar correo
+
+                enviar_factura(
+                    email,
+                    nombre,
+                    apellidos,
+                    direccion,
+                    ciudad,
+                    cp,
+                    pais_nombre,
+                    nombre_metodo,
+                    nombre_plan,
+                    precio
+                        )
+
+                cursor.close()
+                conexion.close()
+
+                return jsonify({
+                    "status": "aprobado",
+                    "mensaje": "Pago aprobado y guardado"
+                })
+
+            except (TypeError, ValueError):
+                return jsonify({
+                    "status": "error",
+                    "mensaje": "Datos inválidos"
+                }), 400
+        
+
+            conexion.commit()
 # -------------------------------------
 # RUTA PASARELA DE PAGO
 # -------------------------------------
     @app.route("/pasarela_pago")
+    @login_required
     def pasarela_pago():
         return render_template("pasarela_pago.html")
 
 # -------------------------------------
-# RUTA METDOS PARA PAGAR
-# -------------------------------------
-    @app.route("/metodos")
-    def metodos():
-        return render_template("metodos.html")
-
-# -------------------------------------
 # RUTA FORMULARIO NORMAL DE PAGO
 # -------------------------------------
-    @app.route("/form_normal_pago")
+    @app.route("/form_pago_normal")
+    @login_required
     def form_normal_pago():
-        return render_template("form_normal_pago")
+        plan_id = request.args.get("plan_id")
+        if not plan_id:
+            return "Plan no especificado", 400
 
-# -------------------------------------
-# RUTA FORMULARIO EMPRESA DE PAGO
-# -------------------------------------
-    @app.route("/form_empresa_pago")
-    def form_empresa_pago():
-        return render_template("form_empresa_pago")
+        conn = conectar_db()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+        cursor.execute("""
+            SELECT "ID_PLAN", "NAME", "PRECIO"
+            FROM "Planes"
+            WHERE "ID_PLAN" = %s
+        """, (plan_id,))
+
+        plan = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        if not plan:
+            return "Plan no encontrado", 404
+
+        return render_template("form_pago_normal.html", plan=plan)
 
 # -------------------------------------
 # RUTA REPORTE DE PROBLEMAS
 # -------------------------------------
     @app.route("/reporte_problema")
+    @login_required
     def reporte_problem():
         return render_template("reporte_problemas.html")

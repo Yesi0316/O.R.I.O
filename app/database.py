@@ -43,6 +43,78 @@ CATEGORIAS_DEFAULT = [
 
 ESTADOS_DEFAULT = ["Bueno", "Regular", "Malo"]
 
+PLANES_DEFAULT = [
+    (1, "Reporte verificado", 15000),
+    (2, "Reporte Propietarios", 25000),
+    (3, "Todo incluido", 30000),
+]
+
+
+def insertar_planes():
+    conn = conectar_db()
+    if not conn:
+        return 
+
+    cursor = conn.cursor()
+
+    cursor.executemany(
+        '''
+        INSERT INTO public."Planes" ("ID_PLAN", "NAME", "PRECIO")
+        VALUES (%s, %s, %s)
+        ON CONFLICT ("ID_PLAN") DO NOTHING
+        ''',
+        PLANES_DEFAULT
+    )
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+NAME_METODOS_DEFAULT = [
+    "Nequi",
+    "BanColombia",
+    "Paypal",
+    "Tarjeta",
+
+]
+
+PAISES_DEFAULT = [
+    ("1", "Colombia"),
+    ("2", "México"),
+    ("3", "Argentina"),
+    ("4", "Chile"),
+    ("5", "Perú"),
+    ("6", "Ecuador"),
+    ("7", "Venezuela"),
+    ("8", "España"),
+    ("9", "Estados Unidos"),
+    ("10", "Canadá"),
+    ("11", "Brasil"),
+    ("12", "Uruguay"),
+    ("13", "Paraguay"),
+    ("14", "Bolivia"),
+    ("15", "Costa Rica"),
+]
+
+def insertar_paises():
+    conn = conectar_db()
+    if not conn:
+        return 
+
+    cursor = conn.cursor()
+
+    cursor.executemany(
+        '''
+        INSERT INTO public."Paises" ("ID_PAIS", "NOMBRE")
+        VALUES (%s, %s)
+        ON CONFLICT ("ID_PAIS") DO NOTHING
+        ''',
+        PAISES_DEFAULT
+    )
+
+    conn.commit()
+    cursor.close()
+    conn.close()
 
 # ========================
 # CONEXIÓN A LA BASE DE DATOS
@@ -51,7 +123,7 @@ ESTADOS_DEFAULT = ["Bueno", "Regular", "Malo"]
 
 def conectar_db():
     """Establece conexión a PostgreSQL con reintentos (para Docker)."""
-    os.environ.setdefault("PGCLIENTENCODING", "utf8")
+    os.environ.setdefault("PGCLIENTENCODING", "utf8") 
 
     intentos = 10
 
@@ -215,6 +287,59 @@ TABLAS = {
             FOREIGN KEY ("ID_OBJETO") REFERENCES public."Objetos" ("ID_OBJETO")
         );
     """,
+
+    "Planes":"""
+        CREATE TABLE IF NOT EXISTS public."Planes"
+        (
+            "ID_PLAN" integer NOT NULL,
+            "NAME" character varying(50) COLLATE pg_catalog."default" NOT NULL,
+            "PRECIO" integer,
+            CONSTRAINT "Planes_pkey" PRIMARY KEY ("ID_PLAN")
+        );
+    """,
+
+    "Metodos_pago":"""
+CREATE TABLE IF NOT EXISTS public."Metodos_pago"
+    (
+        "ID_METODO" serial NOT NULL,
+        "NAME_METODO" text COLLATE pg_catalog."default" NOT NULL UNIQUE,
+        CONSTRAINT "Metodos_pago_pkey" PRIMARY KEY ("ID_METODO")
+    );
+""",
+
+    "facturas":"""
+            CREATE TABLE IF NOT EXISTS public."Facturas"
+        (
+            "ID_FACTURA" SERIAL,
+            "EMAIL" character varying(320) COLLATE pg_catalog."default" NOT NULL,
+            "NOMBRES" text COLLATE pg_catalog."default" NOT NULL,
+            "APELLIDOS" text COLLATE pg_catalog."default" NOT NULL,
+            "DIRECCION" character varying(255) COLLATE pg_catalog."default" NOT NULL,
+            "CODIGO_POSTAL" integer NOT NULL,
+            "CIUDAD" text COLLATE pg_catalog."default" NOT NULL,
+            "ID_PAIS" text NOT NULL,
+            "ID_METODO" integer NOT NULL,
+            "ID_PLAN" integer,
+            CONSTRAINT "Facturas_pkey" PRIMARY KEY ("ID_FACTURA"),
+            CONSTRAINT "ID_METODO" FOREIGN KEY ("ID_METODO")
+                REFERENCES public."Metodos_pago" ("ID_METODO") MATCH SIMPLE
+                ON UPDATE NO ACTION
+                ON DELETE NO ACTION
+                NOT VALID,
+            CONSTRAINT "ID_PAIS" FOREIGN KEY ("ID_PAIS")
+                REFERENCES public."Paises" ("ID_PAIS") MATCH SIMPLE
+                ON UPDATE NO ACTION
+                ON DELETE NO ACTION
+                NOT VALID,
+            CONSTRAINT "ID_PLAN" FOREIGN KEY ("ID_PLAN")
+                REFERENCES public."Planes" ("ID_PLAN") MATCH SIMPLE
+                ON UPDATE NO ACTION
+                ON DELETE NO ACTION
+                NOT VALID
+        );
+        """,
+    
+
 }
 
 
@@ -282,12 +407,27 @@ def crear_tabla_Reportes_perdidos():
     """Crea la tabla Reportes_perdidos."""
     ejecutar_sql(TABLAS["Reportes_perdidos"], "Tabla Reportes_perdidos")
 
+def crear_tabla_Planes():
+    """Crea la tabla Planes."""
+    ejecutar_sql(TABLAS["Planes"], "Tabla Planes")
+
+def crear_tabla_Metodos_pago():
+    """Crea la tabla Metodos_pago."""
+    ejecutar_sql(TABLAS["Metodos_pago"], "Tabla Metodos_pago")
+
+def crear_tabla_Facturas():
+    """Crea la tabla Facturas."""
+    ejecutar_sql(TABLAS["facturas"], "Tabla Facturas")
+
+
 
 def aplicar_migraciones():
     """Aplica migraciones a la base de datos para versiones nuevas."""
     conexion = conectar_db()
     if not conexion:
         return
+    
+
     
     cursor = conexion.cursor()
     try:
@@ -326,7 +466,12 @@ def crear_tablas():
     crear_tabla_Objetos()
     crear_tabla_Reportes_encontrados()
     crear_tabla_Reportes_perdidos()
-    
+    crear_tabla_Planes()
+    crear_tabla_Metodos_pago()
+    crear_tabla_Facturas()
+    insertar_planes()
+    insertar_paises()
+
 
 def inicializar_datos_default():
     """
@@ -356,6 +501,16 @@ def inicializar_datos_default():
             cursor.execute(
                 'INSERT INTO "Estados" ("ID_ESTADO") VALUES (%s) ON CONFLICT DO NOTHING',
                 (est,),
+            )
+
+        for metodo in NAME_METODOS_DEFAULT:
+            cursor.execute(
+                '''
+                INSERT INTO "Metodos_pago" ("NAME_METODO")
+                VALUES (%s)
+                ON CONFLICT ("NAME_METODO") DO NOTHING
+                ''',
+                (metodo,),
             )
 
         # Crear perfiles para usuarios que no tengan perfil

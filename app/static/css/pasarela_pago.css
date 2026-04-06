@@ -39,8 +39,11 @@ body{
     display:flex;              /* Activa Flexbox */
     justify-content:center;    /* Centra horizontalmente */
     gap:20px;                  /* Espacio entre tarjetas */
-    padding:40px;              /* Espacio exterior */
+    padding: 80px;              /* Espacio exterior */
     flex-wrap:wrap;            /* Permite salto a otra línea */
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+    border-radius: 2%;
 }
 
 /* ============================= */
@@ -54,6 +57,8 @@ body{
     overflow:hidden;           /* Oculta desbordes */
     box-shadow:0 5px 15px rgba(0,0,0,0.1);
     text-align:center;
+    align-items: center;
+    margin-top: 80px;
     transition:0.3s;           /* Animación suave */
 }
 
@@ -192,6 +197,13 @@ body{
     cursor:pointer;
 }
 
+
+.link:hover{
+    color:var(--gold    );
+    text-decoration:none;
+    font-weight:bold;
+}
+
 /* ============================= */
 /* PRECIO */
 /* ============================= */
@@ -251,3 +263,8 @@ body{
         font-size: 14px;
     }
 }
+
+.main{
+    padding: 20px 40px;
+}
+

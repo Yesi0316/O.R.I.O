@@ -213,11 +213,12 @@ transform:scale(1.1);
 .main{
 flex:1; /* Ocupa el espacio restante al lado del sidebar */
 background:var(--cream);
-border-top-left-radius:35px;
 border-bottom-left-radius:35px;
 padding:40px;
 overflow:auto; /* Scroll si el contenido es grande */
-transition:.35s;
+transition:.35s;.main{
+padding: 20px 40px 40px 40px; /* menos arriba */
+}
 }
 
 /* =========================================================

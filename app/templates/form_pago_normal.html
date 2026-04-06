@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% set hide_fab = True %} <!--Oculta la lupa para que no se vea en este template-->
+
+{% block title %}Panel | O.R.I.O{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/form_pago_normal.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
+{% endblock %}
+
+{% block content %}
+</head>
+
+<body>
+<!-- ==========================================
+     CONTENEDOR PRINCIPAL
+     Centra el formulario en la página
+========================================== -->
+<div class="container">
+    <!-- ==========================================
+         TARJETA DEL FORMULARIO
+         Sección de información de facturación
+    ========================================== -->
+    <div id="seccion-paso1" class="card">
+        <h2>1. Introduce tu información de facturación</h2>
+        <p class="empresa">
+            ¿Estás comprando para una empresa?
+            <a href="../formulario_empresa/for_paga.html">Haz clic aquí</a>
+        </p>
+
+        <form id="formulario" method="post">
+            <input type="hidden" id="plan_id" value="{{ plan.ID_PLAN }}">
+            <p> Nombre del plan:{{ plan.NAME }}</p>
+            <p>Precio: COP {{ plan.PRECIO }}</p>
+            <label for="f-email">Email*</label>
+            <input type="email" id="f-email" required>
+            <small>Enviaremos las instrucciones a este correo electrónico.</small>
+
+            <!-- PAÍS -->
+            <label for="f-pais">País*</label>
+            <select id="f-pais" required>
+                <option value="1">Colombia</option>
+                <option value="2">México</option>
+                <option value="3">Argentina</option>
+                <option value="4">Chile</option>
+                <option value="5">Perú</option>
+                <option value="6">Ecuador</option>
+                <option value="7">Venezuela</option>
+                <option value="8">España</option>
+                <option value="9">Estados Unidos</option>
+                <option value="10">Canadá</option>
+                <option value="11">Brasil</option>
+                <option value="12">Uruguay</option>
+                <option value="13">Paraguay</option>
+                <option value="14">Bolivia</option>
+                <option value="15">Costa Rica</option>
+            </select>
+
+            <!-- NOMBRE Y APELLIDOS EN UNA FILA -->
+            <div class="row">
+                <div>
+                    <label>Nombre*</label>
+                    <input type="text" id="f-nombre" required>
+                </div>
+
+                <div>
+                    <label>Apellidos*</label>
+                    <input type="text" id="f-apellidos" required>
+                </div>
+            </div>
+
+            <!-- DIRECCIÓN -->
+            <label>Dirección*</label>
+            <input type="text" id="f-dir" placeholder="Ejemplo: Balderas 77..." required>
+
+            <!-- CÓDIGO POSTAL Y CIUDAD -->
+        <div class="row">
+            <div class="flex-cp">
+                <label>Código postal*</label>
+                <input type="text" id="f-cp" required>
+            </div>
+
+            <div class="flex-ciudad">
+                <label>Ciudad*</label>
+                <input type="text" id="f-ciudad" required>
+            </div>
+        </div>
+
+            <!-- CHECKBOX DE AUTORIZACIÓN -->
+        <div class="checkbox">
+                <input type="checkbox" id="marketing" required>
+                <label for="marketing">
+                    Autorizo a O.R.I.O. informarme acerca de ofertas especiales personalizadas,
+                    análisis, encuestas, recordatorios de realización de pedidos, noticias
+                    relevantes y eventos. Entiendo y acepto que mis datos se almacenarán y se
+                    transmitirán tal como se describe en la
+                    <a href="#">Política de privacidad</a>
+                </label>
+            </div>
+
+            <!-- BOTÓN DE ENVÍO -->
+            <button type="submit">
+                Continuar con el siguiente paso
+            </button>
+        </form>
+    </div>
+
+<div class="container">
+
+<div id="seccion-paso2" style="display: none;">
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2>1. Tu información de facturación</h2>
+            <a href="#" id="atras" style="color: #00a88e; font-weight: bold; text-decoration: none;">Editar ✎</a>
+        </div>
+        <div class="summary-list" style="margin-top: 15px; font-size: 14px;">
+    <p><strong>Email:</strong> <span id="r-email"></span></p>
+    <p><strong>País:</strong> <span id="r-pais"></span></p>
+    <p><strong>Nombre y Apellido:</strong> <span id="r-nombre"></span> <span id="r-apellidos"></span></p>
+    <p><strong>Ubicación:</strong> <span id="r-ciudad"></span><span id="r-pais"></span></p>
+    <p><strong>Dirección:</strong> <span id="r-dir"></span> (CP: <span id="r-cp"></span>)</p>
+</div>
+    </div>
+    <div class="contenedor-pago-final">
+        <div class="columna-izquierda-pago">
+    <div class="card" id="card-preguntas">
+        <h2>2. Agregar información de pago</h2>
+        <div id="dinamico-pago">
+
+            <label>💳 Número de tarjeta</label>
+            <input type="text" id="input-tarjeta" placeholder="0000 0000 0000 0000">
+            <div class="row">
+                <input type="text" placeholder="MM/AA">
+                <input type="text" placeholder="CVV">
+            </div>
+            <button class="btn-comprar">Comprar ahora</button>
+        </div>
+    </div>
+</div>
+        <div class="card-metodos-lateral">
+    <h4 style="text-align: center; margin-bottom: 15px;">Métodos de pago</h4>
+    <div class="item-metodo" onclick="cambiarFormulario('tarjeta')">
+        <img  src="../static/img/tarjeta.png" alt="💳">
+        <span>Tarjeta</span>
+    </div>
+
+    <div class="item-metodo" onclick="cambiarFormulario('nequi')">
+        <img src="../static/img/nequi.png" alt="📱">
+        <span>Celular</span>
+    </div>
+
+    <div class="item-metodo" onclick="cambiarFormulario('bancolombia')">
+        <img src="../static/img/bancolombia.png" alt="🏦">
+        <span>Bancolombia</span>
+    </div>
+
+    <div class="item-metodo" onclick="cambiarFormulario('paypal')">
+        <img src="../static/img/paypal.png" alt="🏦">
+        <span>PayPal</span>
+
+    </div>
+</div>
+    </div>
+</div>
+</div>
+
+
+
+<!-- Archivo JavaScript -->
+
+<script src="../static/js/form_pago_normal.js"></script>
+
+
+{% endblock %}

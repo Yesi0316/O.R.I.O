@@ -1,0 +1,404 @@
+/* ==========================================
+   VARIABLES GLOBALES (PALETA DE COLORES)
+   Se definen colores reutilizables para
+   mantener coherencia visual en todo el diseño
+========================================== */
+:root {
+    --royal: #112250;      /* Azul oscuro principal */
+    --sapphire: #3C507D;   /* Azul secundario */
+    --swan: #F5F0E9;       /* Color de fondo claro */
+    --gold: #E0C58F;       /* Color dorado para acentos */
+}
+
+/* ==========================================
+   FIX GLOBAL (ANTI DESBORDE)
+   box-sizing evita que padding y border
+   aumenten el tamaño real del elemento
+========================================== */
+*{
+    box-sizing: border-box;
+}
+
+/* Evita scroll horizontal accidental */
+html, body{
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* ==========================================
+   ESTILO GENERAL DEL BODY
+   Define tipografía, fondo y color base
+========================================== */
+body {
+    font-family: 'Segoe UI', Arial, sans-serif; /* Fuente principal */
+    background-color: var(--swan); /* Fondo general */
+    margin: 0; /* Elimina margen por defecto */
+    padding: 0px; /* Espaciado exterior */
+    color: var(--royal); /* Color principal del texto */
+}
+
+/* ==========================================
+   CONTENEDOR PRINCIPAL
+   Centra el formulario y limita su ancho
+========================================== */
+.container {
+    width: 100%;          /* Ocupa todo el ancho disponible */
+    max-width: 600px;     /* Máximo 600px en pantallas grandes */
+    margin: 0 auto;       /* Centrado horizontal */
+}
+
+/* ==========================================
+   TARJETA DEL FORMULARIO (CARD)
+   Contenedor visual con sombra y bordes
+========================================== */
+.card {
+    width: 100%;
+    background: white; /* Fondo blanco */
+    padding: 30px; /* Espaciado interno */
+    border-radius: 12px; /* Bordes redondeados */
+    margin-bottom: 20px; /* Separación inferior */
+    border: 1.5px solid var(--gold); /* Borde decorativo */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05); /* Sombra suave */
+}
+
+/* ==========================================
+   TEXTOS Y TÍTULOS
+========================================== */
+h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: var(--royal);
+    font-weight: 700; /* Negrita */
+}
+
+/* Sección empresa (texto pequeño informativo) */
+.empresa {
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+/* Estilo de enlaces */
+.empresa a {
+    color: var(--sapphire);
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* Efecto hover en enlaces */
+.empresa a:hover {
+    text-decoration: underline;
+}
+
+/* ==========================================
+   FORMULARIO
+========================================== */
+
+/* Etiquetas de los campos */
+label {
+    display: block; /* Cada label ocupa línea completa */
+    margin-top: 18px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* Inputs y select */
+input, select {
+    width: 100%; /* Ocupan todo el ancho */
+    padding: 12px;
+    margin-top: 6px;
+    border-radius: 6px;
+    border: 1px solid #dcdcdc;
+    font-size: 14px;
+    transition: all 0.3s; /* Transición suave */
+}
+
+/* Estado activo (cuando el usuario escribe) */
+input:focus, select:focus {
+    border-color: var(--sapphire);
+    outline: none; /* Quita borde azul por defecto */
+    background-color: #f9faff;
+}
+
+/* Texto pequeño de ayuda debajo de inputs */
+small {
+    display: block;
+    margin-top: 5px;
+    font-size: 12px;
+    color: #666;
+}
+
+/* ==========================================
+   FILAS FLEXIBLES (.row)
+   Permite colocar campos en la misma línea
+========================================== */
+/* Esto asegura que los campos Nombre/Apellido y CP/Ciudad se vean en una sola línea */
+.row {
+    display: flex !important;
+    flex-direction: row;
+    gap: 15px;
+    width: 100%;
+    margin-top: 15px;
+    align-items: flex-start; /* Alinea todo arriba para que no se vea chueco */
+}
+
+.row > div {
+    flex: 1; /* Hace que se dividan el ancho 50/50 */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Ajuste específico para que el CP sea más flaquito y la Ciudad más ancha */
+.row .flex-cp {
+    flex: 0.4 !important;
+}
+
+.row .flex-ciudad {
+    flex: 1 !important;
+}
+
+/* ==========================================
+   CHECKBOX
+   Alineación horizontal del checkbox
+========================================== */
+.checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 25px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Tamaño del checkbox */
+.checkbox input {
+    margin-top: 4px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0; /* Evita que se reduzca */
+    cursor: pointer;
+}
+
+/* Enlaces dentro del checkbox */
+.checkbox a {
+    color: var(--sapphire);
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* ==========================================
+   BOTÓN PRINCIPAL
+========================================== */
+button {
+    width: 100%;
+    margin-top: 25px;
+    padding: 15px;
+    background: var(--royal);
+    border: none;
+    color: white;
+    font-size: 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+/* Efecto hover */
+button:hover {
+    background: var(--sapphire);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(17, 34, 80, 0.2);
+}
+
+/* ==========================================
+   SECCIÓN DESHABILITADA
+   Cambia el color del título cuando
+   la tarjeta está en estado inactivo
+========================================== */
+.card-disabled h2 {
+    color: #999;
+}
+
+/* ==========================================
+   RESPONSIVE MÓVIL
+   Ajustes para pantallas menores a 768px
+========================================== */
+@media (max-width: 768px){
+
+    /* Reduce padding general */
+    body{
+        padding: 12px;
+    }
+
+    /* Contenedor ocupa todo el ancho */
+    .container{
+        max-width: 100%;
+    }
+
+    /* Reduce padding interno de la tarjeta */
+    .card{
+        padding: 20px;
+        border-radius: 14px;
+    }
+
+    /* Título ligeramente más pequeño */
+    h2{
+        font-size: 17px;
+    }
+
+    /* Las columnas pasan a vertical */
+    .row{
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* Evita zoom automático en móviles reales */
+    input, select{
+        font-size: 16px;
+    }
+
+    /* Texto más compacto */
+    .checkbox{
+        font-size: 12px;
+    }
+
+    /* Botón más cómodo para tocar */
+    button{
+        padding: 16px;
+        font-size: 14px;
+    }
+}
+
+
+.layout-pago-final {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.columna-formulario-pago {
+    flex: 2; /* Más ancho para el formulario */
+}
+
+.columna-metodos-mini {
+    flex: 0.8; /* Más flaquito para los logos */
+}
+
+.card-mini {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.metodo-opcion {
+    padding: 10px;
+    background: white;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.metodo-opcion:hover {
+    border-color: #00a88e;
+    background: #f0fffb;
+}
+
+/* Esto alinea las dos columnas */
+.contenedor-pago-final {
+    display: flex;
+    gap: 20px; /* Espacio entre el formulario y los métodos */
+    align-items: flex-start; /* Alinea todo arriba */
+    margin-top: 20px; /* Espacio superior para separar del resumen */
+}
+
+.columna-izquierda-pago {
+    flex: 2; /* Es más ancha */
+}
+
+.columna-derecha-metodos {
+    flex: 0.6; /* Es más delgadita */
+}
+
+/* El contenedor con el borde dorado */
+.card-metodos-lateral {
+    background: white;
+    padding: 15px; /* Reducimos el padding para que sea más compacta */
+    border-radius: 12px;
+    border: 1.5px solid var(--gold);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    
+    /* Asegúrate de que NO tenga height: 100% */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Los botones de los métodos */
+.item-metodo {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    justify-content: center;
+    gap: 5px;       
+    padding: 8px;   /* Reducimos el relleno significativamente */
+    margin-bottom: 8px; 
+    border: 1px solid #eee;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+    background-color: #fdfdfd;
+    
+    /* Asegúrate de que NO tenga flex: 1 */
+}
+
+.item-metodo:hover {
+    border-color: var(--mint);
+    background-color: #f0fffb;
+    transform: translateY(-2px); /* Un pequeño salto al pasar el mouse */
+}
+
+/* Hacemos los iconos más pequeños */
+.item-metodo img {
+    width: 25px; /* Antes estaba en 35px */
+    height: auto;
+}
+
+.item-metodo span {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--royal);
+}
+
+/* Para que el formulario se ensanche cuando aparezcan las dos columnas */
+#seccion-paso2.container, 
+#seccion-paso2 {
+    max-width: 900px !important; 
+    width: 100%;
+}
+
+/* Estilo para los textos dentro del resumen del paso 2 */
+.summary-list p {
+    margin: 5px 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 5px;
+}
+
+
+.summary-list p {
+    margin-bottom: 8px;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed #eee; /* Una linea bonita para separar */
+    color: #555;
+}
+
+.summary-list strong {
+    color: var(--royal);
+    min-width: 80px;
+    display: inline-block;
+}
+
+
