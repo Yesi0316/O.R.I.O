@@ -74,6 +74,15 @@ window.addEventListener('DOMContentLoaded', async function() {
     <i class="fas fa-right-from-bracket"></i><span>Cerrar sesión</span>
 </a>
 
+<div id="cerrarModal" class="modal">
+    <div id="logoutModal" class="modal-content">
+        <span class="cerrar" onclick="cerrarModal()">&times;</span>
+        <p>¿Estás seguro de que deseas cerrar sesión?</p>
+        <button onclick="confirmcerrar()">Sí, deseo cerrar sesión</button>
+        <button onclick="cerrarModal()">Cancelar</button>
+    </div>
+</div>
+
 </div>
 
 <a href="/pasarela_pago" class="premium-btn">
@@ -122,6 +131,23 @@ function toggleFabMenu(){
 document.getElementById("fab").classList.toggle("active");
 document.getElementById("fabMenu").classList.toggle("active");
 }
+
+const logoutLink = document.querySelector('a[href="logout"]');
+const modal = document.getElementById("logoutModal");
+
+logoutLink.addEventListener('click', function(event) {
+    event.preventDefault(); // Evita la redirección inmediata
+    modal.style.display = 'flex';
+});
+
+function cerrarModal() {
+    modal.style.display = 'none';
+}
+
+function confirmcerrar() {
+    window.location.href = '/logout'; // Redirige al logout
+}
+
 </script>
 
 <!-- Modal perfil -->

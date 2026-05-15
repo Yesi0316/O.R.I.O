@@ -127,6 +127,23 @@ flex:1; /* ocupa el espacio disponible */
 min-width:220px; /* ancho mínimo */
 }
 
+.field-telefono{
+width: 50%;
+}
+
+
+.select-field{
+width:100%; /* ocupa todo el ancho */
+padding:12px;
+margin-top:6px;
+border-radius:12px;
+background-color:#f5f5f5; /* fondo gris claro */
+color:#888; /* texto gris */
+cursor:not-allowed; /* cursor prohibido */
+border-color:#e0e0e0;
+opacity:0.7;
+}
+
 /* Etiquetas de los campos */
 label{
 font-size:13px;
