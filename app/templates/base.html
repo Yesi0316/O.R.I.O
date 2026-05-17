@@ -70,13 +70,12 @@ window.addEventListener('DOMContentLoaded', async function() {
     <i class="fas fa-cog"></i><span>Configuración</span>
 </a>
 
-<a href="/logout">
+<a href="#" onclick="abrirModal(event)" >
     <i class="fas fa-right-from-bracket"></i><span>Cerrar sesión</span>
 </a>
 
 <div id="cerrarModal" class="modal">
     <div id="logoutModal" class="modal-content">
-        <span class="cerrar" onclick="cerrarModal()">&times;</span>
         <p>¿Estás seguro de que deseas cerrar sesión?</p>
         <button onclick="confirmcerrar()">Sí, deseo cerrar sesión</button>
         <button onclick="cerrarModal()">Cancelar</button>
@@ -132,12 +131,14 @@ document.getElementById("fab").classList.toggle("active");
 document.getElementById("fabMenu").classList.toggle("active");
 }
 
-const logoutLink = document.querySelector('a[href="logout"]');
-const modal = document.getElementById("logoutModal");
+const logoutLink = document.querySelector('a[href="/logout"]');
+const modal = document.getElementById("cerrarModal");
 
-logoutLink.addEventListener('click', function(event) {
-    event.preventDefault(); // Evita la redirección inmediata
+logoutLink.addEventListener('click', function(event) { 
+
+    event.preventDefault(); // evita ir directo a /logout
     modal.style.display = 'flex';
+
 });
 
 function cerrarModal() {
@@ -145,7 +146,14 @@ function cerrarModal() {
 }
 
 function confirmcerrar() {
-    window.location.href = '/logout'; // Redirige al logout
+    window.location.href = '/logout';
+}
+
+function abrirModal(event) {
+    event.preventDefault();
+
+    const modal = document.getElementById("cerrarModal");
+    modal.style.display = "flex";
 }
 
 </script>

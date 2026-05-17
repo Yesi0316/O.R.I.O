@@ -49,6 +49,11 @@ PLANES_DEFAULT = [
     (3, "Todo incluido", 30000),
 ]
 
+ROLES_DEFAULT = [
+    (1, "Usuario"),
+    (2, "Administrador"),
+]
+
 
 def insertar_planes():
     conn = conectar_db()
@@ -234,7 +239,9 @@ TABLAS = {
             "RESPUESTA_2" TEXT NOT NULL,
             "INTENTOS_RECUPERACION" INTEGER DEFAULT 0,
             "BLOQUEADO_HASTA" TIMESTAMP,
-            "TEMA_PREFERENCIA" TEXT DEFAULT 'claro'
+            "TEMA_PREFERENCIA" TEXT DEFAULT 'claro',
+            "ID_ROL" INTEGER NOT NULL,
+            FOREIGN KEY ("ID_ROL") REFERENCES public."Roles" ("ID_ROL")
         );
     """,
     "Objetos": """
@@ -513,6 +520,16 @@ def inicializar_datos_default():
                 (metodo,),
             )
 
+        for roles in ROLES_DEFAULT:
+            cursor.execute(
+                '''
+                INSERT INTO "Roles" ("ID_ROL", "NOMBRE")
+                VALUES (%s, %s)
+                ON CONFLICT ("ID_ROL") DO UPDATE SET "NOMBRE" = EXCLUDED."NOMBRE" 
+                ''',
+                roles,
+            )
+
         # Crear perfiles para usuarios que no tengan perfil
         cursor.execute("""
             INSERT INTO "Perfiles" ("ID_USUARIO", "NOMBRE", "FOTO_PERFIL")
@@ -522,6 +539,7 @@ def inicializar_datos_default():
             WHERE p."ID_USUARIO" IS NULL
             ON CONFLICT DO NOTHING
         """)
+
 
         conexion.commit()
         print("✓ Datos por defecto inicializados")

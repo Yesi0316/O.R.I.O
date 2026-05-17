@@ -6,12 +6,12 @@ registra las rutas y funciones de base de datos, y ejecuta configuraciones
 iniciales como crear tablas y datos por defecto.
 
 otros modulos dentro del paquete deben usar imports relativos
-por ejemplo:
-from .database import conectar_db
+por ejemplo: from .database import conectar_db
 """
 
 import os
 from flask import Flask
+from flask_cors import CORS #importar la librería de CORS
 from dotenv import load_dotenv
 
 # importar componentes internos del paquete
@@ -29,6 +29,7 @@ def create_app():
 
     # crear instancia principal de flask
     app = Flask(__name__)
+    CORS(app) #habilitar CORS para toda la aplicación para permitir qeu react se comunique con flask sin problemas 
 
     # configurar clave secreta desde variables de entorno
     app.secret_key = os.getenv("SECRET_KEY")

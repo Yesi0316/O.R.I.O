@@ -174,9 +174,9 @@ def init_routes(app):
             respuesta1 = request.form.get("respuesta1")
             pregunta2 = request.form.get("pregunta2")
             respuesta2 = request.form.get("respuesta2")
-
             respuesta1_hash = generate_password_hash(respuesta1)
             respuesta2_hash = generate_password_hash(respuesta2)
+            id_rol = 1 #rol de usuario por defecto
 
             if not id_usuario or not contrasena:
                 return jsonify({"mensaje": "Usuario y contraseña obligatorios"}), 400
@@ -231,8 +231,8 @@ def init_routes(app):
             cursor.execute(
                 """
                 INSERT INTO public."Usuarios"
-                ("ID_USUARIO", "NOMBRE", "GENERO", "CONTRASENA", "PREGUNTA_1", "PREGUNTA_2", "RESPUESTA_1", "RESPUESTA_2")
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                ("ID_USUARIO", "NOMBRE", "GENERO", "CONTRASENA", "PREGUNTA_1", "PREGUNTA_2", "RESPUESTA_1", "RESPUESTA_2", "ID_ROL")
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 id_usuario,
@@ -243,6 +243,7 @@ def init_routes(app):
                 pregunta2,
                 respuesta1_hash,
                 respuesta2_hash,
+                id_rol,
             ),
             )
 
