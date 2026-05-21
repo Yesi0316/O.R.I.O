@@ -11,8 +11,8 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_base.css') }}">
 
 
-<link rel="stylesheet"
-href="{{ url_for('static', filename='css/modos.css') }}">
+ <link rel="stylesheet"
+href="{{ url_for('static', filename='css/modos.css') }}"> 
 
 {% block extra_css %}{% endblock %}
 
@@ -54,7 +54,7 @@ href="{{ url_for('static', filename='css/modos.css') }}">
 
         </a>
 
-        <a href="/admin_usuarios"
+        <a href="/gestionar_usuarios"
            class="{{ 'active' if active=='usuarios' else '' }}">
 
             <i class="fas fa-users"></i>
@@ -95,29 +95,33 @@ href="{{ url_for('static', filename='css/modos.css') }}">
 
     {% block content %}{% endblock %}
 
-</div>
+    <!-- MODAL -->
+    <div id="cerrarModal" class="modal">
+        <div class="modal-content">
 
-<!-- MODAL LOGOUT -->
+            <h2>Cerrar sesión</h2>
 
-<div id="cerrarModal" class="modal">
+            <p>
+                ¿Estás seguro de que deseas cerrar sesión?
+            </p>
 
-    <div id="logoutModal" class="modal-content">
+            <div class="modal-buttons">
 
-        <p>
-            ¿Estás seguro de que deseas cerrar sesión?
-        </p>
+                <button class="btn-danger" onclick="confirmcerrar()">
+                    Sí, cerrar sesión
+                </button>
 
-        <button onclick="confirmcerrar()">
-            Sí, cerrar sesión
-        </button>
+                <button class="btn-cancel" onclick="cerrarModal()">
+                    Cancelar
+                </button>
 
-        <button onclick="cerrarModal()">
-            Cancelar
-        </button>
+            </div>
 
+        </div>
     </div>
 
 </div>
+
 
 <!-- JS -->
 
@@ -148,27 +152,19 @@ function toggleSidebar(){
 
 }
 
-function abrirModal(event){
-
+function abrirModal(event) {
     event.preventDefault();
-
-    document.getElementById("cerrarModal")
-    .style.display = "flex";
-
+    document.getElementById("cerrarModal").style.display = "flex";
 }
 
-function cerrarModal(){
-
-    document.getElementById("cerrarModal")
-    .style.display = "none";
-
+function cerrarModal() {
+    document.getElementById("cerrarModal").style.display = "none";
 }
 
-function confirmcerrar(){
-
+function confirmcerrar() {
     window.location.href = "/logout";
-
 }
+
 
 // FOTO PERFIL ADMIN
 

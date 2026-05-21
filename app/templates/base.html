@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+<link rel="stylesheet" href="{{url_for('static', filename='css/base.css')}}">
 
 <script>
 // Cargar y aplicar el tema del usuario desde la BD
@@ -74,15 +74,10 @@ window.addEventListener('DOMContentLoaded', async function() {
     <i class="fas fa-right-from-bracket"></i><span>Cerrar sesión</span>
 </a>
 
-<div id="cerrarModal" class="modal">
-    <div id="logoutModal" class="modal-content">
-        <p>¿Estás seguro de que deseas cerrar sesión?</p>
-        <button onclick="confirmcerrar()">Sí, deseo cerrar sesión</button>
-        <button onclick="cerrarModal()">Cancelar</button>
-    </div>
-</div>
+
 
 </div>
+
 
 <a href="/pasarela_pago" class="premium-btn">
     <i class="fas fa-crown"></i>
@@ -96,8 +91,37 @@ window.addEventListener('DOMContentLoaded', async function() {
 </div>
 
 <div class="main">
-{% block content %}{% endblock %}
+
+    {% block content %}{% endblock %}
+
+    <!-- MODAL -->
+    <div id="cerrarModal" class="modal">
+        <div class="modal-content">
+
+            <h2>Cerrar sesión</h2>
+
+            <p>
+                ¿Estás seguro de que deseas cerrar sesión?
+            </p>
+
+            <div class="modal-buttons">
+
+                <button class="btn-danger" onclick="confirmcerrar()">
+                    Sí, cerrar sesión
+                </button>
+
+                <button class="btn-cancel" onclick="cerrarModal()">
+                    Cancelar
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+
 </div>
+
+
 
 {% if active != 'perfil' and not hide_fab %}
 
@@ -131,19 +155,17 @@ document.getElementById("fab").classList.toggle("active");
 document.getElementById("fabMenu").classList.toggle("active");
 }
 
+function abrirModal(event) {
+    event.preventDefault();
+    document.getElementById("cerrarModal").style.display = "flex";
+}
+
 function cerrarModal() {
-    modal.style.display = 'none';
+    document.getElementById("cerrarModal").style.display = "none";
 }
 
 function confirmcerrar() {
-    window.location.href = '/logout';
-}
-
-function abrirModal(event) {
-    event.preventDefault();
-
-    const modal = document.getElementById("cerrarModal");
-    modal.style.display = "flex";
+    window.location.href = "/logout";
 }
 
 </script>

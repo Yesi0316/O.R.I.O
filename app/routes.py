@@ -1712,4 +1712,13 @@ def init_routes(app):
     @login_required
     def reporte_problem():
         return render_template("reporte_problemas.html")
+    # ---------------------------------------------
+    # RUTA PARA QUE EL ADMIN GESTIONE LOS USUARIOS
+    #-----------------------------------------------
+
+    @app.route("/gestionar_usuarios", methods=["GET"])
+    @login_required
+    def gestionar_usuarios():
+        return render_template("usuarios.html")
+    
     

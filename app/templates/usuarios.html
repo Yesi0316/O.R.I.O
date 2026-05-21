@@ -1,0 +1,23 @@
+{% extends "admin_base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/usuarios.css') }}">
+{% endblock %}
+
+{% block content %}
+
+    <h1>Aqui van a parecer todos los usuarios</h1>
+
+    <div class="usuario-lista">
+
+    </div>
+
+<script>
+
+    const listaUsuarios =usuarios|tojson ;
+
+    console.log(listaUsuarios);
+
+</script>
+
+{% endblock %}
