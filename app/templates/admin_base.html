@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>{% block title %}Panel Administrador | O.R.I.O{% endblock %}</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_base.css') }}">
+
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='css/modos.css') }}">
+
+{% block extra_css %}{% endblock %}
+
+</head>
+
+<body>
+
+<!-- SIDEBAR ADMIN -->
+
+<div class="sidebar" id="sidebar">
+
+    <!-- PERFIL ADMIN -->
+    <a href="/admin_perfil"
+       class="sidebar-profile"
+       style="position:relative;">
+
+        <img id="sidebarProfileImg"
+             src="/static/img/image.png"
+             alt="Perfil">
+
+    </a>
+
+    <!-- MENU ADMIN -->
+    <div class="menu">
+
+        <a href="/admin_inicio"
+           class="{{ 'active' if active=='panel' else '' }}">
+
+            <i class="fas fa-chart-line"></i>
+            <span>Dashboard</span>
+
+        </a>
+
+        <a href="/admin_reportes"
+           class="{{ 'active' if active=='reportes' else '' }}">
+
+            <i class="fas fa-box-open"></i>
+            <span>Reportes</span>
+
+        </a>
+
+        <a href="/admin_usuarios"
+           class="{{ 'active' if active=='usuarios' else '' }}">
+
+            <i class="fas fa-users"></i>
+            <span>Usuarios</span>
+
+        </a>
+
+        <a href="/admin_configuracion"
+           class="{{ 'active' if active=='configuracion' else '' }}">
+
+            <i class="fas fa-cog"></i>
+            <span>Configuración</span>
+
+        </a>
+
+        <!-- LOGOUT -->
+        <a href="#" onclick="abrirModal(event)">
+
+            <i class="fas fa-right-from-bracket"></i>
+            <span>Cerrar sesión</span>
+
+        </a>
+
+    </div>
+
+    <!-- BOTON SIDEBAR -->
+    <div class="toggle" onclick="toggleSidebar()">
+
+        <i class="fas fa-angle-left" id="toggleIcon"></i>
+
+    </div>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="main">
+
+    {% block content %}{% endblock %}
+
+</div>
+
+<!-- MODAL LOGOUT -->
+
+<div id="cerrarModal" class="modal">
+
+    <div id="logoutModal" class="modal-content">
+
+        <p>
+            ¿Estás seguro de que deseas cerrar sesión?
+        </p>
+
+        <button onclick="confirmcerrar()">
+            Sí, cerrar sesión
+        </button>
+
+        <button onclick="cerrarModal()">
+            Cancelar
+        </button>
+
+    </div>
+
+</div>
+
+<!-- JS -->
+
+<script>
+
+function toggleSidebar(){
+
+    const sidebar = document.getElementById("sidebar");
+    const icon = document.getElementById("toggleIcon");
+
+    sidebar.classList.toggle("collapsed");
+
+    if(sidebar.classList.contains("collapsed")){
+
+        icon.classList.replace(
+            "fa-angle-left",
+            "fa-angle-right"
+        );
+
+    } else {
+
+        icon.classList.replace(
+            "fa-angle-right",
+            "fa-angle-left"
+        );
+
+    }
+
+}
+
+function abrirModal(event){
+
+    event.preventDefault();
+
+    document.getElementById("cerrarModal")
+    .style.display = "flex";
+
+}
+
+function cerrarModal(){
+
+    document.getElementById("cerrarModal")
+    .style.display = "none";
+
+}
+
+function confirmcerrar(){
+
+    window.location.href = "/logout";
+
+}
+
+// FOTO PERFIL ADMIN
+
+document.addEventListener('DOMContentLoaded', async function(){
+
+    try{
+
+        const res = await fetch('/datos_perfil');
+
+        const data = await res.json();
+
+        if(data.ok && data.datos){
+
+            document.getElementById(
+                'sidebarProfileImg'
+            ).src =
+            data.datos.FOTO_PERFIL ||
+            '/static/img/image.png';
+
+        }
+
+    }catch(e){
+
+        console.error(e);
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>

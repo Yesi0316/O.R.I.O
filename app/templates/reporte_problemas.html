@@ -70,21 +70,42 @@ El equipo de O.R.I.O revisará la situación.
 
 function enviarReporte(e){
 
-e.preventDefault()
+    e.preventDefault()
 
-document.getElementById("formulario").style.display="none"
+    const formulario = document.getElementById("formulario")
+    const exito = document.getElementById("exito")
 
-setTimeout(()=>{
+    if(formulario){
+        formulario.style.display = "none"
+    }
 
-document.getElementById("exito").style.display="block"
+    setTimeout(() => {
 
-},500)
+        if(exito){
+            exito.style.display = "block"
+        }
 
-setTimeout(()=>{
+    }, 500)
 
-window.location.href = "/menu"
+    setTimeout(() => {
 
-},2000)
+        window.location.href = "/menu"
+
+    }, 2000)
+
+}
+
+/* -------- PROTECCIÓN PARA ERRORES DE addEventListener -------- */
+
+const sidebarProfile = document.getElementById("sidebarProfile")
+
+if(sidebarProfile){
+
+    sidebarProfile.addEventListener("click", function(){
+
+        console.log("Sidebar abierta")
+
+    })
 
 }
 

@@ -1,0 +1,273 @@
+{% extends "admin_base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+
+    <!-- TOP -->
+
+    <div class="topbar">
+
+        <div>
+
+            <h2>Bienvenido, Administrador</h2>
+
+            <p>
+                Aquí tienes un resumen general de la plataforma.
+            </p>
+
+        </div>
+
+        <div class="top-right">
+
+            <div class="search">
+
+                <i class="fa-solid fa-magnifying-glass"></i>
+
+                <input type="text" placeholder="Buscar...">
+
+            </div>
+
+            <div class="notification">
+
+                <i class="fa-regular fa-bell"></i>
+
+                <span></span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- CARDS -->
+
+    <div class="cards">
+
+        <div class="card">
+
+              <div class="circle ">
+                <img src="{{ url_for('static', filename='img/imagen1-Photoroom.png') }}">
+             </div>
+
+            <div>
+
+                <h1>0</h1>
+                <p>Reportes Activos</p>
+                <span> desde ayer</span>
+
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <div class="circle ">
+                  <img src="{{ url_for('static', filename='img/imagen4-Photoroom.png') }}">
+             </div>
+
+            <div>
+
+                <h1>0</h1>
+                <p>Objetos Encontrados</p>
+                <span> desde ayer</span>
+
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <div class="circle ">
+                 <img src="{{ url_for('static', filename='img/imagen2-Photoroom.png') }}">
+             </div>
+
+            <div>
+
+                <h1>0</h1>
+                <p>Reportes Falsos</p>
+                <span> desde ayer</span>
+
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <div class="circle ">
+                 <img src="{{ url_for('static', filename='img/imagen3-Photoroom.png') }}">
+             </div>
+
+            <div>
+
+                <h1>0</h1>
+                <p>Usuarios Registrados</p>
+                <span> desde ayer</span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- GRAFICAS -->
+
+    <div class="charts">
+
+        <div class="chart-box">
+
+            <div class="title">
+
+                <h3>Resumen de Reportes</h3>
+
+                <button>Últimos 7 días</button>
+
+            </div>
+
+            <div class="fake-chart">
+
+                <div class="line"></div>
+
+            </div>
+
+        </div>
+
+        <div class="chart-box">
+
+            <h3>Distribución por Estado</h3>
+
+            <div class="donut"></div>
+
+            <div class="legend">
+
+                <div><span class="dot blue bg"></span> Activos</div>
+                <div><span class="dot royal"></span> Encontrados</div>
+                <div><span class="dot gold"></span> Falsos</div>
+                <div><span class="dot font-body"></span> Eliminados</div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- TABLA -->
+
+    <div class="table-container">
+
+        <div class="table-top">
+
+            <h3>Gestión de Reportes Recientes</h3>
+
+            <div>
+
+                <button class="filter">
+                    <i class="fa-solid fa-filter"></i>
+                    Filtros
+                </button>
+
+                <button class="new">
+                    + Nuevo Reporte
+                </button>
+
+            </div>
+
+        </div>
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Objeto</th>
+                    <th>Categoría</th>
+                    <th>Usuario</th>
+                    <th>Estado</th>
+                    <th>Motivo</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                <tr>
+
+                    <td>iPhone 14 Pro Max</td>
+                    <td>Tecnología</td>
+                    <td>Yessica López</td>
+
+                    <td>
+                        <span class="status active-status">
+                            Activo
+                        </span>
+                    </td>
+
+                    <td>En búsqueda</td>
+                    <td> May 2026</td>
+
+                    <td>
+
+                        <button class="icon-btn">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+
+                        <button class="icon-btn">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+
+                        <button class="icon-btn delete-btn">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+
+                    </td>
+
+                </tr>
+
+                <tr>
+
+                    <td>Cartera Negra</td>
+                    <td>Accesorios</td>
+                    <td>Laura Martínez</td>
+
+                    <td>
+                        <span class="status found-status">
+                            Encontrado
+                        </span>
+                    </td>
+
+                    <td>Ya entregado</td>
+                    <td> May 2026</td>
+
+                    <td>
+
+                        <button class="icon-btn">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+
+                        <button class="icon-btn">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+
+                        <button class="icon-btn delete-btn">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

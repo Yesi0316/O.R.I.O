@@ -109,17 +109,18 @@ formLogin.addEventListener("submit", async (e) => {
 
         mensaje.innerText = data.mensaje
         mensaje.style.color = data.ok ? "green" : "red"
+        const direccion = data.redirect
 
         if (!data.ok && data.mensaje === "Contraseña incorrecta") {
             olvido.innerHTML =
-              '<a href="/recuperar">¿Olvidaste tu contraseña?</a>'
+            '<a href="/recuperar">¿Olvidaste tu contraseña?</a>'
         } else {
             olvido.innerHTML = ''
         }
 
         if (data.ok) {
             setTimeout(() => {
-                window.location.href = "/menu"
+                window.location.href = direccion
             }, 800)
         }
 

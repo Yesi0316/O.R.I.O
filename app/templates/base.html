@@ -131,16 +131,6 @@ document.getElementById("fab").classList.toggle("active");
 document.getElementById("fabMenu").classList.toggle("active");
 }
 
-const logoutLink = document.querySelector('a[href="/logout"]');
-const modal = document.getElementById("cerrarModal");
-
-logoutLink.addEventListener('click', function(event) { 
-
-    event.preventDefault(); // evita ir directo a /logout
-    modal.style.display = 'flex';
-
-});
-
 function cerrarModal() {
     modal.style.display = 'none';
 }

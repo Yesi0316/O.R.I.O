@@ -1,0 +1,464 @@
+/* =========================================================
+   VARIABLES GLOBALES (COLORES PRINCIPALES DEL DISEÑO)
+   ========================================================= */
+:root{
+--sapphire:#3C507D; /* Azul zafiro usado en degradados y elementos */
+--royal:#112250;    /* Azul oscuro principal del diseño */
+--gold:#E0C58F;     /* Dorado utilizado para destacar botones y estados activos */
+--cream:#F5F0E9;    /* Color crema usado para fondos claros */
+}
+
+/* =========================================================
+   RESET GENERAL
+   Elimina márgenes y padding por defecto y usa box-sizing
+   para que el tamaño de los elementos sea más controlable
+   ========================================================= */
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* =========================================================
+   BODY - CONTENEDOR PRINCIPAL DE LA PÁGINA
+   ========================================================= */
+body{
+display:flex; /* Permite colocar sidebar y contenido en fila */
+min-height:100vh; /* Altura mínima igual al alto de la pantalla */
+height: auto; /* Permite que el contenido crezca si es necesario */
+font-family:'Libre Baskerville',serif; /* Fuente principal */
+background:linear-gradient(135deg,var(--royal),var(--sapphire)); /* Fondo degradado */
+overflow-x:hidden; /* Evita scroll horizontal */
+}
+
+/* =========================================================
+   SIDEBAR - MENÚ LATERAL
+   ========================================================= */
+
+.sidebar{
+width:250px; /* Ancho normal del sidebar */
+background:rgba(17,34,80,.95); /* Fondo azul oscuro con transparencia */
+backdrop-filter:blur(12px); /* Efecto de desenfoque tipo vidrio */
+color:var(--cream); /* Color del texto */
+padding:30px 20px; /* Espaciado interno */
+transition:.4s ease; /* Animación al contraerse o expandirse */
+display:flex;
+flex-direction:column; /* Elementos organizados verticalmente */
+align-items:center;
+position:relative;
+box-shadow:5px 0 25px rgba(0,0,0,.3); /* Sombra lateral */
+}
+
+/* Sidebar cuando está colapsado */
+.sidebar.collapsed{ width:85px; }
+
+/* =========================================================
+   PERFIL DEL USUARIO EN SIDEBAR
+   ========================================================= */
+
+.sidebar-profile{
+width:75px;
+height:75px;
+border-radius:50%; /* Forma circular */
+background:linear-gradient(135deg,var(--sapphire),var(--royal));
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+font-size:24px;
+border:2px solid var(--gold); /* Borde dorado */
+margin-bottom:40px;
+cursor:pointer;
+transition:.35s;
+}
+
+/* Animación al pasar el mouse */
+.sidebar-profile:hover{
+transform:scale(1.08);
+box-shadow:0 0 18px rgba(224,197,143,.6);
+}
+
+/* Imagen de perfil en sidebar */
+.sidebar-profile img{
+   width:100%;
+   height:100%;
+   border-radius:50%;
+    object-fit:cover; /* Ajusta la imagen sin deformarla */
+   display:block;
+   box-shadow:0 6px 18px rgba(0,0,0,0.25);
+   border:3px solid rgba(224,197,143,0.12);
+}
+
+/* =========================================================
+   MODAL DE PERFIL
+   Ventana emergente para mostrar información del usuario
+   ========================================================= */
+
+.profile-modal-backdrop{
+   position:fixed;
+    inset:0; /* Ocupa toda la pantalla */
+    background:rgba(0,0,0,0.5); /* Fondo oscuro transparente */
+    display:none; /* Oculto por defecto */
+   align-items:center;
+   justify-content:center;
+    z-index:5000; /* Siempre encima de todo */
+}
+
+.profile-modal{
+   background:white;
+   border-radius:12px;
+   padding:20px;
+   width:360px;
+   max-width:90%;
+   box-shadow:0 12px 40px rgba(0,0,0,0.35);
+   color:var(--royal);
+}
+
+/* Encabezado del modal */
+.profile-modal .head{
+   display:flex;
+   gap:12px;
+   align-items:center;
+}
+
+/* Imagen dentro del modal */
+.profile-modal img{
+   width:72px;
+   height:72px;
+   border-radius:10px;
+   object-fit:cover;
+}
+
+/* Información del usuario */
+.profile-modal .info b{display:block; color:var(--sapphire);}
+
+/* Botón de cerrar modal */
+.profile-modal .close-btn{
+   background:transparent;
+   border:none;
+   font-size:18px;
+   color:#999;
+   cursor:pointer;
+}
+
+/* =========================================================
+   MENÚ DEL SIDEBAR
+   ========================================================= */
+
+.menu{ width:100%; }
+
+/* Enlaces del menú */
+.menu a{
+display:flex;
+align-items:center;
+gap:14px;
+padding:14px;
+border-radius:14px;
+text-decoration:none;
+color:var(--cream);
+margin-bottom:12px;
+transition:.25s ease;
+opacity:.9;
+}
+
+/* Efecto hover */
+.menu a:hover{
+background:rgba(224,197,143,.15);
+transform:translateX(4px);
+opacity:1;
+}
+
+/* =========================================================
+   ESTADO ACTIVO PREMIUM
+   Indica la página actual del menú
+   ========================================================= */
+
+.menu a.active{
+background:linear-gradient(135deg,var(--gold),#f2d9a6);
+color:var(--royal);
+font-weight:600;
+box-shadow:0 10px 25px rgba(0,0,0,.2);
+opacity:1;
+}
+                                                         
+/* Oculta texto del menú cuando el sidebar está colapsado */
+.sidebar.collapsed .menu span{ display:none; }
+
+/* =========================================================
+   BOTÓN TOGGLE (ABRIR / CERRAR SIDEBAR)
+   ========================================================= */
+
+.toggle{
+position:absolute;
+top:20px;
+right:-15px;
+background:var(--gold);
+width:32px;
+height:32px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+color:var(--royal);
+box-shadow:0 5px 15px rgba(0,0,0,.25);
+transition:.25s;
+}
+
+/* Animación hover */
+.toggle:hover{
+transform:scale(1.1);
+}
+
+/* =========================================================
+   MAIN - CONTENIDO PRINCIPAL DE LA PÁGINA
+   ========================================================= */
+
+.main{
+    flex:1;
+    background:var(--cream);
+    border-bottom-left-radius:35px;
+    padding:40px;
+    overflow:auto;
+    transition:.35s;
+}
+
+/* ajuste de padding alternativo */
+.main.alt{
+    padding:20px 40px 40px 40px;
+}
+
+/* =========================================================
+   FAB (FLOATING ACTION BUTTON)
+   Botón flotante con menú radial
+   ========================================================= */
+
+.fab {
+   position: fixed;
+   bottom: 30px;
+   right: 40px;
+   width: 70px;
+   height: 70px;
+   border-radius: 50%;
+    background: linear-gradient(135deg, var(--gold), #f2d9a6); /* dorado bonito */
+    color: white; /* signo + en blanco */
+   display: flex;
+   align-items: center;
+   justify-content: center;
+    font-size: 36px; /* que el + se vea grande */
+   font-weight: bold;
+   cursor: pointer;
+   box-shadow: 0 15px 30px rgba(0,0,0,.25);
+   transition: transform 0.3s ease, box-shadow 0.3s ease;
+   text-decoration: none;
+   z-index: 20;
+}
+
+/* Hover */
+.fab:hover {
+   transform: scale(1.1);
+   box-shadow: 0 18px 35px rgba(0,0,0,.25);
+}
+
+/* =========================================================
+   MOBILE NAVBAR
+   Adaptación del diseño para dispositivos móviles
+   ========================================================= */
+
+@media (max-width:900px){
+
+body{
+flex-direction:column;
+}
+
+/* =========================================================
+   SIDEBAR SE CONVIERTE EN NAVBAR INFERIOR
+   ========================================================= */
+
+.sidebar{
+position:fixed;
+bottom:15px;
+left:50%;
+transform:translateX(-50%);
+width:95%;
+height:70px;
+
+border-radius:22px;
+
+flex-direction:row;
+justify-content:space-around;
+align-items:center;
+
+padding:0 10px;
+
+background:rgba(17,34,80,.75);
+backdrop-filter:blur(18px);
+
+z-index:9999;
+box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+
+/* Ocultar elementos solo de PC */
+.sidebar-profile{ display:none; }
+.toggle{ display:none; }
+
+/* Menú horizontal */
+.menu{
+display:flex;
+width:100%;
+justify-content:space-around;
+}
+
+/* Botones del menú en móvil */
+.menu a{
+flex-direction:column;
+gap:3px;
+margin:0;
+border-radius:14px;
+font-size:10px;
+padding:6px 12px;
+
+color:rgba(245,240,233,.65);
+transition:.3s ease;
+position:relative;
+}
+
+/* Hover */
+.menu a:hover{
+background:rgba(224,197,143,.12);
+color:var(--cream);
+transform:translateY(-2px);
+}
+
+/* =========================================================
+   ESTADO ACTIVO ESTILO APP
+   ========================================================= */
+
+.menu a.active{
+color:#112250;
+}
+
+/* Indicador de página activa */
+.menu a.active::before{
+content:"";
+position:absolute;
+top:-6px;
+width:6px;
+height:6px;
+border-radius:50%;
+background:var(--gold);
+box-shadow:0 0 12px rgba(224,197,143,.9);
+}
+
+/* Animación del icono activo */
+.menu a i{
+font-size:18px;
+transition:.3s ease;
+}
+
+.menu a.active i{
+transform:scale(1.15);
+}
+
+/* MAIN en móvil */
+.main{
+border-radius:0;
+padding:25px 15px 120px 15px;
+}
+
+/* Ajuste del botón flotante */
+.fab{
+bottom:100px;
+right:20px;
+}
+
+.fab-menu{
+bottom:100px;
+right:20px;
+}
+
+/* =========================================================
+   BOTÓN PREMIUM RESPONSIVE PARA MÓVIL
+   ========================================================= */
+
+.premium-btn{
+width:50px;
+height:60px;
+padding:0;
+border-radius:50%;
+margin:0;
+font-size:0;
+gap:0;
+box-shadow:0 4px 12px rgba(0,0,0,.15);
+top: -5px;
+position:  relative ;
+}
+
+.premium-btn i{
+font-size:20px;
+}
+
+.premium-btn span{
+display:none;
+}
+}
+
+/* =========================================================
+   BOTÓN PREMIUM
+   ========================================================= */
+
+.premium-btn{
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
+
+margin-top:auto;
+width:100%;
+
+padding:14px;
+border-radius:14px;
+
+text-decoration:none;
+font-size:14px;
+font-weight:600;
+
+background:linear-gradient(135deg,var(--gold),#f2d9a6);
+color:var(--royal);
+
+box-shadow:0 10px 25px rgba(0,0,0,.2);
+
+transition:.25s ease;
+}
+
+/* icono */
+.premium-btn i{
+font-size:16px;
+}
+
+/* hover elegante */
+.premium-btn:hover{
+transform:translateY(-2px);
+box-shadow:0 14px 30px rgba(0,0,0,.25);
+}
+.sidebar.collapsed .premium-btn span{
+display:none;
+}
+
+.sidebar.collapsed .premium-btn{
+justify-content:center;
+padding:14px 10px;
+}
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+
+.modal {
+   display: none; /* Oculto por defecto */
+   position: fixed;
+   z-index: 1000;
+   left: 0;
+   top: 0;
+   width: 100%;
+   height: 100%;
+   background-color: rgba(0,0,0,0.5); /* Fondo semi-transparente */
+   justify-content: center;
+   align-items: center;
+}

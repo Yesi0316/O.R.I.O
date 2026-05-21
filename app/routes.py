@@ -36,6 +36,26 @@ def login_required(f):
 
     return decorated_function
 
+# -----------------------------
+# DECORADOR ADMIN REQUIRED
+# -----------------------------
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+
+        if "id_usuario" not in session:
+            return redirect("/inicio")
+
+        if session.get("id_rol") != 2:
+            return redirect("/menu")
+
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+
 
 # -----------------------------
 # DECORADOR GUEST REQUIRED
@@ -373,7 +393,7 @@ def init_routes(app):
 
             cursor.execute(
                 '''
-                SELECT u."ID_USUARIO", u."CONTRASENA", u."GENERO", p."NOMBRE"
+                SELECT u."ID_USUARIO", u."CONTRASENA", u."GENERO", p."NOMBRE", u."ID_ROL"
                 FROM public."Usuarios" u
                 LEFT JOIN public."Perfiles" p 
                 ON u."ID_USUARIO" = p."ID_USUARIO"
@@ -399,9 +419,18 @@ def init_routes(app):
             session["id_usuario"] = user["ID_USUARIO"]
             session["nombre"] = user["NOMBRE"]
             session["genero"] = user["GENERO"]
+            session["id_rol"] = user["ID_ROL"]
 
-            return jsonify({"ok": True, "mensaje": "Inicio de sesión exitoso"})
+            if user["ID_ROL"] == 2:
+                return jsonify({
+                    "ok": True,
+                    "redirect": "/admin_inicio"
+                })
 
+            return jsonify({
+                "ok": True,
+                "redirect": "/menu"
+            })  
         except Exception as e:
             import traceback
 
@@ -409,6 +438,17 @@ def init_routes(app):
             traceback.print_exc()
             return jsonify({"ok": False, "mensaje": "Error en el servidor"}), 500
     
+
+    # -------------------------------------
+    # RUTA ADMIN INICIO
+    # -------------------------------------
+
+    @app.route("/admin_inicio")
+    @login_required
+    def admin_inicio():
+        if session.get("id_rol") != 2:  # Verificar si el rol es admin si no lo devuelve al menu
+            return redirect("/menu")
+        return render_template("admin.html", active="admin")
 
     # -------------------------------------
     # RUTA CERRAR SESION
@@ -1672,3 +1712,4 @@ def init_routes(app):
     @login_required
     def reporte_problem():
         return render_template("reporte_problemas.html")
+    
