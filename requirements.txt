@@ -1,5 +1,19 @@
+﻿black==26.1.0
+blinker==1.9.0
+click==8.3.1
+colorama==0.4.6
 Flask==3.1.2
+flask-cors==6.0.2
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+mypy_extensions==1.1.0
+packaging==26.0
+pathspec==1.0.4
+platformdirs==4.9.2
 psycopg2-binary==2.9.11
 python-dotenv==1.0.1
-flask-cors #CORS para permitir solicitudes desde el frontend de react
-
+pytokens==0.4.1
+Werkzeug==3.1.5
+reportlab==4.5.1
+weasyprint==68.1

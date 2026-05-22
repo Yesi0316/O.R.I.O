@@ -27,7 +27,7 @@ def guardar_imagen(imagen, app_folder):
     Args:
         imagen: Objeto FileStorage de Flask
         app_folder: Ruta de la carpeta de uploads
-
+ 
     Returns:
         str: Ruta relativa del archivo guardado o None si no hay imagen
     """

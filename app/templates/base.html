@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-<link rel="stylesheet" href="{{url_for('static', filename='css/base.css')}}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
 
 <script>
 // Cargar y aplicar el tema del usuario desde la BD
@@ -62,6 +62,10 @@ window.addEventListener('DOMContentLoaded', async function() {
     <i class="fas fa-box-open"></i><span>Mis Reportes</span>
 </a>
 
+<a href="/buzon" class="{{ 'active' if active=='buzon' else '' }}">
+    <i class="fas fa-envelope"></i><span>Buzón</span>
+</a>
+
 <a href="/perfil" class="{{ 'active' if active=='perfil' else '' }}">
     <i class="fas fa-user"></i><span>Perfil</span>
 </a>
@@ -70,14 +74,11 @@ window.addEventListener('DOMContentLoaded', async function() {
     <i class="fas fa-cog"></i><span>Configuración</span>
 </a>
 
-<a href="#" onclick="abrirModal(event)" >
+<a href="/logout">
     <i class="fas fa-right-from-bracket"></i><span>Cerrar sesión</span>
 </a>
 
-
-
 </div>
-
 
 <a href="/pasarela_pago" class="premium-btn">
     <i class="fas fa-crown"></i>
@@ -91,49 +92,77 @@ window.addEventListener('DOMContentLoaded', async function() {
 </div>
 
 <div class="main">
+{% block content %}{% endblock %}
+</div>
 
-    {% block content %}{% endblock %}
+<!-- NAVBAR MOVIL -->
+<div class="mobile-nav">
 
-    <!-- MODAL -->
-    <div id="cerrarModal" class="modal">
-        <div class="modal-content">
 
-            <h2>Cerrar sesión</h2>
+    <div class="nav-left">
+        <a href="/menu" class="nav-item {{ 'active' if active=='panel' else '' }}">
+            <i class="fas fa-chart-line"></i>
+            <span>Panel</span>
+        </a>
 
-            <p>
-                ¿Estás seguro de que deseas cerrar sesión?
-            </p>
+        <a href="/reportes" class="nav-item {{ 'active' if active=='reportes' else '' }}">
+            <i class="fas fa-box-open"></i>
+            <span>Reportes</span>
+        </a>
+    </div>
+    
+    <!-- BOTÓN CENTRAL -->
+    <div class="nav-center">
 
-            <div class="modal-buttons">
+        <a href="/formulario_reporte" class="fab-search">
+            <i class="fas fa-plus"></i>
+        </a>
 
-                <button class="btn-danger" onclick="confirmcerrar()">
-                    Sí, cerrar sesión
-                </button>
+    </div>
 
-                <button class="btn-cancel" onclick="cerrarModal()">
-                    Cancelar
-                </button>
+    <!-- DERECHA -->
+    <div class="nav-right">
+        <a href="/perfil" class="nav-item {{ 'active' if active=='perfil' else '' }}">
+            <i class="fas fa-user"></i>
+            <span>Perfil</span>
+        </a>
 
-            </div>
+        <a href="/buzon" class="nav-item {{ 'active' if active=='buzon' else '' }}">
+            <i class="fas fa-envelope"></i>
+            <span>Buzón</span>
+        </a>
 
-        </div>
+        <a href="/configuracion" class="nav-item {{ 'active' if active=='configuracion' else '' }}">
+            <i class="fas fa-cog"></i>
+            <span>Config</span>
+        </a>
     </div>
 
 </div>
 
-
-
-{% if active != 'perfil' and not hide_fab %}
-
-<div class="fab" id="fab" onclick="toggleFabMenu()">
-    <i class="fas fa-plus"></i>
+<!-- BOTÓN DESPLEGABLE (ARRIBA DERECHA) -->
+<div class="fab-main 
+     {% if active == 'formulario' %}disabled{% endif %}"
+     {% if active != 'formulario' %}onclick="toggleFabMenu()"{% endif %}>
+    <i class="fas fa-bars"></i>
 </div>
 
-<a href="/formulario_reporte" class="fab">
-    <i class="fas fa-search"></i>
-</a>
 
-{% endif %}
+
+<!-- MENÚ DESPLEGABLE PRO -->
+<div id="fabMenu" class="fab-menu-up">
+
+    <a href="/pasarela_pago" class="fab-option premium">
+        <i class="fas fa-crown"></i>
+        <span>Premium</span>
+    </a>
+
+    <a href="/logout" class="fab-option logout">
+        <i class="fas fa-right-from-bracket"></i>
+        <span>Salir</span>
+    </a>
+
+</div>
 
 
 <script>
@@ -151,21 +180,11 @@ icon.classList.replace("fa-angle-right","fa-angle-left");
 }
 
 function toggleFabMenu(){
-document.getElementById("fab").classList.toggle("active");
-document.getElementById("fabMenu").classList.toggle("active");
-}
+    const menu = document.getElementById("fabMenu");
+    const btn = document.querySelector(".fab-main");
 
-function abrirModal(event) {
-    event.preventDefault();
-    document.getElementById("cerrarModal").style.display = "flex";
-}
-
-function cerrarModal() {
-    document.getElementById("cerrarModal").style.display = "none";
-}
-
-function confirmcerrar() {
-    window.location.href = "/logout";
+    menu.classList.toggle("active");
+    btn.classList.toggle("active");
 }
 
 </script>

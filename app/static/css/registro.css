@@ -97,6 +97,7 @@ header{
 .logo-image{
     width:60px;   
     height:auto;
+    filter: brightness(0) invert(1);
 }
 
 /* Contenedor del logo y texto */

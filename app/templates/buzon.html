@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}Buzón | O.R.I.O{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/buzon.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1><i class="fas fa-envelope"></i> Buzón</h1>
+    <p>Revisa tus mensajes y avisos importantes desde aquí.</p>
+</div>
+
+<section class="buzon-card">
+    <div class="buzon-header">
+        <div>
+            <h2>Mis mensajes</h2>
+        </div>
+        <div class="buzon-actions">
+            <button type="button" onclick="openCompose()"><i class="fas fa-pen"></i> Nuevo mensaje</button>
+            <button type="button" class="secondary" onclick="refreshBuzon()"><i class="fas fa-sync-alt"></i> Refrescar</button>
+        </div>
+    </div>
+
+    <div id="composePanel" class="new-message-panel hidden">
+        <h2>Escribir mensaje</h2>
+        <div class="form-row">
+            <label for="composeSubject">Asunto</label>
+            <input id="composeSubject" type="text" placeholder="Asunto del mensaje">
+        </div>
+        <div class="form-row">
+            <label for="composeBody">Mensaje</label>
+            <textarea id="composeBody" rows="5" placeholder="Escribe tu mensaje aquí..."></textarea>
+        </div>
+        <div class="form-actions">
+            <button class="btn-outline" type="button" onclick="closeCompose()">Cancelar</button>
+            <button class="btn" type="button" onclick="sendMessage()">Enviar</button>
+        </div>
+    </div>
+
+    <div>
+        <h2>Mensajes recientes</h2>
+        <ul class="buzon-list" id="messageList">
+            <li>
+                <div>
+                    <strong>Actualización de servicio</strong>
+                    <span>Todo tu historial de reportes está seguro y disponible.</span>
+                </div>
+                <span>Hoy</span>
+            </li>
+            <li>
+                <div>
+                    <strong>Recordatorio de perfil</strong>
+                    <span>Completa tu información para mejorar tus resultados.</span>
+                </div>
+                <span>Ayer</span>
+            </li>
+        </ul>
+    </div>
+</section>
+
+<script>
+function openCompose() {
+    document.getElementById('composePanel').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function closeCompose() {
+    document.getElementById('composePanel').classList.add('hidden');
+}
+
+function refreshBuzon() {
+    const list = document.getElementById('messageList');
+    list.innerHTML = '<li class="buzon-empty">Buzón actualizado. No hay mensajes nuevos por el momento.</li>';
+}
+
+function sendMessage() {
+    const subject = document.getElementById('composeSubject').value.trim();
+    const body = document.getElementById('composeBody').value.trim();
+    if (!subject || !body) {
+        alert('Por favor escribe asunto y mensaje.');
+        return;
+    }
+    alert('Mensaje enviado al buzón (solo frontend).');
+    document.getElementById('composeSubject').value = '';
+    document.getElementById('composeBody').value = '';
+    closeCompose();
+}
+</script>
+{% endblock %}

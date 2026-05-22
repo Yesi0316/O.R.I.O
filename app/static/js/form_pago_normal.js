@@ -228,19 +228,34 @@ function mostrarMensajeExito() {
     cartel.style.zIndex = '1000';
     cartel.style.textAlign = 'center';
     
-    cartel.innerHTML = `
-        <h3 style="margin-top:0;">¡Éxito! 🎉</h3>
-        <p>Pago realizado correctamente recibiras tu factura por correo electrónico.</p>
-        <button id="cerrarMensaje" style="background:#E0C58F; color:#112250; margin-top:10px; padding:10px 20px; width:auto;">Aceptar</button>
-    `;
-
-    document.body.appendChild(cartel);
-
-    // Función para quitar el cartel al hacer clic
-    document.getElementById('cerrarMensaje').onclick = function() {
+    // Creamos el contenido del cartel
+    const titulo = document.createElement('h3');
+    titulo.style.marginTop = '0';
+    titulo.textContent = '¡Éxito! 🎉';
+    
+    const parrafo = document.createElement('p');
+    parrafo.textContent = 'Pago realizado correctamente recibiras tu factura por correo electrónico.';
+    
+    const boton = document.createElement('button');
+    boton.style.background = '#E0C58F';
+    boton.style.color = '#112250';
+    boton.style.marginTop = '10px';
+    boton.style.padding = '10px 20px';
+    boton.style.width = 'auto';
+    boton.textContent = 'Aceptar';
+    
+    // Añadimos el event listener al botón
+    boton.addEventListener('click', function() {
         cartel.remove();
         window.location.href = "/menu"; // Redirige al menú después de cerrar el mensaje
-    };
+    });
+    
+    // Añadimos los elementos al cartel
+    cartel.appendChild(titulo);
+    cartel.appendChild(parrafo);
+    cartel.appendChild(boton);
+    
+    document.body.appendChild(cartel);
 }
 
 function mostrarMensajeError() {
@@ -258,16 +273,34 @@ function mostrarMensajeError() {
     cartel.style.boxShadow = '0 0 20px rgba(0,0,0,0.5)';
     cartel.style.zIndex = '1000';
     cartel.style.textAlign = 'center';
-    cartel.innerHTML = `
-        <h3 style="margin-top:0;">¡Error! ❌</h3>
-        <p>Hubo un problema al guardar tus respuestas. Por favor, inténtalo de nuevo.</p>
-        <button id="cerrarMensaje" style="background:#E0C58F; color:#112250; margin-top:10px; padding:10px 20px; width:auto;">Aceptar</button>
-    `;
-    document.body.appendChild(cartel);
-
-    document.getElementById('cerrarMensaje').onclick = function() {
+    
+    // Creamos el contenido del cartel
+    const titulo = document.createElement('h3');
+    titulo.style.marginTop = '0';
+    titulo.textContent = '¡Error! ❌';
+    
+    const parrafo = document.createElement('p');
+    parrafo.textContent = 'Hubo un problema al guardar tus respuestas. Por favor, inténtalo de nuevo.';
+    
+    const boton = document.createElement('button');
+    boton.style.background = '#E0C58F';
+    boton.style.color = '#112250';
+    boton.style.marginTop = '10px';
+    boton.style.padding = '10px 20px';
+    boton.style.width = 'auto';
+    boton.textContent = 'Aceptar';
+    
+    // Añadimos el event listener al botón
+    boton.addEventListener('click', function() {
         cartel.remove();
-    };
+    });
+    
+    // Añadimos los elementos al cartel
+    cartel.appendChild(titulo);
+    cartel.appendChild(parrafo);
+    cartel.appendChild(boton);
+    
+    document.body.appendChild(cartel);
 }
 
 

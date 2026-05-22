@@ -5,7 +5,7 @@ import uuid
 import re
 from datetime import datetime, timedelta
 from functools import wraps
-
+from io import BytesIO
 
 from flask import (
     app,
@@ -16,8 +16,11 @@ from flask import (
     redirect,
     url_for,
     send_from_directory,
+    send_file,
 )
 from werkzeug.security import generate_password_hash, check_password_hash
+from weasyprint import HTML, CSS
+from weasyprint.text.fonts import FontConfiguration
 from werkzeug.utils import secure_filename
 from app.correo import enviar_factura
 
@@ -424,11 +427,13 @@ def init_routes(app):
             if user["ID_ROL"] == 2:
                 return jsonify({
                     "ok": True,
+                    "mensaje": "Inicio de sesión exitoso",
                     "redirect": "/admin_inicio"
                 })
 
             return jsonify({
                 "ok": True,
+                "mensaje": "Inicio de sesión exitoso",
                 "redirect": "/menu"
             })  
         except Exception as e:
@@ -1165,32 +1170,385 @@ def init_routes(app):
     @app.route("/api/mis_reportes", methods=["GET"])
     @login_required
     def api_mis_reportes():
-        """Devuelve JSON con los reportes (perdidos/encontrados) del usuario en sesión"""
+        """Devuelve JSON con los reportes (perdidos/encontrados) del usuario en sesión
+        
+        Parámetros GET opcionales:
+        - categoria: ID_CATEGORIA para filtrar por categoría
+        - fecha_inicio: Fecha inicio (YYYY-MM-DD)
+        - fecha_fin: Fecha fin (YYYY-MM-DD)
+        """
         try:
             id_usuario = session["id_usuario"]
+            categoria = request.args.get("categoria", "").strip() or None
+            fecha_inicio = request.args.get("fecha_inicio", "").strip() or None
+            fecha_fin = request.args.get("fecha_fin", "").strip() or None
+            
             db = conectar_db()
             cursor = db.cursor(cursor_factory=RealDictCursor)
 
-            query = """
-                SELECT r."ID_REPORTE" as id_reporte, 'perdido' as tipo, o."ID_OBJETO", o."NOMBRE", o."COLOR", o."IMAGEN", r."FECHA", r."OBSERVACIONES", o."ID_CATEGORIA" as categoria
+            # Construir condiciones para PERDIDOS
+            conditions_p = ['r."ID_USUARIO" = %s']
+            params_p = [id_usuario]
+            
+            if categoria:
+                conditions_p.append('o."ID_CATEGORIA" = %s')
+                params_p.append(categoria)
+            
+            if fecha_inicio:
+                conditions_p.append('r."FECHA" >= %s::DATE')
+                params_p.append(fecha_inicio)
+            
+            if fecha_fin:
+                conditions_p.append('r."FECHA" <= %s::DATE')
+                params_p.append(fecha_fin)
+            
+            # Construir condiciones para ENCONTRADOS (mismas condiciones)
+            conditions_e = ['r."ID_USUARIO" = %s']
+            params_e = [id_usuario]
+            
+            if categoria:
+                conditions_e.append('o."ID_CATEGORIA" = %s')
+                params_e.append(categoria)
+            
+            if fecha_inicio:
+                conditions_e.append('r."FECHA" >= %s::DATE')
+                params_e.append(fecha_inicio)
+            
+            if fecha_fin:
+                conditions_e.append('r."FECHA" <= %s::DATE')
+                params_e.append(fecha_fin)
+            
+            # Combinar todos los parámetros en el orden correcto
+            params = params_p + params_e
+            
+            where_p = ' AND '.join(conditions_p)
+            where_e = ' AND '.join(conditions_e)
+            
+            query = f"""
+                SELECT r."ID_REPORTE" as id_reporte, 'perdido' as tipo, o."ID_OBJETO", o."NOMBRE", o."COLOR", o."IMAGEN", r."FECHA", r."OBSERVACIONES", o."ID_CATEGORIA" as categoria, c."NOMBRE" as nombre_categoria
                 FROM "Reportes_perdidos" r
                 JOIN "Objetos" o ON r."ID_OBJETO" = o."ID_OBJETO"
-                WHERE r."ID_USUARIO" = %s
+                LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
+                WHERE {where_p}
                 UNION ALL
-                SELECT r."ID_REPORTE_ENC" as id_reporte, 'encontrado' as tipo, o."ID_OBJETO", o."NOMBRE", o."COLOR", o."IMAGEN", r."FECHA", r."OBSERVACIONES", o."ID_CATEGORIA" as categoria
+                SELECT r."ID_REPORTE_ENC" as id_reporte, 'encontrado' as tipo, o."ID_OBJETO", o."NOMBRE", o."COLOR", o."IMAGEN", r."FECHA", r."OBSERVACIONES", o."ID_CATEGORIA" as categoria, c."NOMBRE" as nombre_categoria
                 FROM "Reportes_encontrados" r
                 JOIN "Objetos" o ON r."ID_OBJETO" = o."ID_OBJETO"
-                WHERE r."ID_USUARIO" = %s
+                LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
+                WHERE {where_e}
                 ORDER BY "FECHA" DESC
             """
 
-            cursor.execute(query, (id_usuario, id_usuario))
+            cursor.execute(query, params)
             reportes = cursor.fetchall()
             cursor.close()
             db.close()
 
             return jsonify({"ok": True, "datos": reportes})
         except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return jsonify({"ok": False, "error": str(e)}), 500
+
+    @app.route('/api/categorias', methods=['GET'])
+    def api_categorias():
+        """Retorna todas las categorías disponibles"""
+        try:
+            db = conectar_db()
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+            
+            cursor.execute('SELECT "ID_CATEGORIA", "NOMBRE" FROM "Categorias" ORDER BY "NOMBRE"')
+            categorias = cursor.fetchall()
+            cursor.close()
+            db.close()
+            
+            return jsonify({"ok": True, "datos": categorias})
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
+
+    @app.route('/api/descargar_reportes', methods=['POST'])
+    @login_required
+    def api_descargar_reportes():
+        """Genera y descarga un PDF con los reportes filtrados"""
+        try:
+            id_usuario = session["id_usuario"]
+            payload = request.get_json() or {}
+            
+            categoria = (payload.get("categoria") or "").strip() or None
+            fecha_inicio = (payload.get("fecha_inicio") or "").strip() or None
+            fecha_fin = (payload.get("fecha_fin") or "").strip() or None
+
+            tipo = (payload.get("tipo") or "").strip() or None
+            busqueda = (payload.get("busqueda") or "").strip() or None
+                        
+            db = conectar_db()
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+
+            # Construir condiciones para PERDIDOS
+            conditions_p = ['r."ID_USUARIO" = %s']
+            params_p = [id_usuario]
+            
+            if categoria:
+                conditions_p.append('o."ID_CATEGORIA" = %s')
+                params_p.append(categoria)
+
+            if busqueda:
+                conditions_p.append('(LOWER(o."NOMBRE") LIKE LOWER(%s) OR LOWER(o."COLOR") LIKE LOWER(%s))')
+                params_p.extend([f"%{busqueda}%", f"%{busqueda}%"])
+
+            if fecha_inicio:
+                conditions_p.append('r."FECHA" >= %s::DATE')
+                params_p.append(fecha_inicio)
+            
+            if fecha_fin:
+                conditions_p.append('r."FECHA" <= %s::DATE')
+                params_p.append(fecha_fin)
+            
+            # Construir condiciones para ENCONTRADOS
+            conditions_e = ['r."ID_USUARIO" = %s']
+            params_e = [id_usuario]
+            
+            if categoria:
+                conditions_e.append('o."ID_CATEGORIA" = %s')
+                params_e.append(categoria)
+            
+            if fecha_inicio:
+                conditions_e.append('r."FECHA" >= %s::DATE')
+                params_e.append(fecha_inicio)
+            
+            if fecha_fin:
+                conditions_e.append('r."FECHA" <= %s::DATE')
+                params_e.append(fecha_fin)
+            
+            params = params_p + params_e
+            where_p = ' AND '.join(conditions_p)
+            where_e = ' AND '.join(conditions_e)
+            
+            query = f"""
+                SELECT r."ID_REPORTE" as id_reporte, 'perdido' as tipo, o."ID_OBJETO", o."NOMBRE", o."COLOR", o."IMAGEN", r."FECHA", r."OBSERVACIONES", o."ID_CATEGORIA" as categoria, c."NOMBRE" as nombre_categoria
+                FROM "Reportes_perdidos" r
+                JOIN "Objetos" o ON r."ID_OBJETO" = o."ID_OBJETO"
+                LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
+                WHERE {where_p}
+                UNION ALL
+                SELECT r."ID_REPORTE_ENC" as id_reporte, 'encontrado' as tipo, o."ID_OBJETO", o."NOMBRE", o."COLOR", o."IMAGEN", r."FECHA", r."OBSERVACIONES", o."ID_CATEGORIA" as categoria, c."NOMBRE" as nombre_categoria
+                FROM "Reportes_encontrados" r
+                JOIN "Objetos" o ON r."ID_OBJETO" = o."ID_OBJETO"
+                LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
+                WHERE {where_e}
+                ORDER BY "FECHA" DESC
+            """
+
+            cursor.execute(query, params)
+            reportes = cursor.fetchall()
+            cursor.close()
+            db.close()
+
+            # Generar HTML para el PDF
+            filas_tabla = ""
+            for idx, r in enumerate(reportes, 1):
+                fecha = r.get('FECHA')
+                if isinstance(fecha, datetime):
+                    fecha_str = fecha.strftime('%d/%m/%Y')
+                else:
+                    fecha_str = str(fecha) if fecha else 'N/A'
+                
+                tipoLabel = 'Perdido' if r['tipo'] == 'perdido' else 'Encontrado'
+                
+                filas_tabla += f"""
+                <tr>
+                    <td>{idx}</td>
+                    <td>{r.get('NOMBRE', 'N/A')}</td>
+                    <td>{r.get('COLOR', 'N/A')}</td>
+                    <td>{r.get('nombre_categoria', 'N/A')}</td>
+                    <td>{tipoLabel}</td>
+                    <td>{fecha_str}</td>
+                    <td>{(r.get('OBSERVACIONES') or '')[:100]}</td>
+                </tr>
+                """
+
+            html_content = f"""
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Reporte de Objetos</title>
+                <style>
+                    * {{
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                    }}
+                    
+                    body {{
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        color: #333;
+                        background: white;
+                        padding: 20px;
+                    }}
+                    
+                    .header {{
+                        text-align: center;
+                        margin-bottom: 30px;
+                        border-bottom: 3px solid #3498db;
+                        padding-bottom: 15px;
+                    }}
+                    
+                    .header h1 {{
+                        color: #2c3e50;
+                        font-size: 28px;
+                        margin-bottom: 5px;
+                    }}
+                    
+                    .header p {{
+                        color: #7f8c8d;
+                        font-size: 12px;
+                    }}
+                    
+                    .info-filtros {{
+                        background: #ecf0f1;
+                        padding: 15px;
+                        border-radius: 5px;
+                        margin-bottom: 20px;
+                        font-size: 12px;
+                    }}
+                    
+                    .info-filtros p {{
+                        margin: 5px 0;
+                        color: #34495e;
+                    }}
+                    
+                    table {{
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 20px;
+                    }}
+                    
+                    thead {{
+                        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+                        color: white;
+                    }}
+                    
+                    th {{
+                        padding: 15px;
+                        text-align: left;
+                        font-weight: 600;
+                        font-size: 12px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                        border: 1px solid #3498db;
+                    }}
+                    
+                    td {{
+                        padding: 12px 15px;
+                        border: 1px solid #ecf0f1;
+                        font-size: 11px;
+                    }}
+                    
+                    tbody tr:nth-child(even) {{
+                        background: #f8f9fa;
+                    }}
+                    
+                    tbody tr:hover {{
+                        background: #ecf0f1;
+                    }}
+                    
+                    .tipo-perdido {{
+                        background: #ff6b6b;
+                        color: white;
+                        padding: 4px 8px;
+                        border-radius: 3px;
+                        font-weight: 500;
+                    }}
+                    
+                    .tipo-encontrado {{
+                        background: #51cf66;
+                        color: white;
+                        padding: 4px 8px;
+                        border-radius: 3px;
+                        font-weight: 500;
+                    }}
+                    
+                    .footer {{
+                        text-align: center;
+                        margin-top: 30px;
+                        padding-top: 15px;
+                        border-top: 1px solid #ecf0f1;
+                        color: #7f8c8d;
+                        font-size: 10px;
+                    }}
+                    
+                    .total-registros {{
+                        background: #e8f4f8;
+                        padding: 10px;
+                        border-left: 4px solid #3498db;
+                        margin-top: 20px;
+                        font-weight: 600;
+                        color: #2c3e50;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>Reporte de Objetos</h1>
+                    <p>Generado el: {datetime.now().strftime('%d de %B de %Y a las %H:%M')}</p>
+                </div>
+                
+                <div class="info-filtros">
+                    <p><strong>Filtros aplicados:</strong></p>
+                    <p>• Categoría: {categoria or 'Todas'}</p>
+                    <p>• Fecha desde: {fecha_inicio or 'Sin límite'}</p>
+                    <p>• Fecha hasta: {fecha_fin or 'Sin límite'}</p>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="5%">#</th>
+                            <th width="15%">Nombre</th>
+                            <th width="12%">Color</th>
+                            <th width="15%">Categoría</th>
+                            <th width="12%">Tipo</th>
+                            <th width="12%">Fecha</th>
+                            <th width="29%">Observaciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filas_tabla if filas_tabla else '<tr><td colspan="7" style="text-align:center; padding: 20px;">No hay registros para mostrar</td></tr>'}
+                    </tbody>
+                </table>
+                
+                <div class="total-registros">
+                    Total de registros: {len(reportes)}
+                </div>
+                
+                <div class="footer">
+                    <p>© O.R.I.O - Sistema de Reporte de Objetos Perdidos y Encontrados</p>
+                    <p>Este documento contiene información confidencial de tu cuenta</p>
+                </div>
+            </body>
+            </html>
+            """
+
+            # Generar PDF
+            html = HTML(string=html_content, base_url='.')
+            pdf_bytes = html.write_pdf()
+            
+            # Enviar como descarga
+            fecha_generacion = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = f"reportes_{fecha_generacion}.pdf"
+            
+            return send_file(
+                BytesIO(pdf_bytes),
+                mimetype='application/pdf',
+                as_attachment=True,
+                download_name=filename
+            )
+            
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
             return jsonify({"ok": False, "error": str(e)}), 500
 
     @app.route('/api/borrar_reporte', methods=['POST'])
@@ -1675,6 +2033,14 @@ def init_routes(app):
     @login_required
     def pasarela_pago():
         return render_template("pasarela_pago.html")
+
+    # -------------------------------------
+    # RUTA BUZÓN
+    # -------------------------------------
+    @app.route("/buzon")
+    @login_required
+    def buzon():
+        return render_template("buzon.html", active="buzon")
 
 # -------------------------------------
 # RUTA FORMULARIO NORMAL DE PAGO

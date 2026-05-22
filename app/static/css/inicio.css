@@ -92,6 +92,7 @@ header{
 .logo-image{
     width:60px;   
     height:auto;
+    filter: brightness(0) invert(1);
 }
 
 /* contenedor del logo */
