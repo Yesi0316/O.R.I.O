@@ -8,7 +8,6 @@ from functools import wraps
 from io import BytesIO
 
 from flask import (
-    app,
     request,
     jsonify,
     render_template,
@@ -340,11 +339,22 @@ def init_routes(app):
         if not objetos:
             return jsonify({"datos": False, "mensaje": "No se encontraron resultados"})
         return jsonify({"datos": objetos})
+    
+    # --------------------------------
+    # RUTA PARA EL HTML DE USUARIOS
+    # --------------------------------
 
-    # -----------------------------
+    @app.route("/usuarios")
+    @admin_required
+    def usuarios():
+        return render_template("usuarios.html", active="admin")
+
+
+    #------------------------------
     # CONSULTAR USUARIOS
     # -----------------------------
-    @app.route("/usuarios", methods=["GET"])
+    @app.route("/api/usuarios", methods=["GET"])
+    @admin_required
     def obtener_usuarios():
         try:
             conexion = conectar_db()
@@ -353,7 +363,12 @@ def init_routes(app):
 
             cursor = conexion.cursor(cursor_factory=RealDictCursor)
             cursor.execute(
-                'SELECT * FROM public."Usuarios" ORDER BY "ID_USUARIO" DESC;'
+            """
+                SELECT u."ID_USUARIO", u."NOMBRE", u."GENERO", u."ID_ROL", r."NOMBRE" as ROL_NOMBRE
+                FROM public."Usuarios" u
+                LEFT JOIN public."Roles" r ON u."ID_ROL" = r."ID_ROL"
+                ORDER BY u."ID_USUARIO" DESC;   
+            """,  
             )
             usuarios = cursor.fetchall()
 
@@ -449,11 +464,62 @@ def init_routes(app):
     # -------------------------------------
 
     @app.route("/admin_inicio")
-    @login_required
+    @admin_required
     def admin_inicio():
         if session.get("id_rol") != 2:  # Verificar si el rol es admin si no lo devuelve al menu
             return redirect("/menu")
         return render_template("admin.html", active="admin")
+    
+    
+    @app.route("/api/admin_estadisticas")
+    @admin_required
+    def api_estadisticas_admin():
+        """Devuelve las estadísticas del dashboard"""
+        try:
+            db = conectar_db()
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+
+            cursor.execute('SELECT COUNT(*) as total FROM "Reportes_encontrados"')
+            encontrados = cursor.fetchone()["total"]
+
+            cursor.execute('SELECT COUNT(*) as total FROM "Reportes_perdidos"')
+            perdidos = cursor.fetchone()["total"]
+
+            reportes_totales = encontrados + perdidos
+
+            cursor.execute("""
+                SELECT COUNT(DISTINCT rp."ID_OBJETO") as recuperados
+                FROM "Reportes_perdidos" rp
+                INNER JOIN "Reportes_encontrados" re ON rp."ID_OBJETO" = re."ID_OBJETO"
+            """)
+            recuperados = cursor.fetchone()["recuperados"]
+
+            cursor.execute('SELECT COUNT(*) as usuarios FROM "Usuarios"')
+            usuarios = cursor.fetchone()["usuarios"]
+
+            cursor.close()
+            db.close()
+
+            return jsonify(
+                {
+                    "reportes_totales": reportes_totales,
+                    "recuperados": recuperados,
+                    "usuarios": usuarios,
+                }
+            )
+        except Exception as e:
+            print(f"Error en estadísticas: {e}")
+            return (
+                jsonify(
+                    {
+                        "reportes_totales": 0,
+                        "recuperados": 0,
+                        "reportes_falsos": 0,
+                        "usuarios": 0,
+                    }
+                ),
+                500,
+            )
 
     # -------------------------------------
     # RUTA CERRAR SESION
@@ -1620,7 +1686,11 @@ def init_routes(app):
     @app.route("/configuracion")
     @login_required
     def configuracion():
-        return render_template("configuracion.html", active="configuracion")
+        # Redirigir según el rol del usuario
+        if session.get("id_rol") == 2:  # Admin
+            return redirect(url_for("admin_configuracion"))
+        else:  # Usuario normal
+            return redirect(url_for("configuracion_user"))
 
     @app.route("/api/configuracion", methods=["GET"])
     @login_required
@@ -2087,4 +2157,37 @@ def init_routes(app):
     def gestionar_usuarios():
         return render_template("usuarios.html")
     
+    # -------------------------------------
+    # RUTA PARA QUE EL USUARIO CONFIGURE SU PERFIL
+    # -------------------------------------
     
+    @app.route("/configuracion_user")
+    @login_required
+    def configuracion_user():
+        return render_template("configuracion_user.html", active="configuracion")
+    
+    # -------------------------------------
+    # ADMIN CONFIGURACIÓN
+    # -------------------------------------
+
+    @app.route("/admin_configuracion")
+    @admin_required
+    def admin_configuracion():
+        return render_template("configuracion_admin.html", active="configuracion")
+    
+    # -------------------------------------------------------------------------------------------
+    # RUTA PARA QUE EL ADMIN VEA LOS REPORTES DE LOS USUARIOS Y LOS MODIFIQUE SI ES NECESARIO
+    # -------------------------------------
+
+    @app.route("/admin_reportes")
+    @login_required
+    def admin_reportes():
+        return render_template("admin_reportes.html")
+
+    # -------------------------------------
+    # RUTA BUZÓN
+    # -------------------------------------
+    @app.route("/buzon")
+    @login_required
+    def buzon():
+        return render_template("buzon.html", active="buzon")

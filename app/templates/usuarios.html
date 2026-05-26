@@ -6,18 +6,33 @@
 
 {% block content %}
 
-    <h1>Aqui van a parecer todos los usuarios</h1>
+    <h1>usuarios</h1>
 
     <div class="usuario-lista">
 
     </div>
 
 <script>
+const usuarioLista = document.querySelector(".usuario-lista");
 
-    const listaUsuarios =usuarios|tojson ;
-
-    console.log(listaUsuarios);
+fetch("/api/usuarios", { credentials: "same-origin" })
+.then(r => r.json())
+.then(usuarios => {
+    usuarios.forEach(usuario => {
+        console.log("Usuario:", usuario); // Ver cada usuario
+        const usuarioElemento = document.createElement("div");
+        usuarioElemento.classList.add("usuario-item");
+        usuarioElemento.innerHTML = `
+            <h3>${usuario.ID_USUARIO}</h3>
+            <p>Nombre: ${usuario.NOMBRE}</p>
+            <p>Género: ${usuario.GENERO}</p>
+            <p>Rol: ${usuario.rol_nombre || 'Sin rol'}</p>
+        `;
+        usuarioLista.appendChild(usuarioElemento);
+    });
+})
+.catch(error => console.error("Error:", error));
 
 </script>
-
+    
 {% endblock %}

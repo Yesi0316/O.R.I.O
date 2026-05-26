@@ -113,6 +113,12 @@ body{
     box-shadow:0 8px 25px rgba(0,0,0,0.05);
 }
 
+.card h3{
+    font-size:30px;
+    color:#112250;
+    margin:0;
+}
+
 .circle{
     width:75px;
     height:75px;

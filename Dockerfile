@@ -18,4 +18,4 @@ COPY . .
 
 EXPOSE 5000
 
-CMD ["python", "run.py"]
+CMD ["python", "run.py"]c:\Users\Yesic\Downloads\README_REPORTES.md
