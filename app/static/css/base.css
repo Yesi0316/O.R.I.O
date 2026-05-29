@@ -13,7 +13,11 @@
    Elimina márgenes y padding por defecto y usa box-sizing
    para que el tamaño de los elementos sea más controlable
    ========================================================= */
-*{margin:0;padding:0;box-sizing:border-box;}
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
 
 /* =========================================================
    BODY - CONTENEDOR PRINCIPAL DE LA PÁGINA
@@ -21,7 +25,7 @@
 body{
 display:flex; /* Permite colocar sidebar y contenido en fila */
 min-height:100vh; /* Altura mínima igual al alto de la pantalla */
-height: auto; /* Permite que el contenido crezca si es necesario */
+height:auto; /* Permite que el contenido crezca si es necesario */
 font-family:'Libre Baskerville',serif; /* Fuente principal */
 background:linear-gradient(135deg,var(--royal),var(--sapphire)); /* Fondo degradado */
 overflow-x:hidden; /* Evita scroll horizontal */
@@ -30,27 +34,18 @@ overflow-x:hidden; /* Evita scroll horizontal */
 /* =========================================================
    SIDEBAR - MENÚ LATERAL
    ========================================================= */
-
 .sidebar{
-width:250px;
-background:rgba(17,34,80,.95);
-backdrop-filter:blur(12px);
-color:var(--cream);
-
-padding:30px 20px;
-
+width:250px; /* Ancho normal del sidebar */
+background:rgba(17,34,80,.95); /* Fondo azul oscuro con transparencia */
+backdrop-filter:blur(12px); /* Efecto de desenfoque tipo vidrio */
+color:var(--cream); /* Color del texto */
+padding:30px 20px; /* Espaciado interno */
+transition:.4s ease; /* Animación al contraerse o expandirse */
 display:flex;
-flex-direction:column;
+flex-direction:column; /* Elementos organizados verticalmente */
 align-items:center;
-
-box-shadow:5px 0 25px rgba(0,0,0,.3);
-transition:all 0.3s ease;
-
-position: fixed;
-top: 0;
-left: 0;
-height: 100vh;
-z-index:1000;
+position:relative;
+box-shadow:5px 0 25px rgba(0,0,0,.3); /* Sombra lateral */
 }
 
 /* Sidebar cuando está colapsado */
@@ -58,14 +53,9 @@ z-index:1000;
 width:85px;
 }
 
-.sidebar.collapsed + .main{
-margin-left:85px;
-}
-
 /* =========================================================
    PERFIL DEL USUARIO EN SIDEBAR
    ========================================================= */
-
 .sidebar-profile{
 width:75px;
 height:75px;
@@ -90,13 +80,13 @@ box-shadow:0 0 18px rgba(224,197,143,.6);
 
 /* Imagen de perfil en sidebar */
 .sidebar-profile img{
-    width:100%;
-    height:100%;
-    border-radius:50%;
-    object-fit:cover; /* Ajusta la imagen sin deformarla */
-    display:block;
-    box-shadow:0 6px 18px rgba(0,0,0,0.25);
-    border:3px solid rgba(224,197,143,0.12);
+width:100%;
+height:100%;
+border-radius:50%;
+object-fit:cover; /* Ajusta la imagen sin deformarla */
+display:block;
+box-shadow:0 6px 18px rgba(0,0,0,0.25);
+border:3px solid rgba(224,197,143,0.12);
 }
 
 /* =========================================================
@@ -104,58 +94,339 @@ box-shadow:0 0 18px rgba(224,197,143,.6);
    Ventana emergente para mostrar información del usuario
    ========================================================= */
 
-.profile-modal-backdrop{
-    position:fixed;
-    inset:0; /* Ocupa toda la pantalla */
-    background:rgba(0,0,0,0.5); /* Fondo oscuro transparente */
-    display:none; /* Oculto por defecto */
-    align-items:center;
-    justify-content:center;
-    z-index:5000; /* Siempre encima de todo */
-}
+/* =========================================================
+   MODAL PERFIL ORIO - VERSION PRO
+========================================================= */
 
-.profile-modal{
-    background:white;
-    border-radius:12px;
-    padding:20px;
-    width:360px;
-    max-width:90%;
-    box-shadow:0 12px 40px rgba(0,0,0,0.35);
-    color:var(--royal);
-}
+/* =========================================================
+   VARIABLES
+========================================================= */
 
-/* Encabezado del modal */
-.profile-modal .head{
-    display:flex;
-    gap:12px;
-    align-items:center;
-}
-
-/* Imagen dentro del modal */
-.profile-modal img{
-    width:72px;
-    height:72px;
-    border-radius:10px;
-    object-fit:cover;
-}
-
-/* Información del usuario */
-.profile-modal .info b{display:block; color:var(--sapphire);}
-
-/* Botón de cerrar modal */
-.profile-modal .close-btn{
-    background:transparent;
-    border:none;
-    font-size:18px;
-    color:#999;
-    cursor:pointer;
+:root{
+    --sapphire:#3C507D;
+    --royal:#112250;
+    --gold:#E0C58F;
+    --cream:#F5F0E9;
 }
 
 /* =========================================================
+   BACKDROP
+========================================================= */
+
+.profile-modal-backdrop{
+    position:fixed;
+    inset:0;
+
+    display:none; /* IMPORTANTE */
+    align-items:center;
+    justify-content:center;
+
+    background:rgba(10,15,30,.70);
+
+    backdrop-filter:blur(6px);
+
+    z-index:9999;
+
+    animation:fade .25s ease;
+}
+
+/* SOLO cuando tenga active */
+.profile-modal-backdrop.active{
+    display:flex;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.profile-modal{
+    position:relative;
+    overflow:hidden;
+
+    width:360px;
+    max-width:90%;
+
+    padding:24px;
+
+    border-radius:24px;
+
+    background:
+    linear-gradient(
+        160deg,
+        #ffffff,
+        var(--cream)
+    );
+
+    box-shadow:
+    0 10px 30px rgba(0,0,0,.18),
+    0 20px 50px rgba(17,34,80,.18);
+
+    font-family:'Segoe UI', sans-serif;
+
+    animation:showModal .3s ease;
+}
+
+/* Línea superior */
+.profile-modal::before{
+    content:"";
+    position:absolute;
+
+    top:0;
+    left:0;
+
+    width:100%;
+    height:5px;
+
+    background:
+    linear-gradient(
+        90deg,
+        var(--royal),
+        var(--sapphire),
+        var(--gold)
+    );
+}
+
+/* Luz decorativa */
+.profile-modal::after{
+    content:"";
+    position:absolute;
+
+    width:180px;
+    height:180px;
+
+    top:-90px;
+    right:-90px;
+
+    border-radius:50%;
+
+    background:
+    radial-gradient(
+        circle,
+        rgba(224,197,143,.25),
+        transparent 70%
+    );
+}
+
+/* =========================================================
+   BOTON CERRAR
+========================================================= */
+
+.profile-modal .close-btn{
+    position:absolute;
+
+    top:14px;
+    right:14px;
+
+    width:36px;
+    height:36px;
+
+    border:none;
+    border-radius:50%;
+
+    background:rgba(60,80,125,.10);
+
+    color:var(--sapphire);
+
+    font-size:22px;
+
+    cursor:pointer;
+
+    transition:.25s ease;
+}
+
+.profile-modal .close-btn:hover{
+    background:var(--royal);
+    color:white;
+
+    transform:rotate(90deg);
+}
+
+/* =========================================================
+   TITULO
+========================================================= */
+
+.profile-modal h2{
+    margin:0 0 22px;
+
+    text-align:center;
+
+    font-size:28px;
+    font-weight:800;
+
+    color:var(--royal);
+
+    letter-spacing:-1px;
+}
+
+/* =========================================================
+   CONTENIDO
+========================================================= */
+
+.profile-modal .head{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+
+    gap:16px;
+
+    margin-bottom:22px;
+}
+
+/* =========================================================
+   FOTO
+========================================================= */
+
+.profile-modal img{
+    width:100px;
+    height:100px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    border:4px solid white;
+
+    background:
+    linear-gradient(
+        135deg,
+        #ebe6de,
+        #ddd4c8
+    );
+
+    box-shadow:
+    0 8px 18px rgba(17,34,80,.18);
+
+    transition:.3s ease;
+}
+
+.profile-modal img:hover{
+    transform:scale(1.05);
+}
+
+/* =========================================================
+   INFO
+========================================================= */
+
+.profile-modal .info{
+    width:100%;
+}
+
+/* Tarjeta interna */
+.profile-modal .info-box{
+    padding:14px;
+
+    border-radius:16px;
+
+    background:rgba(255,255,255,.70);
+
+    border:1px solid rgba(60,80,125,.08);
+
+    text-align:center;
+}
+
+/* Texto */
+.profile-modal .info-box span{
+    display:block;
+
+    margin-bottom:6px;
+
+    font-size:12px;
+    font-weight:700;
+
+    color:var(--sapphire);
+
+    text-transform:uppercase;
+
+    letter-spacing:.6px;
+}
+
+.profile-modal .info-box p{
+    margin:0;
+
+    color:var(--royal);
+
+    font-size:15px;
+    font-weight:600;
+}
+
+/* =========================================================
+   BOTON EDITAR
+========================================================= */
+
+.profile-modal .edit-btn{
+    width:100%;
+
+    padding:14px;
+
+    border:none;
+    border-radius:16px;
+
+    background:
+    linear-gradient(
+        135deg,
+        var(--royal),
+        var(--sapphire)
+    );
+
+    color:white;
+
+    font-size:15px;
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.3s ease;
+
+    box-shadow:
+    0 8px 18px rgba(17,34,80,.22);
+}
+
+.profile-modal .edit-btn:hover{
+    transform:translateY(-2px);
+
+    background:
+    linear-gradient(
+        135deg,
+        var(--sapphire),
+        var(--royal)
+    );
+}
+
+/* =========================================================
+   ANIMACIONES
+========================================================= */
+
+@keyframes showModal{
+    from{
+        opacity:0;
+        transform:
+        translateY(-10px)
+        scale(.96);
+    }
+
+    to{
+        opacity:1;
+        transform:
+        translateY(0)
+        scale(1);
+    }
+}
+
+@keyframes fade{
+    from{
+        opacity:0;
+    }
+
+    to{
+        opacity:1;
+    }
+}
+/* =========================================================
    MENÚ DEL SIDEBAR
    ========================================================= */
-
-.menu{ width:100%; }
+.menu{
+width:100%;
+}
 
 /* Enlaces del menú */
 .menu a{
@@ -182,7 +453,6 @@ opacity:1;
    ESTADO ACTIVO PREMIUM
    Indica la página actual del menú
    ========================================================= */
-
 .menu a.active{
 background:linear-gradient(135deg,var(--gold),#f2d9a6);
 color:var(--royal);
@@ -190,14 +460,15 @@ font-weight:600;
 box-shadow:0 10px 25px rgba(0,0,0,.2);
 opacity:1;
 }
-                                                          
+
 /* Oculta texto del menú cuando el sidebar está colapsado */
-.sidebar.collapsed .menu span{ display:none; }
+.sidebar.collapsed .menu span{
+display:none;
+}
 
 /* =========================================================
    BOTÓN TOGGLE (ABRIR / CERRAR SIDEBAR)
    ========================================================= */
-
 .toggle{
 position:absolute;
 top:20px;
@@ -224,71 +495,225 @@ transform:scale(1.1);
    MAIN - CONTENIDO PRINCIPAL DE LA PÁGINA
    ========================================================= */
 
+
+
 .main{
-flex:1;
+flex:1; /* Ocupa el espacio restante al lado del sidebar */
 background:var(--cream);
 border-bottom-left-radius:35px;
-padding:20px 40px 40px 40px;
-overflow:auto;
-transition:all 0.3s ease;
-
-margin-left:250px;
+padding:20px 40px 40px 40px; /* menos espacio arriba */
+overflow:auto; /* Scroll si el contenido es grande */
+transition:.35s;
+position:relative; /* Necesario para el modal flotante */
 }
 
 /* =========================================================
    FAB (FLOATING ACTION BUTTON)
    Botón flotante con menú radial
    ========================================================= */
-
-.fab {
-position: fixed;
-bottom: 30px;
-right: 40px;
-width: 65px;
-height: 65px;
-border-radius: 50%;
-
-background: linear-gradient(135deg, var(--gold), #f2d9a6);
-color: var(--royal);
-
-display: flex;
-align-items: center;
-justify-content: center;
-
-font-size: 28px;
-cursor: pointer;
-
-box-shadow: 0 10px 25px rgba(0,0,0,.25);
-transition: all 0.3s ease;
-text-decoration: none;
-z-index: 20;
+.fab{
+position:fixed;
+bottom:30px;
+right:40px;
+width:70px;
+height:70px;
+border-radius:50%;
+background:linear-gradient(135deg,var(--gold),#f2d9a6);
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:36px;
+font-weight:bold;
+cursor:pointer;
+box-shadow:0 15px 30px rgba(0,0,0,.25);
+transition:transform .3s ease, box-shadow .3s ease;
+text-decoration:none;
+z-index:20;
 }
 
-.fab:hover {
-transform: scale(1.12) rotate(10deg);
-box-shadow: 0 15px 35px rgba(0,0,0,.3);
+/* Hover */
+.fab:hover{
+transform:scale(1.1);
+box-shadow:0 18px 35px rgba(0,0,0,.25);
+}
+
+/* =========================================================
+   BOTÓN PREMIUM
+   ========================================================= */
+.premium-btn{
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
+margin-top:auto;
+width:100%;
+padding:14px;
+border-radius:14px;
+text-decoration:none;
+font-size:14px;
+font-weight:600;
+background:linear-gradient(135deg,var(--gold),#f2d9a6);
+color:var(--royal);
+box-shadow:0 10px 25px rgba(0,0,0,.2);
+transition:.25s ease;
+}
+
+/* Icono */
+.premium-btn i{
+font-size:16px;
+}
+
+/* Hover elegante */
+.premium-btn:hover{
+transform:translateY(-2px);
+box-shadow:0 14px 30px rgba(0,0,0,.25);
+}
+
+/* Ocultar texto del botón premium en sidebar colapsado */
+.sidebar.collapsed .premium-btn span{
+display:none;
+}
+
+.sidebar.collapsed .premium-btn{
+justify-content:center;
+padding:14px 10px;
+}
+
+/* =========================================================
+   MODAL FLOTANTE PREMIUM
+   ========================================================= */
+
+/* FONDO DEL MODAL */
+.modal{
+display:none;
+position:absolute;
+inset:0;
+justify-content:center;
+align-items:center;
+z-index:999;
+background:transparent;
+}
+
+/* CAJA PRINCIPAL */
+.modal-content{
+width:500px;
+max-width:90%;
+padding:35px;
+border-radius:24px;
+
+background:linear-gradient(
+145deg,
+#112250,
+#3C507D
+);
+
+border:2px solid #d4b06a;
+
+box-shadow:
+0 15px 40px rgba(0,0,0,0.35),
+0 0 15px rgba(212,176,106,0.25);
+
+text-align:center;
+animation:modalShow .30s ease;
+}
+
+/* TITULO */
+.modal-content h2{
+color:#E0C58F;
+margin-bottom:14px;
+font-size:28px;
+font-weight:700;
+letter-spacing:.5px;
+}
+
+/* TEXTO */
+.modal-content p{
+color:#f5f5f5;
+font-size:16px;
+line-height:1.5;
+margin-bottom:28px;
+}
+
+/* CONTENEDOR BOTONES */
+.modal-buttons{
+display:flex;
+justify-content:center;
+gap:14px;
+}
+
+/* BOTON CERRAR */
+.btn-danger{
+background:linear-gradient(
+135deg,
+#E0C58F,
+#E0C58F
+);
+
+color:#0d1b4d;
+border:none;
+padding:13px 20px;
+border-radius:12px;
+font-weight:bold;
+cursor:pointer;
+transition:.25s;
+}
+
+/* Hover */
+.btn-danger:hover{
+transform:translateY(-2px);
+box-shadow:0 8px 20px rgba(212,176,106,0.4);
+}
+
+/* BOTON CANCELAR */
+.btn-cancel{
+background:transparent;
+color:white;
+border:2px solid rgba(255,255,255,0.25);
+padding:13px 20px;
+border-radius:12px;
+cursor:pointer;
+transition:.25s;
+}
+
+/* Hover */
+.btn-cancel:hover{
+background:rgba(255,255,255,0.08);
+}
+
+/* =========================================================
+   ANIMACION MODAL
+   ========================================================= */
+@keyframes modalShow{
+from{
+opacity:0;
+transform:scale(.8);
+}
+
+to{
+opacity:1;
+transform:scale(1);
+}
 }
 
 /* =========================================================
    MOBILE NAVBAR
    Adaptación del diseño para dispositivos móviles
    ========================================================= */
-
 @media (max-width:900px){
 
 body{
 flex-direction:column;
 }
 
-/* NAVBAR ABAJO */
+/* =========================================================
+   SIDEBAR SE CONVIERTE EN NAVBAR INFERIOR
+   ========================================================= */
 .sidebar{
 position:fixed;
-
-top:auto;
 bottom:15px;
 left:50%;
 transform:translateX(-50%);
-
 width:95%;
 height:70px;
 
@@ -307,18 +732,23 @@ z-index:9999;
 box-shadow:0 10px 30px rgba(0,0,0,.25);
 }
 
-/* ocultar cosas de PC */
-.sidebar-profile{ display:none; }
-.toggle{ display:none; }
+/* Ocultar elementos solo de PC */
+.sidebar-profile{
+display:none;
+}
 
-/* menú horizontal */
+.toggle{
+display:none;
+}
+
+/* Menú horizontal */
 .menu{
 display:flex;
 width:100%;
 justify-content:space-around;
 }
 
-/* botones */
+/* Botones del menú en móvil */
 .menu a{
 flex-direction:column;
 gap:3px;
@@ -326,23 +756,26 @@ margin:0;
 border-radius:14px;
 font-size:10px;
 padding:6px 12px;
-
 color:rgba(245,240,233,.65);
 transition:.3s ease;
 position:relative;
 }
 
+/* Hover */
 .menu a:hover{
 background:rgba(224,197,143,.12);
 color:var(--cream);
 transform:translateY(-2px);
 }
 
-/* activo */
+/* =========================================================
+   ESTADO ACTIVO ESTILO APP
+   ========================================================= */
 .menu a.active{
 color:#112250;
 }
 
+/* Indicador de página activa */
 .menu a.active::before{
 content:"";
 position:absolute;
@@ -354,6 +787,7 @@ background:var(--gold);
 box-shadow:0 0 12px rgba(224,197,143,.9);
 }
 
+/* Animación del icono activo */
 .menu a i{
 font-size:18px;
 transition:.3s ease;
@@ -363,20 +797,26 @@ transition:.3s ease;
 transform:scale(1.15);
 }
 
-/* 🔥 MAIN SIN MARGIN */
+/* MAIN en móvil */
 .main{
-margin-left:0 !important;
 border-radius:0;
 padding:25px 15px 120px 15px;
 }
 
-/* FAB */
+/* Ajuste del botón flotante */
 .fab{
 bottom:100px;
 right:20px;
 }
 
-/* PREMIUM */
+.fab-menu{
+bottom:100px;
+right:20px;
+}
+
+/* =========================================================
+   BOTÓN PREMIUM RESPONSIVE PARA MÓVIL
+   ========================================================= */
 .premium-btn{
 width:50px;
 height:60px;
@@ -397,282 +837,4 @@ font-size:20px;
 .premium-btn span{
 display:none;
 }
-
-}
-
-/* =========================================================
-   BOTÓN PREMIUM
-   ========================================================= */
-
-.premium-btn{
-display:flex;
-align-items:center;
-justify-content:center;
-gap:10px;
-
-margin-top:auto;
-width:100%;
-
-padding:14px;
-border-radius:14px;
-
-text-decoration:none;
-font-size:14px;
-font-weight:600;
-
-background:linear-gradient(135deg,var(--gold),#f2d9a6);
-color:var(--royal);
-
-box-shadow:0 10px 25px rgba(0,0,0,.2);
-
-transition:.25s ease;
-}
-
-/* icono */
-.premium-btn i{
-font-size:16px;
-}
-
-/* hover elegante */
-.premium-btn:hover{
-transform:translateY(-2px);
-box-shadow:0 14px 30px rgba(0,0,0,.25);
-}
-.sidebar.collapsed .premium-btn span{
-display:none;
-}
-
-.sidebar.collapsed .premium-btn{
-justify-content:center;
-padding:14px 10px;
-}
-
-/* =========================
-   NAVBAR MOVIL PRO
-========================= */
-
-.mobile-nav{
-display:none;
-}
-
-/* OCULTAR TODO LO MOVIL EN PC */
-.mobile-nav,
-.fab-main,
-.fab-menu-up{
-display:none;
-}
-
-@media (max-width:900px){
-
-.sidebar{
-display:none;
-}
-
-/* NAVBAR */
-.mobile-nav{
-display:flex;
-position: fixed;
-bottom: 15px;
-left: 50%;
-transform: translateX(-50%);
-
-width: 95%;
-height: 75px;
-
-background: rgba(17,34,80,.9);
-backdrop-filter: blur(20px);
-
-border-radius: 28px;
-
-align-items: center;
-justify-content: space-between;
-
-padding: 0 30px;
-
-z-index: 9999;
-box-shadow: 0 12px 35px rgba(0,0,0,.3);
-}
-
-/* lados */
-.nav-left,
-.nav-right{
-display:flex;
-gap:25px;
-}
-
-/* ITEMS */
-.nav-item{
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-
-font-size:11px;
-gap:4px;
-
-color:rgba(245,240,233,.7);
-text-decoration:none;
-transition:.3s;
-}
-
-/* iconos */
-.nav-item i{
-font-size:20px;
-}
-
-/* activo */
-.nav-item.active{
-color:var(--gold);
-transform:scale(1.1);
-}
-
-/* CENTRO */
-/* CENTRO CON DOS BOTONES */
-.nav-center{
-position:absolute;
-left:50%;
-transform:translateX(-50%);
-top:-28px;
-}
-
-/* BOTÓN DESPLEGABLE (ARRIBA DE LA NAVBAR) */
-.fab-main{
-position: fixed;
-
-/* 🔥 CAMBIOS AQUÍ */
-bottom: 95px; 
-left: 25px;   /* antes era right */
-
-width:55px;
-height:55px;
-border-radius:50%;
-
-background:var(--royal);
-color:var(--gold);
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-font-size:20px;
-cursor:pointer;
-
-box-shadow:0 8px 20px rgba(0,0,0,.25);
-transition:.3s;
-
-z-index:10000;
-}
-
-.fab-main:hover{
-transform:scale(1.1);
-background:var(--gold);
-color:var(--royal);
-}
-
-.fab-main.active{
-transform:rotate(90deg);
-}
-
-.fab-main.disabled{
-opacity:0.5;
-pointer-events:none;
-transform:none;
-}
-
-/* BOTÓN CENTRAL  */
-.fab-search{
-width:70px;
-height:70px;
-border-radius:50%;
-
-background:linear-gradient(135deg,var(--gold),#f2d9a6);
-color:var(--royal);
-
-display:flex;
-align-items:center;
-justify-content:center;
-
-font-size:28px;
-
-box-shadow:0 12px 30px rgba(0,0,0,.35);
-transition:.3s;
-
-text-decoration:none;
-}
-
-.fab-search:hover{
-transform:scale(1.1) rotate(90deg);
-}
-
-.fab-menu-up{
-position: fixed;
-
-/* 🔥 alineado con el botón */
-bottom: 160px;
-left: 25px;
-
-display:flex;
-flex-direction:column;
-align-items:flex-start; /* 👈 clave para que no se vea diagonal */
-gap:10px;
-
-opacity:0;
-pointer-events:none;
-transform:translateY(20px);
-transition:.3s;
-}
-
-.fab-menu-up.active{
-opacity:1;
-pointer-events:auto;
-transform:translateY(0);
-}
-
-/* OPCIONES */
-.fab-option{
-display:flex;
-align-items:center;
-gap:10px;
-
-padding:12px 18px;
-
-border-radius:14px;
-
-background:rgba(17,34,80,.95);
-color:var(--cream);
-
-text-decoration:none;
-font-size:13px;
-
-box-shadow:0 8px 20px rgba(0,0,0,.25);
-transition:.3s;
-}
-
-.fab-main,
-.fab-menu-up{
-display:flex;
-}
-
-/* hover */
-.fab-option:hover{
-transform:translateY(-2px);
-background:var(--gold);
-color:var(--royal);
-}
-
-/* estilos especiales */
-.fab-option.premium i{
-color:var(--gold);
-}
-
-.fab-option.logout i{
-color:#ff6b6b;
-}
-
-/* MAIN */
-.main{
-margin-left:0 !important;
-padding-bottom:130px;
-}
-
 }
