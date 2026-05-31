@@ -669,6 +669,9 @@ color:var(--gold);
 color:#ff6b6b;
 }
 
+.fab-option.config i{
+color:var(--sapphire);
+}  
 /* MAIN */
 .main{
 margin-left:0 !important;

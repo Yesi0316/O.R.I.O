@@ -131,11 +131,6 @@ window.addEventListener('DOMContentLoaded', async function() {
             <i class="fas fa-envelope"></i>
             <span>Buzón</span>
         </a>
-
-        <a href="/configuracion" class="nav-item {{ 'active' if active=='configuracion' else '' }}">
-            <i class="fas fa-cog"></i>
-            <span>Config</span>
-        </a>
     </div>
 
 </div>
@@ -151,6 +146,11 @@ window.addEventListener('DOMContentLoaded', async function() {
 
 <!-- MENÚ DESPLEGABLE PRO -->
 <div id="fabMenu" class="fab-menu-up">
+
+    <a href="/configuracion" class="fab-pption config">
+            <i class="fas fa-cog"></i>
+            <span>Config</span>
+    </a>
 
     <a href="/pasarela_pago" class="fab-option premium">
         <i class="fas fa-crown"></i>

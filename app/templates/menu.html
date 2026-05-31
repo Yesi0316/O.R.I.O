@@ -181,18 +181,24 @@ resultadosBusqueda.innerHTML = "";
 if (datos["datos"] && datos["datos"].length > 0) {
 const objetos = datos["datos"];
 objetos.forEach(objeto => {
+const nombre = objeto.NOMBRE || objeto.nombre || objeto.Nombre || 'Sin nombre';
+const categoriaTexto = objeto.CATEGORIA || objeto.categoria || objeto.Categoria || 'Sin categoría';
+const color = objeto.COLOR || objeto.color || objeto.Color || 'Sin color';
+const idObjeto = objeto.ID_OBJETO || objeto.id_objeto || objeto.idObjeto || objeto.ID_OBJETO || '';
+const imagen = objeto.IMAGEN || objeto.imagen || objeto.Imagen || '';
+
 let imagen_html = "";
-if (objeto.IMAGEN) {
-imagen_html = `<img src="${objeto.IMAGEN}" alt="Imagen del objeto" class="tarjeta-img">`;
+if (imagen) {
+imagen_html = `<img src="${imagen}" alt="Imagen del objeto" class="tarjeta-img">`;
 }
 
 let html = `<div class="tarjeta-resultado">
 ${imagen_html}
 <div class="tarjeta-contenido">
-<div class="tarjeta-titulo">${objeto.NOMBRE}</div>
-<div class="tarjeta-categoria">${objeto.CATEGORIA}</div>
-<div class="tarjeta-color">${objeto.COLOR}</div>
-<a class="tarjeta-btn" href="/detalles/${objeto.ID_OBJETO}">Ver</a>
+<div class="tarjeta-titulo">${nombre}</div>
+<div class="tarjeta-categoria">${categoriaTexto}</div>
+<div class="tarjeta-color">${color}</div>
+<a class="tarjeta-btn" href="/detalles/${idObjeto}">Ver</a>
 </div>
 </div>`;
 
