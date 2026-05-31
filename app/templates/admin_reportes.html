@@ -1,0 +1,249 @@
+{%extends "admin_base.html"%}
+
+{% block title %}Mis Reportes | O.R.I.O{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_reportes.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<div class="header">
+  <h1>Reportes</h1>
+  <p style="color: #666; margin-top: 8px;">Ve todo los reportes y puede eliminar los que considere necesariosS</p>
+</div>
+
+<div class="search-section">
+  <div class="search-bar">
+    <i class="fas fa-search"></i>
+    <input type="text" id="buscarReportes" placeholder="Buscar por nombre o color..." autocomplete="off">
+  </div>
+
+  <div class="filters-row">
+    <select id="filtroTipo" class="filter-select">
+      <option value="">Todos los tipos</option>
+      <option value="perdido">Perdido</option>
+      <option value="encontrado">Encontrado</option>
+    </select>
+
+    <select id="filtroCategoria" class="filter-select">
+      <option value="">Todas las categorías</option>
+      <option value="Documentos">Documentos</option>
+      <option value="Tecnología">Tecnología</option>
+      <option value="Accesorios">Accesorios</option>
+      <option value="Ropa">Ropa</option>
+      <option value="Llaves">Llaves</option>
+      <option value="Otros">Otros</option>
+    </select>
+
+    <div class="filter-date-container">
+      <label for="filtroFechaInicio" style="font-size: 12px; color: #666;">Desde:</label>
+      <input type="date" id="filtroFechaInicio" class="filter-date-input">
+      
+      <label for="filtroFechaFin" style="font-size: 12px; color: #666;">Hasta:</label>
+      <input type="date" id="filtroFechaFin" class="filter-date-input">
+      
+      <button id="resetFiltros" class="filter-reset-btn">
+        <i class="fas fa-redo"></i> Limpiar filtros
+      </button>
+
+      <button id="descargarPDF" class="filter-download-btn">
+        <i class="fas fa-download"></i> Descargar PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="reportesGrid" class="grid-resultados" style="margin-top:18px;">
+  <!-- tarjetas se insertan aquí -->
+</div>
+
+<script>
+const buscarInput = document.getElementById('buscarReportes');
+const filtroTipo = document.getElementById('filtroTipo');
+const filtroCategoria = document.getElementById('filtroCategoria');
+const filtroFechaInicio = document.getElementById('filtroFechaInicio');
+const filtroFechaFin = document.getElementById('filtroFechaFin');
+const resetFiltros = document.getElementById('resetFiltros');
+const descargarPDF = document.getElementById('descargarPDF');
+const grid = document.getElementById('reportesGrid');
+let allReportes = [];
+
+async function cargarReportes(){
+  try{
+    // Construir URL con parámetros de filtro
+    const params = new URLSearchParams();
+    
+    if(filtroCategoria.value) {
+      params.append('categoria', filtroCategoria.value);
+    }
+    
+    if(filtroFechaInicio.value) {
+      params.append('fecha_inicio', filtroFechaInicio.value);
+    }
+    
+    if(filtroFechaFin.value) {
+      params.append('fecha_fin', filtroFechaFin.value);
+    }
+    
+    const url = '/api/admin_reportes' + (params.toString() ? '?' + params.toString() : '');
+    const res = await fetch(url);
+    const data = await res.json();
+    
+    if (!data.ok) {
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:#c33;">Error cargando reportes</div>';
+      return;
+    }
+    
+    allReportes = data.datos || [];
+    renderizar();
+  }catch(e){
+    console.error(e);
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:30px;color:#c33;">Error en la solicitud</div>';
+  }
+}
+
+function renderizar(){
+  const q = buscarInput.value.trim().toLowerCase();
+  const tipo = filtroTipo.value;
+
+  const filtrados = allReportes.filter(r => {
+    if (tipo && r.tipo !== tipo) return false;
+    if (!q) return true;
+    return (r.NOMBRE || r.nombre || '').toLowerCase().includes(q) || (r.COLOR || r.color || '').toLowerCase().includes(q);
+  });
+
+  grid.innerHTML = '';
+  
+  if (filtrados.length === 0){
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--sapphire);">No hay reportes que coincidan con los filtros seleccionados</div>';
+    return;
+  }
+
+  filtrados.forEach(r => {
+    const img = r.IMAGEN || r.imagen || null;
+    const tipoLabel = r.tipo === 'perdido' ? 'Perdido' : 'Encontrado';
+    const fecha = r.FECHA ? new Date(r.FECHA).toLocaleDateString('es-CO') : '';
+    const nombreCategoria = r.nombre_categoria || r.categoria || '';
+
+    const imgHtml = img ? `<img class="tarjeta-img" src="${img}" alt="Imagen">` : '';
+
+    const html = `
+      <div class="tarjeta-resultado">
+        ${imgHtml}
+        <div class="tarjeta-contenido">
+          <div>
+            <div class="tarjeta-titulo">${r.NOMBRE || r.nombre || 'Sin título'}</div>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap;">
+              <span class="tarjeta-categoria">${nombreCategoria}</span>
+              <small style="color:#888;font-size:11px;">${tipoLabel}</small>
+              <small style="color:#888;font-size:11px;"> ${fecha}</small>
+            </div>
+            ${r.COLOR ? `<small style="color:#999;margin-top:4px;">Color: ${r.COLOR}</small>` : ''}
+          </div>
+          <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;">
+            <a class="tarjeta-btn" href="/detalles/${r.ID_OBJETO}">Ver</a>
+            <button class="tarjeta-btn tarjeta-borrar" onclick="borrarReporte('${(r.id_reporte||r.ID_REPORTE||r.ID_REPORTE_ENC)}','${r.tipo}')" style="background:#e74c3c;border:none;color:#fff;padding:6px 8px;border-radius:4px;cursor:pointer;">Borrar</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    grid.insertAdjacentHTML('beforeend', html);
+  });
+}
+
+buscarInput.addEventListener('input', renderizar);
+filtroTipo.addEventListener('change', renderizar);
+filtroCategoria.addEventListener('change', cargarReportes);
+filtroFechaInicio.addEventListener('change', cargarReportes);
+filtroFechaFin.addEventListener('change', cargarReportes);
+
+resetFiltros.addEventListener('click', () => {
+  buscarInput.value = '';
+  filtroTipo.value = '';
+  filtroCategoria.value = '';
+  filtroFechaInicio.value = '';
+  filtroFechaFin.value = '';
+  cargarReportes();
+});
+
+descargarPDF.addEventListener('click', async () => {
+  if(allReportes.length === 0) {
+    alert('No hay reportes para descargar');
+    return;
+  }
+
+  descargarPDF.disabled = true;
+  descargarPDF.textContent = '⏳ Generando PDF...';
+
+  try {
+    const payload = {
+      categoria: filtroCategoria.value || null,
+      fecha_inicio: filtroFechaInicio.value || null,
+      fecha_fin: filtroFechaFin.value || null,
+      tipo: filtroTipo.value || null,
+      busqueda: buscarInput.value.trim() || null
+    };
+
+    const res = await fetch('/api/admin_descargar_reportes', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      alert(data.error || 'Error al generar el PDF');
+      return;
+    }
+
+    // Descargar el PDF
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `reportes_${new Date().toISOString().slice(0,10)}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+  } catch(e) {
+    console.error(e);
+    alert('Error al descargar el PDF');
+  } finally {
+    descargarPDF.disabled = false;
+    descargarPDF.innerHTML = '<i class="fas fa-download"></i> Descargar PDF';
+  }
+});
+
+cargarReportes();
+
+async function borrarReporte(id, tipo){
+  if(!confirm('¿Seguro que deseas borrar este reporte?')) return;
+  try{
+    const res = await fetch('/api/admin_borrar_reporte', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({id_reporte: id, tipo: tipo})
+    });
+    const data = await res.json();
+    if(!data.ok){
+      alert(data.error || 'No se pudo borrar el reporte');
+      return;
+    }
+    // eliminar del array local y re-renderizar
+    allReportes = allReportes.filter(r => {
+      const rid = r.id_reporte || r.ID_REPORTE || r.ID_REPORTE_ENC || r.id;
+      return String(rid) !== String(id);
+    });
+    renderizar();
+  }catch(e){
+    console.error(e);
+    alert('Error al borrar el reporte');
+  }
+}
+</script>
+
+{% endblock %}

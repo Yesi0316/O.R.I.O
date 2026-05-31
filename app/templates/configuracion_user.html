@@ -1,3 +1,11 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/configuracion.css') }}">
+{% endblock %}
+
+{% block content %}
+
 <div class="header">
   <h1>Configuración</h1>
 </div>
@@ -5,7 +13,7 @@
 <!-- APARIENCIA -->
 <div class="config-section">
   <h3><i class="fas fa-palette"></i> Apariencia</h3>
-
+  
   <div class="config-item">
     <div class="config-label">
       <strong>Tema</strong>
@@ -19,12 +27,48 @@
   </div>
 </div>
 
+<!-- NOTIFICACIONES -->
+<div class="config-section">
+  <h3><i class="fas fa-bell"></i> Notificaciones</h3>
+  
+  <div class="config-item">
+    <div class="config-label">
+      <strong>Notificaciones en la app</strong>
+      <p>Recibe alertas sobre tus reportes</p>
+    </div>
+    <div id="toggleNotif" class="toggle-switch active" onclick="toggleNotif()"></div>
+  </div>
 
+  <div class="config-item">
+    <div class="config-label">
+      <strong>Email por reportes</strong>
+      <p>Recibe correos cuando hay coincidencias</p>
+    </div>
+    <div id="toggleEmail" class="toggle-switch active" onclick="toggleEmail()"></div>
+  </div>
+</div>
+
+<!-- PRIVACIDAD -->
+<div class="config-section">
+  <h3><i class="fas fa-lock"></i> Privacidad</h3>
+  
+  <div class="config-item">
+    <div class="config-label">
+      <strong>Visibilidad de perfil</strong>
+      <p>Controla quién puede ver tu perfil</p>
+    </div>
+    <select id="selectPrivacidad" class="select-config">
+      <option value="publica">Público</option>
+      <option value="amigos">Amigos únicamente</option>
+      <option value="privada">Privado</option>
+    </select>
+  </div>
+</div>
 
 <!-- SEGURIDAD -->
 <div class="config-section">
   <h3><i class="fas fa-shield-alt"></i> Seguridad</h3>
-
+  
   <div id="msgSuccess" class="msg-success"></div>
   <div id="msgError" class="msg-error"></div>
 
@@ -57,7 +101,7 @@
 <!-- INFO -->
 <div class="config-section">
   <h3><i class="fas fa-info-circle"></i> Información</h3>
-
+  
   <div class="config-item">
     <div class="config-label">
       <strong>Versión de O.R.I.O</strong>
@@ -89,11 +133,11 @@ async function cargarConfig() {
     // Cargar tema desde BD
     const resTema = await fetch('/api/tema/obtener');
     const dataTema = await resTema.json();
-
+    
     if (dataTema.ok) {
       config.tema = dataTema.tema;
       document.getElementById('selectTema').value = config.tema;
-
+      
       document.body.classList.remove('modo-oscuro', 'modo-alto-contraste');
       if (config.tema === 'oscuro') {
         document.body.classList.add('modo-oscuro');
@@ -101,7 +145,7 @@ async function cargarConfig() {
         document.body.classList.add('modo-alto-contraste');
       }
     }
-
+    
     // Cargar otras configuraciones desde API
     const res = await fetch('/api/configuracion');
     const data = await res.json();
@@ -194,6 +238,7 @@ const ruleLetter = document.getElementById('ruleLetterConfig');
 const ruleNumber = document.getElementById('ruleNumberConfig');
 
 
+
 function actualizarRegla(elemento, condicion, texto) {
   if (!elemento) return;
 
@@ -260,69 +305,41 @@ function verificarFormulario() {
    CAMBIAR CONTRASEÑA
 ================================ */
 async function cambiarContrasena() {
-
-  const actual = document.getElementById('inputPassActual').value.trim();
-  const nueva = document.getElementById('inputPassNueva').value.trim();
-  const confirmar = document.getElementById('inputPassConfirm').value.trim();
-
+  const actual = document.getElementById('inputPassActual').value;
+  const nueva = document.getElementById('inputPassNueva').value;
   const msgSuccess = document.getElementById('msgSuccess');
   const msgError = document.getElementById('msgError');
 
-  msgSuccess.classList.remove('show');
-  msgError.classList.remove('show');
-
-  if (!actual || !nueva || !confirmar) {
-    msgError.textContent = '✗ Por favor completa todos los campos';
-    msgError.classList.add('show');
-    return;
-  }
-
-  if (!validarPassword(nueva)) {
-    msgError.textContent = '✗ La contraseña no cumple los requisitos';
-    msgError.classList.add('show');
-    return;
-  }
-
-  if (nueva !== confirmar) {
-    msgError.textContent = '✗ Las contraseñas no coinciden';
-    msgError.classList.add('show');
-    return;
-  }
+  msgSuccess.textContent = '';
+  msgError.textContent = '';
 
   try {
     const res = await fetch('/api/cambiar_contrasena', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contrasena_actual: actual,
-        contrasena_nueva: nueva,
-        contrasena_confirmar: confirmar
-      })
+      body: JSON.stringify({ actual, nueva })
     });
 
     const data = await res.json();
 
     if (data.ok) {
-      msgSuccess.textContent = '✓ ' + data.mensaje;
-      msgSuccess.classList.add('show');
-
+      msgSuccess.textContent = 'Contraseña cambiada exitosamente';
       document.getElementById('inputPassActual').value = '';
       document.getElementById('inputPassNueva').value = '';
       document.getElementById('inputPassConfirm').value = '';
-
-      setTimeout(() => msgSuccess.classList.remove('show'), 4000);
-
+      document.getElementById('passwordRulesConfig').classList.remove('active');
+      btnCambiar.disabled = true;
     } else {
-      msgError.textContent = '✗ ' + data.error;
-      msgError.classList.add('show');
+      msgError.textContent = data.error || 'Error al cambiar contraseña';
     }
-
   } catch (e) {
-    msgError.textContent = '✗ Error en la solicitud';
-    msgError.classList.add('show');
+    msgError.textContent = 'Error en la solicitud';
     console.error(e);
   }
 }
 
-cargarConfig();
+// Cargar config al inicio
+document.addEventListener('DOMContentLoaded', cargarConfig);
 </script>
+
+{% endblock %}
