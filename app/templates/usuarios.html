@@ -6,7 +6,18 @@
 
 {% block content %}
 
-    <h1>usuarios</h1>
+    <h1>Gestión de Usuarios</h1>
+
+    <div class="admin-section">
+        <h2>Otorgar Rol de Administrador</h2>
+        <div class="form-asignar-admin">
+            <input type="text" id="nombreUsuario" placeholder="Escribe el nombre del usuario" />
+            <button id="btnAsignarAdmin">Hacer Administrador</button>
+            <div id="mensajeResultado" class="mensaje"></div>
+        </div>
+    </div>
+
+    <h2>Lista de Usuarios</h2>
 
     <div class="usuario-lista">
 
@@ -14,25 +25,74 @@
 
 <script>
 const usuarioLista = document.querySelector(".usuario-lista");
+const inputNombre = document.getElementById("nombreUsuario");
+const btnAsignar = document.getElementById("btnAsignarAdmin");
+const mensajeDiv = document.getElementById("mensajeResultado");
 
-fetch("/api/usuarios", { credentials: "same-origin" })
-.then(r => r.json())
-.then(usuarios => {
-    usuarios.forEach(usuario => {
-        console.log("Usuario:", usuario); // Ver cada usuario
-        const usuarioElemento = document.createElement("div");
-        usuarioElemento.classList.add("usuario-item");
-        usuarioElemento.innerHTML = `
-            <h3>${usuario.ID_USUARIO}</h3>
-            <p>Nombre: ${usuario.NOMBRE}</p>
-            <p>Género: ${usuario.GENERO}</p>
-            <p>Rol: ${usuario.rol_nombre || 'Sin rol'}</p>
-        `;
-        usuarioLista.appendChild(usuarioElemento);
-    });
-})
-.catch(error => console.error("Error:", error));
+// Cargar usuarios
+function cargarUsuarios() {
+    fetch("/api/usuarios", { credentials: "same-origin" })
+    .then(r => r.json())
+    .then(usuarios => {
+        usuarioLista.innerHTML = '';
+        usuarios.forEach(usuario => {
+            console.log("Usuario:", usuario);
+            const usuarioElemento = document.createElement("div");
+            usuarioElemento.classList.add("usuario-item");
+            usuarioElemento.innerHTML = `
+                <h3>${usuario.ID_USUARIO}</h3>
+                <p>Nombre: ${usuario.NOMBRE}</p>
+                <p>Género: ${usuario.GENERO}</p>
+                <p>Rol: ${usuario.rol_nombre || 'Sin rol'}</p>
+            `;
+            usuarioLista.appendChild(usuarioElemento);
+        });
+    })
+    .catch(error => console.error("Error:", error));
+}
 
+// Asignar rol de administrador
+btnAsignar.addEventListener("click", async () => {
+    const nombre = inputNombre.value.trim();
+    
+    if (!nombre) {
+        mensajeDiv.className = "mensaje error";
+        mensajeDiv.textContent = "Por favor escribe un nombre de usuario";
+        return;
+    }
+    
+    try {
+        const response = await fetch("/api/cambiar_rol_admin", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({ nombre_usuario: nombre })
+        });
+        
+        const data = await response.json();
+        
+        if (data.ok) {
+            mensajeDiv.className = "mensaje exito";
+            mensajeDiv.textContent = data.mensaje;
+            inputNombre.value = '';
+            cargarUsuarios(); // Recargar la lista
+            setTimeout(() => mensajeDiv.textContent = '', 3000);
+        } else {
+            mensajeDiv.className = "mensaje error";
+            mensajeDiv.textContent = data.mensaje;
+            setTimeout(() => mensajeDiv.textContent = '', 3000);
+        }
+    } catch (error) {
+        mensajeDiv.className = "mensaje error";
+        mensajeDiv.textContent = "Error al asignar rol";
+        console.error("Error:", error);
+    }
+});
+
+// Cargar usuarios al iniciar
+cargarUsuarios();
 </script>
     
 {% endblock %}

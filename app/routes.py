@@ -1820,7 +1820,7 @@ def init_routes(app):
                 db.close()
                 return (
                     jsonify({"ok": False, "error": "Contraseña actual incorrecta"}),
-                    401,
+                    400,
                 )
 
             # Actualizar contraseña
@@ -2153,6 +2153,51 @@ def init_routes(app):
     @admin_required
     def gestionar_usuarios():
         return redirect("/usuarios")
+    
+    # RUTA PARA CAMBIAR EL ROL A ADMINISTRADOR POR NOMBRE
+    @app.route("/api/cambiar_rol_admin", methods=["POST"])
+    @admin_required
+    def cambiar_rol_admin():
+        try:
+            data = request.json
+            nombre_usuario = data.get("nombre_usuario")
+            
+            if not nombre_usuario:
+                return jsonify({"ok": False, "mensaje": "El nombre del usuario es requerido"}), 400
+            
+            conexion = conectar_db()
+            cursor = conexion.cursor(cursor_factory=RealDictCursor)
+            
+            # Buscar el usuario por nombre
+            cursor.execute(
+                'SELECT "ID_USUARIO" FROM public."Usuarios" WHERE "NOMBRE" = %s',
+                (nombre_usuario,)
+            )
+            usuario = cursor.fetchone()
+            
+            if not usuario:
+                cursor.close()
+                conexion.close()
+                return jsonify({"ok": False, "mensaje": "Usuario no encontrado"}), 404
+            
+            id_usuario = usuario["ID_USUARIO"]
+            
+            # Actualizar el rol a Administrador (ID_ROL = 2)
+            cursor.execute(
+                'UPDATE public."Usuarios" SET "ID_ROL" = 2 WHERE "ID_USUARIO" = %s',
+                (id_usuario,)
+            )
+            conexion.commit()
+            cursor.close()
+            conexion.close()
+            
+            return jsonify({
+                "ok": True, 
+                "mensaje": f"Usuario '{nombre_usuario}' ahora es Administrador"
+            }), 200
+            
+        except Exception as e:
+            return jsonify({"ok": False, "mensaje": f"Error: {str(e)}"}), 500
     
     # -------------------------------------
     # RUTA PARA QUE EL USUARIO CONFIGURE SU PERFIL

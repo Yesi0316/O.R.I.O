@@ -314,24 +314,28 @@ color:#666;
 
 /* botón */
 .tarjeta-btn{
-padding:6px 10px;
-background:linear-gradient(135deg,var(--gold),#f2d9a6);
-color:var(--royal);
-border-radius:8px;
-text-decoration:none;
-text-align:center;
-font-size:11px;
-font-weight:600;
-transition:.25s;
-border:none;
-cursor:pointer;
-margin-top:4px;
+    padding:8px 14px;
+    background:linear-gradient(135deg,var(--gold),#f2d9a6);
+    color:var(--royal);
+    border-radius:8px;
+    text-decoration:none;
+    text-align:center;
+    font-size:13px;
+    font-weight:600;
+    transition:.25s ease;
+    border:none;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:40px;
+    margin-top:4px;
 }
 
 /* hover botón */
 .tarjeta-btn:hover{
-transform:scale(1.05);
-box-shadow:0 6px 16px rgba(224,197,143,.35);
+    transform:scale(1.05);
+    box-shadow:0 6px 16px rgba(224,197,143,.35);
 }
 
 /* ======================================================

@@ -74,7 +74,7 @@ window.addEventListener('DOMContentLoaded', async function() {
     <i class="fas fa-cog"></i><span>Configuración</span>
 </a>
 
-<a href="/logout">
+<a href="#" onclick="openLogoutModal(event)">
     <i class="fas fa-right-from-bracket"></i><span>Cerrar sesión</span>
 </a>
 
@@ -157,7 +157,7 @@ window.addEventListener('DOMContentLoaded', async function() {
         <span>Premium</span>
     </a>
 
-    <a href="/logout" class="fab-option logout">
+    <a href="#" class="fab-option logout" onclick="openLogoutModal(event)">
         <i class="fas fa-right-from-bracket"></i>
         <span>Salir</span>
     </a>
@@ -197,7 +197,7 @@ function toggleFabMenu(){
             <button class="close-btn" onclick="closeProfileModal()">&times;</button>
         </div>
         <div class="head">
-            <img id="modalImg" src="https://via.placeholder.com/200" alt="Foto">
+            <img id="modalImg" src="/static/img/image.png" alt="Foto">
             <div class="info">
                 <div><b id="modalNombre">Nombre Apellido</b></div>
                 <div id="modalTelefono" style="font-size:13px;color:#666;margin-top:6px;"></div>
@@ -206,6 +206,23 @@ function toggleFabMenu(){
         </div>
         <div style="margin-top:12px;">
             <a href="/perfil" class="tarjeta-btn" style="display:inline-block;text-decoration:none;">Editar perfil</a>
+        </div>
+    </div>
+</div>
+
+<!-- Modal cierre de sesión -->
+<div class="profile-modal-backdrop" id="logoutModal" aria-hidden="true">
+    <div class="profile-modal" role="dialog" aria-modal="true" aria-labelledby="logoutTitle">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <h3 id="logoutTitle" style="margin:0;">¿Cerrar sesión?</h3>
+            <button class="close-btn" onclick="closeLogoutModal()">&times;</button>
+        </div>
+        <div style="margin:8px 0 12px;color:#444;">
+            ¿Estás seguro que quieres cerrar tu sesión? Se te redirigirá a la página de inicio de sesión.
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px;">
+            <button class="tarjeta-btn" onclick="confirmLogout()">Cerrar sesión</button>
+            <button class="tarjeta-btn outline" onclick="closeLogoutModal()">Cancelar</button>
         </div>
     </div>
 </div>
@@ -229,7 +246,7 @@ async function openProfileModal(){
         const data = await res.json();
         if (!data.ok) return;
         const info = data.datos || {};
-        document.getElementById('modalImg').src = info.FOTO_PERFIL || 'https://via.placeholder.com/200';
+        document.getElementById('modalImg').src = info.FOTO_PERFIL || '/static/img/image.png';
         document.getElementById('modalNombre').textContent = (info.NOMBRE||'') + (info.APELLIDO?(' ' + info.APELLIDO):'');
         document.getElementById('modalTelefono').textContent = info.TELEFONO || '';
         document.getElementById('modalCorreo').textContent = info.CORREO || '';
@@ -240,6 +257,40 @@ async function openProfileModal(){
 function closeProfileModal(){
     document.getElementById('profileModal').style.display = 'none';
 }
+
+// --- Funciones modal cierre de sesión ---
+function openLogoutModal(e){
+    if(e && e.preventDefault) e.preventDefault();
+    const m = document.getElementById('logoutModal');
+    if(!m) return;
+    m.style.display = 'flex';
+    m.setAttribute('aria-hidden','false');
+}
+
+function closeLogoutModal(){
+    const m = document.getElementById('logoutModal');
+    if(!m) return;
+    m.style.display = 'none';
+    m.setAttribute('aria-hidden','true');
+}
+
+function confirmLogout(){
+    try{
+        // Mantener comportamiento existente: redirigir a /logout
+        window.location.href = '/logout';
+    }catch(e){
+        console.error('Error al cerrar sesión', e);
+    }
+}
+
+// Cerrar modal si el usuario hace click fuera del cuadro
+document.addEventListener('click', function(ev){
+    const backdrop = document.getElementById('logoutModal');
+    if(!backdrop) return;
+    if(ev.target === backdrop){
+        closeLogoutModal();
+    }
+});
 </script>
 
 </body>

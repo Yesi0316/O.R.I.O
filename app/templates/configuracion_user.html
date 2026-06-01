@@ -72,30 +72,33 @@
   <div id="msgSuccess" class="msg-success"></div>
   <div id="msgError" class="msg-error"></div>
 
-  <div class="form-group">
-    <label>Contraseña actual</label>
-    <input type="password" id="inputPassActual" placeholder="Tu contraseña actual">
-  </div>
+  <form id="passwordForm" onsubmit="event.preventDefault(); cambiarContrasena();">
+    <div class="form-group">
+      <label>Contraseña actual</label>
+      <input type="password" id="inputPassActual" placeholder="Tu contraseña actual">
+    </div>
 
-  <div class="form-group">
-    <label>Nueva contraseña</label>
-    <input type="password" id="inputPassNueva" placeholder="Nueva contraseña (mín. 6 caracteres)">
-  </div>
+    <div class="form-group">
+      <label>Nueva contraseña</label>
+      <input type="password" id="inputPassNueva" placeholder="Nueva contraseña (mín. 6 caracteres)">
+    </div>
 
-  <div class="password-rules" id="passwordRulesConfig">
-    <p id="ruleLengthConfig">✖ Mínimo 6 caracteres</p>
-    <p id="ruleLetterConfig">✖ Al menos una letra</p>
-    <p id="ruleNumberConfig">✖ Al menos un número</p>
-  </div>
+    <div class="password-rules" id="passwordRulesConfig">
+      <p id="ruleLengthConfig">✖ Mínimo 6 caracteres</p>
+      <p id="ruleLetterConfig">✖ Al menos una letra</p>
+      <p id="ruleNumberConfig">✖ Al menos un número</p>
+    </div>
 
-  <div class="form-group">
-    <label>Confirmar contraseña</label>
-    <input type="password" id="inputPassConfirm" placeholder="Confirma tu nueva contraseña">
-  </div>
+    <div class="form-group">
+      <label>Confirmar contraseña</label>
+      <input type="password" id="inputPassConfirm" placeholder="Confirma tu nueva contraseña">
+      <div class="password-match" id="passwordMatchMessage"></div>
+    </div>
 
-  <button class="btn-config" id="btnCambiar" disabled onclick="cambiarContrasena()">
-    <i class="fas fa-key"></i> Cambiar contraseña
-  </button>
+    <button class="btn-config" id="btnCambiar" disabled>
+      <i class="fas fa-key"></i> Cambiar contraseña
+    </button>
+  </form>
 </div>
 
 <!-- INFO -->
@@ -283,11 +286,38 @@ if (inputNueva) {
 const btnCambiar = document.getElementById('btnCambiar');
 const inputActual = document.getElementById('inputPassActual');
 const inputConfirm = document.getElementById('inputPassConfirm');
+const passwordMatchMessage = document.getElementById('passwordMatchMessage');
+let alertPopup = null;
+let alertPopupText = null;
+let alertPopupTimer;
+
+function actualizarMatchMessage() {
+  const nueva = inputNueva.value.trim();
+  const confirmar = inputConfirm.value.trim();
+
+  if (confirmar.length === 0) {
+    passwordMatchMessage.textContent = '';
+    passwordMatchMessage.classList.remove('match', 'mismatch');
+    return;
+  }
+
+  if (nueva === confirmar) {
+    passwordMatchMessage.textContent = 'Las contraseñas coinciden';
+    passwordMatchMessage.classList.add('match');
+    passwordMatchMessage.classList.remove('mismatch');
+  } else {
+    passwordMatchMessage.textContent = 'Las contraseñas no coinciden';
+    passwordMatchMessage.classList.add('mismatch');
+    passwordMatchMessage.classList.remove('match');
+  }
+}
 
 function verificarFormulario() {
   const actual = inputActual.value.trim();
   const nueva = inputNueva.value.trim();
   const confirmar = inputConfirm.value.trim();
+
+  actualizarMatchMessage();
 
   const valido =
     actual.length > 0 &&
@@ -301,45 +331,153 @@ function verificarFormulario() {
   input.addEventListener("input", verificarFormulario);
 });
 
+function showPopup(message, type = 'success') {
+  if (!alertPopup || !alertPopupText) {
+    initAlertPopup();
+  }
+
+  if (!alertPopup || !alertPopupText) return;
+
+  if (alertPopupTimer) {
+    clearTimeout(alertPopupTimer);
+  }
+
+  const title = type === 'success' ? '¡Listo!' : 'Error';
+  const icon = type === 'success' ? '✓' : '✕';
+
+  alertPopupText.textContent = message;
+  document.getElementById('alertPopupTitle').textContent = title;
+  document.getElementById('alertPopupIcon').textContent = icon;
+
+  alertPopup.classList.remove('success', 'error');
+  alertPopup.classList.add(type);
+  alertPopup.classList.add('show');
+
+  alertPopupTimer = setTimeout(closePopup, 5000);
+}
+
+function closePopup() {
+  if (!alertPopup) return;
+  alertPopup.classList.remove('show');
+  if (alertPopupTimer) {
+    clearTimeout(alertPopupTimer);
+    alertPopupTimer = null;
+  }
+}
+
+function initAlertPopup() {
+  const existing = document.getElementById('alertPopup');
+  if (existing) {
+    alertPopup = existing;
+    alertPopupText = document.getElementById('alertPopupText');
+    const closeBtn = existing.querySelector('.alert-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closePopup);
+    }
+    return;
+  }
+
+  const popup = document.createElement('div');
+  popup.id = 'alertPopup';
+  popup.className = 'alert-popup';
+  popup.setAttribute('aria-live', 'assertive');
+  popup.setAttribute('role', 'alert');
+  popup.innerHTML = `
+    <div class="alert-popup-content">
+      <div class="alert-popup-icon" id="alertPopupIcon">✓</div>
+      <div class="alert-popup-body">
+        <h3 id="alertPopupTitle">Mensaje</h3>
+        <p id="alertPopupText">Texto de estado</p>
+      </div>
+      <button type="button" class="alert-close" aria-label="Cerrar">×</button>
+    </div>
+  `;
+
+  document.body.appendChild(popup);
+
+  popup.querySelector('.alert-close').addEventListener('click', closePopup);
+
+  alertPopup = popup;
+  alertPopupText = document.getElementById('alertPopupText');
+}
+
 /* ================================
    CAMBIAR CONTRASEÑA
 ================================ */
 async function cambiarContrasena() {
-  const actual = document.getElementById('inputPassActual').value;
-  const nueva = document.getElementById('inputPassNueva').value;
+  const contrasena_actual = document.getElementById('inputPassActual').value.trim();
+  const contrasena_nueva = document.getElementById('inputPassNueva').value.trim();
+  const contrasena_confirmar = document.getElementById('inputPassConfirm').value.trim();
   const msgSuccess = document.getElementById('msgSuccess');
   const msgError = document.getElementById('msgError');
 
   msgSuccess.textContent = '';
   msgError.textContent = '';
 
+  if (!contrasena_actual || !contrasena_nueva || !contrasena_confirmar) {
+    showPopup('Todos los campos son requeridos', 'error');
+    return;
+  }
+
+  if (contrasena_nueva !== contrasena_confirmar) {
+    showPopup('Las contraseñas no coinciden', 'error');
+    return;
+  }
+
+  if (contrasena_nueva.length < 6) {
+    showPopup('La contraseña debe tener mínimo 6 caracteres', 'error');
+    return;
+  }
+
+  if (!/[A-Za-z]/.test(contrasena_nueva)) {
+    showPopup('La contraseña debe contener al menos una letra', 'error');
+    return;
+  }
+
+  if (!/[0-9]/.test(contrasena_nueva)) {
+    showPopup('La contraseña debe contener al menos un número', 'error');
+    return;
+  }
+
+  if (contrasena_nueva === contrasena_actual) {
+    showPopup('La nueva contraseña no puede ser igual a la actual', 'error');
+    return;
+  }
+
   try {
     const res = await fetch('/api/cambiar_contrasena', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ actual, nueva })
+      body: JSON.stringify({ contrasena_actual, contrasena_nueva, contrasena_confirmar })
     });
 
     const data = await res.json();
 
     if (data.ok) {
-      msgSuccess.textContent = 'Contraseña cambiada exitosamente';
+      msgSuccess.textContent = 'Contraseña cambiada correctamente';
+      showPopup('Contraseña cambiada correctamente', 'success');
       document.getElementById('inputPassActual').value = '';
       document.getElementById('inputPassNueva').value = '';
       document.getElementById('inputPassConfirm').value = '';
       document.getElementById('passwordRulesConfig').classList.remove('active');
       btnCambiar.disabled = true;
+      actualizarMatchMessage();
     } else {
       msgError.textContent = data.error || 'Error al cambiar contraseña';
+      showPopup(data.error || 'Error al cambiar contraseña', 'error');
     }
   } catch (e) {
     msgError.textContent = 'Error en la solicitud';
+    showPopup('Error en la solicitud', 'error');
     console.error(e);
   }
 }
 
 // Cargar config al inicio
-document.addEventListener('DOMContentLoaded', cargarConfig);
+document.addEventListener('DOMContentLoaded', () => {
+  initAlertPopup();
+  cargarConfig();
+});
 </script>
 
 {% endblock %}

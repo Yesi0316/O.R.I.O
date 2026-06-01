@@ -151,6 +151,44 @@ box-shadow:0 0 18px rgba(224,197,143,.6);
     cursor:pointer;
 }
 
+/* Botón estándar reutilizable en todo el proyecto */
+.tarjeta-btn{
+    padding:8px 14px;
+    background:linear-gradient(135deg,var(--gold),#f2d9a6);
+    color:var(--royal);
+    border-radius:8px;
+    text-decoration:none;
+    text-align:center;
+    font-size:13px;
+    font-weight:600;
+    transition:.25s ease;
+    border:none;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:40px;
+    line-height:1.2;
+}
+
+.tarjeta-btn:hover{
+    transform:scale(1.05);
+    box-shadow:0 6px 16px rgba(224,197,143,.35);
+}
+
+/* Variante outline para botones que deben parecer secundarios */
+.tarjeta-btn.outline{
+   background:transparent;
+   border:1px solid rgba(0,0,0,0.08);
+   box-shadow:none;
+   color:var(--royal);
+   transition: all .18s ease;
+}
+.tarjeta-btn.outline:hover{
+   transform:scale(1.03);
+   background:rgba(0,0,0,0.04);
+}
+
 /* =========================================================
    MENÚ DEL SIDEBAR
    ========================================================= */
@@ -613,7 +651,7 @@ left: 25px;
 
 display:flex;
 flex-direction:column;
-align-items:flex-start; /* 👈 clave para que no se vea diagonal */
+align-items:flex-start; 
 gap:10px;
 
 opacity:0;

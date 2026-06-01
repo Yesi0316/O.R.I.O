@@ -258,6 +258,19 @@ body.modo-oscuro .search-bar input:focus {
     box-shadow: 0 0 0 3px rgba(224, 197, 143, 0.1) !important;
 }
 
+/* Variante outline para botones en modo oscuro (coherente con tarjeta-btn) */
+body.modo-oscuro .tarjeta-btn.outline{
+    border-color: rgba(255,255,255,0.12) !important;
+    color: var(--cream) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+body.modo-oscuro .tarjeta-btn.outline:hover{
+    background: rgba(255,255,255,0.03) !important;
+    transform: scale(1.03) !important;
+}
+
 body.modo-oscuro .filter-select {
     background: #1a1f2e !important;
     color: #ffffff !important;
