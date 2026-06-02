@@ -18,8 +18,6 @@ from flask import (
     send_file,
 )
 from werkzeug.security import generate_password_hash, check_password_hash
-from weasyprint import HTML, CSS
-from weasyprint.text.fonts import FontConfiguration
 from werkzeug.utils import secure_filename
 from app.correo import enviar_factura
 
@@ -66,6 +64,8 @@ def guest_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if "id_usuario" in session:
+            if session.get("id_rol") == 2:
+                return redirect(url_for("admin_inicio"))
             return redirect(url_for("menu"))
         return f(*args, **kwargs)
 
@@ -470,10 +470,6 @@ def init_routes(app):
             return redirect("/menu")
         return render_template("admin.html", active="panel")
 
-    @app.route("/admin_perfil")
-    @admin_required
-    def admin_perfil():
-        return render_template("perfil.html", active="perfil")
     
     
     @app.route("/api/admin_estadisticas")
@@ -1603,6 +1599,12 @@ def init_routes(app):
             """
 
             # Generar PDF
+            try:
+                from weasyprint import HTML, CSS
+                from weasyprint.text.fonts import FontConfiguration
+            except Exception as e:
+                return jsonify({"ok": False, "error": "WeasyPrint no disponible: " + str(e)}), 500
+
             html = HTML(string=html_content, base_url='.')
             pdf_bytes = html.write_pdf()
             
@@ -2617,6 +2619,12 @@ def init_routes(app):
             """
 
             # Generar PDF
+            try:
+                from weasyprint import HTML, CSS
+                from weasyprint.text.fonts import FontConfiguration
+            except Exception as e:
+                return jsonify({"ok": False, "error": "WeasyPrint no disponible: " + str(e)}), 500
+
             html = HTML(string=html_content, base_url='.')
             pdf_bytes = html.write_pdf()
             
@@ -2635,3 +2643,63 @@ def init_routes(app):
             import traceback
             traceback.print_exc()
             return jsonify({"ok": False, "error": str(e)}), 500
+        
+    #-----------------------------------------
+    # RUTA PARA ELIMINAR USUARIOS (ADMIN)
+    #-----------------------------------------
+    @app.route('/api/admin_borrar_usuario', methods=['POST'])
+    @admin_required
+    def borrar_usuarios():
+        db = None
+        cursor = None
+        try:
+            payload = request.get_json() or {}
+            id_usuario_borrar = payload.get('id_usuario')
+
+            if not id_usuario_borrar:
+                return jsonify({'ok': False, 'error': 'ID de usuario requerido'}), 400
+            
+            if id_usuario_borrar == session.get("id_usuario"):
+                return jsonify({'ok': False, 'error': 'No puedes eliminar tu propio usuario desde esta vista'}), 400
+
+            db = conectar_db()
+            if db is None:
+                return jsonify({'ok': False, 'error': 'Error de conexión a la base de datos'}), 500
+
+            cursor = db.cursor()
+
+            cursor.execute('SELECT * FROM "Usuarios" WHERE "ID_USUARIO" = %s', (id_usuario_borrar,))
+            row = cursor.fetchone()
+            if not row:
+                cursor.close()
+                db.close()
+                return jsonify({'ok': False, 'error': 'Usuario no encontrado'}), 404
+
+            cursor.execute('DELETE FROM "Usuarios" WHERE "ID_USUARIO" = %s', (id_usuario_borrar,))
+            db.commit()
+            afectadas = cursor.rowcount if hasattr(cursor, 'rowcount') else None
+            cursor.close()
+            db.close()
+
+            return jsonify({'ok': True, 'deleted': bool(afectadas)}), 200
+
+        except Exception as e:
+            if db:
+                db.rollback()
+            try:
+                cursor.close()
+                db.close()
+            except:
+                pass
+            return jsonify({'ok': False, 'error': str(e)}), 500
+
+
+    # -------------------------------------
+    # RUTA ADMIN PERFIL
+    #--------------------------------------
+
+    @app.route("/admin_perfil")
+    @admin_required
+    def admin_perfil():
+        return render_template("admin_perfil.html", active="perfil")
+

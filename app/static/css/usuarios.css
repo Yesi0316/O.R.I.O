@@ -1,107 +1,322 @@
-body{
-    background-color: #fff;
+/* =====================================================
+   TITULOS
+===================================================== */
+
+h1{
+    color: var(--royal);
+    font-size: 2rem;
+    margin-bottom: 25px;
+    font-weight: 700;
 }
 
-/* Sección del formulario para asignar administrador */
-.admin-section {
-    background-color: #f5f5f5;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 30px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.admin-section h2 {
-    color: #333;
+h2{
+    color: var(--royal);
     margin-bottom: 15px;
-    font-size: 1.3rem;
 }
 
-.form-asignar-admin {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
+/* =====================================================
+   PANEL ADMIN
+===================================================== */
+
+.admin-section{
+    background: white;
+    padding: 25px;
+    border-radius: 18px;
+    border: 1px solid rgba(17,34,80,.08);
+    box-shadow: 0 10px 25px rgba(17,34,80,.08);
+    margin-bottom: 35px;
 }
 
-.form-asignar-admin input {
-    flex: 1;
-    min-width: 200px;
-    padding: 10px 12px;
-    border: 2px solid #ddd;
-    border-radius: 5px;
-    font-size: 1rem;
-    transition: border-color 0.3s;
+.form-asignar-admin{
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
 }
 
-.form-asignar-admin input:focus {
-    outline: none;
-    border-color: #4CAF50;
+.form-asignar-admin input{
+    flex:1;
+    min-width:250px;
+    height:50px;
+    border:2px solid #e8e8e8;
+    border-radius:12px;
+    padding:0 18px;
+    font-size:.95rem;
+    transition:.3s;
 }
 
-.form-asignar-admin button {
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: bold;
-    transition: background-color 0.3s;
+.form-asignar-admin input:focus{
+    outline:none;
+    border-color:var(--sapphire);
+    box-shadow:0 0 0 4px rgba(60,80,125,.15);
 }
 
-.form-asignar-admin button:hover {
-    background-color: #45a049;
+.form-asignar-admin button{
+    background:linear-gradient(
+        135deg,
+        var(--royal),
+        var(--sapphire)
+    );
+    color:white;
+    border:none;
+    border-radius:12px;
+    padding:0 24px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.3s;
 }
 
-.form-asignar-admin button:active {
-    background-color: #3d8b40;
+.form-asignar-admin button:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 20px rgba(17,34,80,.20);
 }
 
-.mensaje {
-    flex-basis: 100%;
-    padding: 10px 15px;
-    border-radius: 5px;
-    font-weight: 500;
-    text-align: center;
-    min-height: 20px;
+/* =====================================================
+   TABLA
+===================================================== */
+
+.tabla-usuarios{
+    background:white;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 10px 30px rgba(17,34,80,.08);
+    border:1px solid rgba(17,34,80,.08);
 }
 
-.mensaje.exito {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
+.tabla-header div:last-child{
+    padding-left: 25px;
 }
 
-.mensaje.error {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-/* Lista de usuarios */
-.usuario-lista {
+/* CABECERA */
+.tabla-header,
+.usuario-item{
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+    grid-template-columns:
+    1.4fr
+    1.2fr
+    1fr
+    1fr
+    1.4fr;
 }
 
-.usuario-item {
-    background-color: #f9f9f9;
-    padding: 15px;
-    border-radius: 8px;
-    border-left: 4px solid #4CAF50;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+.tabla-header{
+     display:grid;
+    grid-template-columns:
+    2fr
+    1.2fr
+    1fr
+    1fr
+    1.4fr;
+
+    background:var(--royal);
+    color:white;
+    font-weight:600;
+    padding:18px 25px;
 }
 
-.usuario-item h3 {
-    color: #333;
-    margin-top: 0;
-    margin-bottom: 10px;
+/* FILAS */
+
+.usuario-item{
+    display:grid;
+    grid-template-columns:
+    2fr
+    1.2fr
+    1fr
+    1fr
+    1.4fr;
+
+    align-items:center;
+    padding:18px 25px;
+
+    border-bottom:1px solid rgba(17,34,80,.08);
+
+    transition:.25s;
+}
+.usuario-item:hover{
+    background:#fafafa;
 }
 
-.usuario-item p {
-    margin: 8px 0;
-    color: #555;
+.usuario-item:last-child{
+    border-bottom:none;
+}
+
+/* =====================================================
+   COLUMNA NOMBRE
+===================================================== */
+
+.nombre{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    white-space:nowrap;
+}
+
+.avatar{
+    width:45px;
+    height:45px;
+    border-radius:50%;
+
+    background:linear-gradient(
+        135deg,
+        var(--sapphire),
+        var(--royal)
+    );
+
+    color:white;
+    font-weight:700;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+/* =====================================================
+   TEXTO
+===================================================== */
+
+.col{
+    color:#475569;
+    font-size:.95rem;
+}
+.col.usuario,
+.col.genero,
+.col.rol,
+.col.acciones{
+    display:flex;
+    align-items:center;
+}
+
+.usuario{
+    font-weight:600;
+    color:var(--royal);
+}
+
+/* =====================================================
+   BADGE ROL
+===================================================== */
+
+.badge-rol{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+
+    padding:8px 14px;
+
+    background:rgba(224,197,143,.18);
+    color:var(--royal);
+
+    border:1px solid rgba(224,197,143,.55);
+
+    border-radius:999px;
+
+    font-size:.85rem;
+    font-weight:600;
+}
+
+/* =====================================================
+   MENSAJES
+===================================================== */
+
+.mensaje{
+    margin-top:15px;
+    padding:12px;
+    border-radius:12px;
+    font-weight:500;
+}
+
+.mensaje.exito{
+    background:#ecfdf3;
+    color:#166534;
+}
+
+.mensaje.error{
+    background:#fef2f2;
+    color:#991b1b;
+}
+
+/* =====================================================
+   ACCIONES
+===================================================== */
+
+.acciones{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-left:25px;
+}
+
+.btn-accion{
+    width:42px;
+    height:42px;
+
+    border:none;
+    border-radius:12px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    cursor:pointer;
+
+    font-size:1rem;
+
+    transition:.25s ease;
+}
+
+/* HACER ADMIN */
+
+.btn-admin{
+    background:rgba(224,197,143,.18);
+    color:var(--gold);
+}
+
+.btn-admin:hover{
+    background:var(--gold);
+    color:var(--royal);
+    transform:translateY(-3px);
+    box-shadow:0 8px 18px rgba(224,197,143,.35);
+}
+
+/* QUITAR ROL */
+
+.btn-quitar{
+    background:rgba(60,80,125,.15);
+    color:var(--sapphire);
+}
+
+.btn-quitar:hover{
+    background:var(--sapphire);
+    color:white;
+    transform:translateY(-3px);
+    box-shadow:0 8px 18px rgba(60,80,125,.35);
+}
+
+/* ELIMINAR */
+
+.btn-eliminar{
+    background:rgba(220,38,38,.10);
+    color:#dc2626;
+}
+
+.btn-eliminar:hover{
+    background:#dc2626;
+    color:white;
+    transform:translateY(-3px);
+    box-shadow:0 8px 18px rgba(220,38,38,.30);
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media(max-width:900px){
+
+    .tabla-header{
+        display:none;
+    }
+
+    .usuario-item{
+        grid-template-columns:1fr;
+        gap:12px;
+        padding:20px;
+    }
 }

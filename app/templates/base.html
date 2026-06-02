@@ -62,8 +62,9 @@ window.addEventListener('DOMContentLoaded', async function() {
     <i class="fas fa-box-open"></i><span>Mis Reportes</span>
 </a>
 
-<a href="/buzon" class="{{ 'active' if active=='buzon' else '' }}">
-    <i class="fas fa-envelope"></i><span>Buzón</span>
+<a href="/buzon" class="nav-item {{ 'active' if active=='buzon' else '' }}">
+    <i class="fas fa-envelope"></i>
+        <span>Buzón</span>
 </a>
 
 <a href="/perfil" class="{{ 'active' if active=='perfil' else '' }}">
@@ -74,11 +75,14 @@ window.addEventListener('DOMContentLoaded', async function() {
     <i class="fas fa-cog"></i><span>Configuración</span>
 </a>
 
-<a href="#" onclick="openLogoutModal(event)">
+<a href="#" onclick="abrirModal(event)" >
     <i class="fas fa-right-from-bracket"></i><span>Cerrar sesión</span>
 </a>
 
+
+
 </div>
+
 
 <a href="/pasarela_pago" class="premium-btn">
     <i class="fas fa-crown"></i>
@@ -92,77 +96,49 @@ window.addEventListener('DOMContentLoaded', async function() {
 </div>
 
 <div class="main">
-{% block content %}{% endblock %}
-</div>
 
-<!-- NAVBAR MOVIL -->
-<div class="mobile-nav">
+    {% block content %}{% endblock %}
 
+    <!-- MODAL -->
+    <div id="cerrarModal" class="modal">
+        <div class="modal-content">
 
-    <div class="nav-left">
-        <a href="/menu" class="nav-item {{ 'active' if active=='panel' else '' }}">
-            <i class="fas fa-chart-line"></i>
-            <span>Panel</span>
-        </a>
+            <h2>Cerrar sesión</h2>
 
-        <a href="/reportes" class="nav-item {{ 'active' if active=='reportes' else '' }}">
-            <i class="fas fa-box-open"></i>
-            <span>Reportes</span>
-        </a>
-    </div>
-    
-    <!-- BOTÓN CENTRAL -->
-    <div class="nav-center">
+            <p>
+                ¿Estás seguro de que deseas cerrar sesión?
+            </p>
 
-        <a href="/formulario_reporte" class="fab-search">
-            <i class="fas fa-plus"></i>
-        </a>
+            <div class="modal-buttons">
 
-    </div>
+                <button class="btn-danger" onclick="confirmcerrar()">
+                    Sí, cerrar sesión
+                </button>
 
-    <!-- DERECHA -->
-    <div class="nav-right">
-        <a href="/perfil" class="nav-item {{ 'active' if active=='perfil' else '' }}">
-            <i class="fas fa-user"></i>
-            <span>Perfil</span>
-        </a>
+                <button class="btn-cancel" onclick="cerrarModal()">
+                    Cancelar
+                </button>
 
-        <a href="/buzon" class="nav-item {{ 'active' if active=='buzon' else '' }}">
-            <i class="fas fa-envelope"></i>
-            <span>Buzón</span>
-        </a>
+            </div>
+
+        </div>
     </div>
 
 </div>
 
-<!-- BOTÓN DESPLEGABLE (ARRIBA DERECHA) -->
-<div class="fab-main 
-     {% if active == 'formulario' %}disabled{% endif %}"
-     {% if active != 'formulario' %}onclick="toggleFabMenu()"{% endif %}>
-    <i class="fas fa-bars"></i>
+
+
+{% if active != 'perfil' and not hide_fab %}
+
+<div class="fab" id="fab" onclick="toggleFabMenu()">
+    <i class="fas fa-plus"></i>
 </div>
 
+<a href="/formulario_reporte" class="fab">
+    <i class="fas fa-search"></i>
+</a>
 
-
-<!-- MENÚ DESPLEGABLE PRO -->
-<div id="fabMenu" class="fab-menu-up">
-
-    <a href="/configuracion" class="fab-pption config">
-            <i class="fas fa-cog"></i>
-            <span>Config</span>
-    </a>
-
-    <a href="/pasarela_pago" class="fab-option premium">
-        <i class="fas fa-crown"></i>
-        <span>Premium</span>
-    </a>
-
-    <a href="#" class="fab-option logout" onclick="openLogoutModal(event)">
-        <i class="fas fa-right-from-bracket"></i>
-        <span>Salir</span>
-    </a>
-
-</div>
+{% endif %}
 
 
 <script>
@@ -180,11 +156,23 @@ icon.classList.replace("fa-angle-right","fa-angle-left");
 }
 
 function toggleFabMenu(){
-    const menu = document.getElementById("fabMenu");
-    const btn = document.querySelector(".fab-main");
+    const fabEl = document.getElementById("fab");
+    const fabMenuEl = document.getElementById("fabMenu");
+    if (fabEl) fabEl.classList.toggle("active");
+    if (fabMenuEl) fabMenuEl.classList.toggle("active");
+}
 
-    menu.classList.toggle("active");
-    btn.classList.toggle("active");
+function abrirModal(event) {
+    event.preventDefault();
+    document.getElementById("cerrarModal").style.display = "flex";
+}
+
+function cerrarModal() {
+    document.getElementById("cerrarModal").style.display = "none";
+}
+
+function confirmcerrar() {
+    window.location.href = "/logout";
 }
 
 </script>
@@ -197,7 +185,7 @@ function toggleFabMenu(){
             <button class="close-btn" onclick="closeProfileModal()">&times;</button>
         </div>
         <div class="head">
-            <img id="modalImg" src="/static/img/image.png" alt="Foto">
+            <img id="modalImg" src="https://via.placeholder.com/200" alt="Foto">
             <div class="info">
                 <div><b id="modalNombre">Nombre Apellido</b></div>
                 <div id="modalTelefono" style="font-size:13px;color:#666;margin-top:6px;"></div>
@@ -206,23 +194,6 @@ function toggleFabMenu(){
         </div>
         <div style="margin-top:12px;">
             <a href="/perfil" class="tarjeta-btn" style="display:inline-block;text-decoration:none;">Editar perfil</a>
-        </div>
-    </div>
-</div>
-
-<!-- Modal cierre de sesión -->
-<div class="profile-modal-backdrop" id="logoutModal" aria-hidden="true">
-    <div class="profile-modal" role="dialog" aria-modal="true" aria-labelledby="logoutTitle">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <h3 id="logoutTitle" style="margin:0;">¿Cerrar sesión?</h3>
-            <button class="close-btn" onclick="closeLogoutModal()">&times;</button>
-        </div>
-        <div style="margin:8px 0 12px;color:#444;">
-            ¿Estás seguro que quieres cerrar tu sesión? Se te redirigirá a la página de inicio de sesión.
-        </div>
-        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px;">
-            <button class="tarjeta-btn" onclick="confirmLogout()">Cerrar sesión</button>
-            <button class="tarjeta-btn outline" onclick="closeLogoutModal()">Cancelar</button>
         </div>
     </div>
 </div>
@@ -246,7 +217,7 @@ async function openProfileModal(){
         const data = await res.json();
         if (!data.ok) return;
         const info = data.datos || {};
-        document.getElementById('modalImg').src = info.FOTO_PERFIL || '/static/img/image.png';
+        document.getElementById('modalImg').src = info.FOTO_PERFIL || 'https://via.placeholder.com/200';
         document.getElementById('modalNombre').textContent = (info.NOMBRE||'') + (info.APELLIDO?(' ' + info.APELLIDO):'');
         document.getElementById('modalTelefono').textContent = info.TELEFONO || '';
         document.getElementById('modalCorreo').textContent = info.CORREO || '';
@@ -257,40 +228,6 @@ async function openProfileModal(){
 function closeProfileModal(){
     document.getElementById('profileModal').style.display = 'none';
 }
-
-// --- Funciones modal cierre de sesión ---
-function openLogoutModal(e){
-    if(e && e.preventDefault) e.preventDefault();
-    const m = document.getElementById('logoutModal');
-    if(!m) return;
-    m.style.display = 'flex';
-    m.setAttribute('aria-hidden','false');
-}
-
-function closeLogoutModal(){
-    const m = document.getElementById('logoutModal');
-    if(!m) return;
-    m.style.display = 'none';
-    m.setAttribute('aria-hidden','true');
-}
-
-function confirmLogout(){
-    try{
-        // Mantener comportamiento existente: redirigir a /logout
-        window.location.href = '/logout';
-    }catch(e){
-        console.error('Error al cerrar sesión', e);
-    }
-}
-
-// Cerrar modal si el usuario hace click fuera del cuadro
-document.addEventListener('click', function(ev){
-    const backdrop = document.getElementById('logoutModal');
-    if(!backdrop) return;
-    if(ev.target === backdrop){
-        closeLogoutModal();
-    }
-});
 </script>
 
 </body>

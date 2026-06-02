@@ -49,6 +49,29 @@ box-shadow:5px 0 25px rgba(0,0,0,.3); /* Sombra lateral */
 width:85px;
 }
 
+.menu a i{
+    font-size:18px;
+    color: var(--cream);
+    transition: .3s ease;
+}
+
+/* ICONO ACTIVO */
+.menu a.active i{
+    color: var(--royal);
+    transform: scale(1.15);
+}
+
+.menu a{
+    align-items:center;
+    gap:12px;
+}
+
+/* mejor contraste del texto activo */
+.menu a.active span{
+    color: var(--royal);
+    font-weight: 700;
+}
+
 /* =========================================================
    PERFIL DEL USUARIO EN SIDEBAR
    ========================================================= */
@@ -89,54 +112,363 @@ border:3px solid rgba(224,197,143,0.12);
    MODAL DE PERFIL
    Ventana emergente para mostrar información del usuario
    ========================================================= */
-.profile-modal-backdrop{
-position:fixed;
-inset:0; /* Ocupa toda la pantalla */
-background:rgba(0,0,0,0.5); /* Fondo oscuro transparente */
-display:none; /* Oculto por defecto */
-align-items:center;
-justify-content:center;
-z-index:5000; /* Siempre encima de todo */
+
+/* =========================================================
+   MODAL PERFIL ORIO - VERSION PRO
+========================================================= */
+
+:root{
+    --sapphire:#3C507D;
+    --royal:#112250;
+    --gold:#E0C58F;
+    --cream:#F5F0E9;
 }
+
+/* =========================================================
+   BACKDROP
+========================================================= */
+
+.profile-modal-backdrop{
+    position:fixed;
+    inset:0;
+
+    display:none;
+    align-items:center;
+    justify-content:center;
+
+    padding:20px;
+
+    background:rgba(10,15,30,.75);
+
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+
+    z-index:99999;
+
+    animation:fade .25s ease;
+}
+
+.profile-modal-backdrop.active{
+    display:flex;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
 
 .profile-modal{
-background:white;
-border-radius:12px;
-padding:20px;
-width:360px;
-max-width:90%;
-box-shadow:0 12px 40px rgba(0,0,0,0.35);
-color:var(--royal);
+    position:relative;
+
+    width:380px;
+    max-width:95vw;
+
+    padding:28px;
+
+    overflow:hidden;
+
+    border-radius:28px;
+
+    background:
+    linear-gradient(
+        160deg,
+        #ffffff,
+        var(--cream)
+    );
+
+    border:1px solid rgba(255,255,255,.7);
+
+    box-shadow:
+        0 20px 40px rgba(0,0,0,.15),
+        0 30px 60px rgba(17,34,80,.15);
+
+    font-family:'Segoe UI',sans-serif;
+
+    animation:showModal .3s ease;
 }
 
-/* Encabezado del modal */
-.profile-modal .head{
-display:flex;
-gap:12px;
-align-items:center;
+.profile-modal::before{
+    content:"";
+
+    position:absolute;
+
+    top:0;
+    left:0;
+
+    width:100%;
+    height:5px;
+
+    background:
+    linear-gradient(
+        90deg,
+        var(--royal),
+        var(--sapphire),
+        var(--gold)
+    );
 }
 
-/* Imagen dentro del modal */
-.profile-modal img{
-width:72px;
-height:72px;
-border-radius:10px;
-object-fit:cover;
+.profile-modal::after{
+    content:"";
+
+    position:absolute;
+
+    width:180px;
+    height:180px;
+
+    top:-90px;
+    right:-90px;
+
+    border-radius:50%;
+
+    background:
+    radial-gradient(
+        circle,
+        rgba(224,197,143,.25),
+        transparent 70%
+    );
+
+    pointer-events:none;
 }
 
-/* Información del usuario */
-.profile-modal .info b{
-display:block;
-color:var(--sapphire);
+/* =========================================================
+   TITULO
+========================================================= */
+
+.profile-modal h3{
+    margin:0;
+
+    font-size:26px;
+    font-weight:800;
+
+    color:var(--royal);
+
+    letter-spacing:-.5px;
 }
 
-/* Botón de cerrar modal */
+/* =========================================================
+   BOTON CERRAR
+========================================================= */
+
 .profile-modal .close-btn{
-background:transparent;
-border:none;
-font-size:18px;
-color:#999;
-cursor:pointer;
+    position:absolute;
+
+    top:14px;
+    right:14px;
+
+    width:38px;
+    height:38px;
+
+    border:none;
+    border-radius:50%;
+
+    background:rgba(60,80,125,.10);
+
+    color:var(--sapphire);
+
+    font-size:22px;
+
+    cursor:pointer;
+
+    transition:.25s ease;
+}
+
+.profile-modal .close-btn:hover{
+    background:var(--royal);
+
+    color:#fff;
+
+    transform:rotate(90deg);
+}
+
+/* =========================================================
+   CABECERA
+========================================================= */
+
+.profile-modal .head{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+
+    gap:18px;
+
+    margin-top:15px;
+}
+
+/* =========================================================
+   FOTO
+========================================================= */
+
+.profile-modal img{
+    width:120px;
+    height:120px;
+
+    border-radius:50%;
+
+    object-fit:cover;
+
+    border:5px solid #fff;
+
+    background:
+    linear-gradient(
+        135deg,
+        #ebe6de,
+        #ddd4c8
+    );
+
+    box-shadow:
+        0 10px 25px rgba(17,34,80,.18);
+
+    transition:.3s ease;
+}
+
+.profile-modal img:hover{
+    transform:scale(1.05);
+}
+
+/* =========================================================
+   INFORMACION
+========================================================= */
+
+.profile-modal .info{
+    width:100%;
+
+    text-align:center;
+
+    padding:18px;
+
+    border-radius:18px;
+
+    background:rgba(255,255,255,.75);
+
+    border:1px solid rgba(60,80,125,.08);
+
+    backdrop-filter:blur(10px);
+}
+
+#modalNombre{
+    display:block;
+
+    font-size:20px;
+    font-weight:700;
+
+    color:var(--royal);
+
+    margin-bottom:10px;
+}
+
+#modalTelefono,
+#modalCorreo{
+    font-size:14px;
+
+    color:#6b7280;
+
+    margin:5px 0;
+
+    word-break:break-word;
+}
+
+/* =========================================================
+   BOTON EDITAR PERFIL
+========================================================= */
+
+.profile-modal .tarjeta-btn{
+    display:block;
+
+    width:100%;
+
+    padding:14px 18px;
+
+    margin-top:16px;
+
+    border-radius:16px;
+
+    text-align:center;
+
+    text-decoration:none;
+
+    background:
+    linear-gradient(
+        135deg,
+        var(--royal),
+        var(--sapphire)
+    );
+
+    color:#fff !important;
+
+    font-size:15px;
+    font-weight:700;
+
+    transition:.3s ease;
+
+    box-sizing:border-box;
+
+    box-shadow:
+        0 8px 18px rgba(17,34,80,.22);
+}
+
+.profile-modal .tarjeta-btn:hover{
+    transform:translateY(-2px);
+
+    background:
+    linear-gradient(
+        135deg,
+        var(--sapphire),
+        var(--royal)
+    );
+
+    box-shadow:
+        0 12px 24px rgba(17,34,80,.28);
+}
+
+/* =========================================================
+   ANIMACIONES
+========================================================= */
+
+@keyframes showModal{
+    from{
+        opacity:0;
+        transform:
+            translateY(-15px)
+            scale(.96);
+    }
+
+    to{
+        opacity:1;
+        transform:
+            translateY(0)
+            scale(1);
+    }
+}
+
+@keyframes fade{
+    from{
+        opacity:0;
+    }
+
+    to{
+        opacity:1;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width:480px){
+
+    .profile-modal{
+        width:100%;
+        max-width:100%;
+        padding:22px;
+    }
+
+    .profile-modal img{
+        width:100px;
+        height:100px;
+    }
+
+    .profile-modal h3{
+        font-size:22px;
+    }
 }
 
 /* =========================================================

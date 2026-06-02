@@ -1,2 +1,2 @@
-import './assets/css/administrador.css';
-
+import './administrador.css';
+ 

@@ -10,6 +10,8 @@
 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_base.css') }}">
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 
  <link rel="stylesheet"
 href="{{ url_for('static', filename='css/modos.css') }}"> 
@@ -24,16 +26,15 @@ href="{{ url_for('static', filename='css/modos.css') }}">
 
 <div class="sidebar" id="sidebar">
 
-    <!-- PERFIL ADMIN -->
-    <a href="/admin_perfil"
-       class="sidebar-profile"
-       style="position:relative;">
+    <a href="#"
+   class="sidebar-profile"
+   onclick="openProfileModal(event)">
 
-        <img id="sidebarProfileImg"
-             src="/static/img/image.png"
-             alt="Perfil">
+    <img id="sidebarProfileImg"
+         src="/static/img/image.png"
+         alt="Perfil">
 
-    </a>
+</a>
 
     <!-- MENU ADMIN -->
     <div class="menu">
@@ -59,6 +60,14 @@ href="{{ url_for('static', filename='css/modos.css') }}">
 
             <i class="fas fa-users"></i>
             <span>Usuarios</span>
+
+        </a>
+
+        <a href="/admin_perfil"
+           class="{{ 'active' if active=='perfil' else '' }}">
+
+            <i class="fas fa-chart-line"></i>
+            <span>Perfil</span>
 
         </a>
 
@@ -122,10 +131,45 @@ href="{{ url_for('static', filename='css/modos.css') }}">
 
 </div>
 
+<!-- Modal perfil -->
+<div class="profile-modal-backdrop" id="profileModal">
+    <div class="profile-modal" role="dialog" aria-modal="true">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <h3 style="margin:0;">Mi perfil</h3>
+            <button class="close-btn" onclick="closeProfileModal()">&times;</button>
+        </div>
+        <div class="head">
+            <img id="modalImg" src="https://via.placeholder.com/200" alt="Foto">
+            <div class="info">
+                <div><b id="modalNombre">Nombre Apellido</b></div>
+                <div id="modalTelefono" style="font-size:13px;color:#666;margin-top:6px;"></div>
+                <div id="modalCorreo" style="font-size:13px;color:#666;margin-top:4px;"></div>
+            </div>
+        </div>
+        <div style="margin-top:12px;">
+            <a href="/admin_perfil" class="tarjeta-btn" style="display:inline-block;text-decoration:none;">Editar perfil</a>
+        </div>
+    </div>
+</div>
+
+
 
 <!-- JS -->
 
 <script>
+
+document.addEventListener("click", function(e){
+
+    const modal = document.getElementById("profileModal");
+
+    if(
+        modal.classList.contains("active") &&
+        e.target === modal
+    ){
+        closeProfileModal();
+    }
+
+});
 
 function toggleSidebar(){
 
@@ -162,28 +206,55 @@ function cerrarModal() {
 }
 
 function confirmcerrar() {
+    
     window.location.href = "/logout";
 }
+function openProfileModal(event){
 
+    event.preventDefault();
 
-// FOTO PERFIL ADMIN
+    document
+        .getElementById("profileModal")
+        .classList.add("active");
+}
+
+function closeProfileModal(){
+
+    document
+        .getElementById("profileModal")
+        .classList.remove("active");
+}
+
 
 document.addEventListener('DOMContentLoaded', async function(){
 
     try{
 
         const res = await fetch('/datos_perfil');
-
         const data = await res.json();
 
         if(data.ok && data.datos){
 
-            document.getElementById(
-                'sidebarProfileImg'
-            ).src =
-            data.datos.FOTO_PERFIL ||
-            '/static/img/image.png';
+            const perfil = data.datos;
 
+            const foto =
+                perfil.FOTO_PERFIL ||
+                '/static/img/image.png';
+
+            document.getElementById('sidebarProfileImg').src = foto;
+            document.getElementById('modalImg').src = foto;
+
+            document.getElementById('modalNombre').textContent =
+                perfil.NOMBRE ||
+                perfil.NOMBRE_USUARIO ||
+                perfil.USUARIO ||
+                'Usuario';
+
+            document.getElementById('modalTelefono').textContent =
+                perfil.TELEFONO || '';
+
+            document.getElementById('modalCorreo').textContent =
+                perfil.CORREO || '';
         }
 
     }catch(e){
@@ -193,7 +264,6 @@ document.addEventListener('DOMContentLoaded', async function(){
     }
 
 });
-
 </script>
 
 </body>

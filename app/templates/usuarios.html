@@ -2,97 +2,263 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/usuarios.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 {% endblock %}
 
 {% block content %}
 
-    <h1>Gestión de Usuarios</h1>
+<h1>Gestión de Usuarios</h1>
 
-    <div class="admin-section">
-        <h2>Otorgar Rol de Administrador</h2>
-        <div class="form-asignar-admin">
-            <input type="text" id="nombreUsuario" placeholder="Escribe el nombre del usuario" />
-            <button id="btnAsignarAdmin">Hacer Administrador</button>
-            <div id="mensajeResultado" class="mensaje"></div>
-        </div>
+<div class="admin-section">
+    <h2>Otorgar Rol de Administrador</h2>
+
+    <div class="form-asignar-admin">
+        <input
+            type="text"
+            id="nombreUsuario"
+            placeholder="Escribe el nombre del usuario"
+        >
+
+        <button id="btnAsignarAdmin">
+            Hacer Administrador
+        </button>
+
+        <div id="mensajeResultado" class="mensaje"></div>
     </div>
+</div>
 
-    <h2>Lista de Usuarios</h2>
+<h2>Lista de Usuarios</h2>
 
-    <div class="usuario-lista">
+<div class="tabla-usuarios">
 
-    </div>
+    <!-- Encabezados -->
+    <div class="tabla-header">
+    <div>Nombre</div>
+    <div>Usuario</div>
+    <div>Género</div>
+    <div>Rol</div>
+    <div>Acciones</div>
+</div>
+
+    <!-- Aquí se cargan automáticamente -->
+    <div class="usuario-lista"></div>
+
+</div>
 
 <script>
+
 const usuarioLista = document.querySelector(".usuario-lista");
 const inputNombre = document.getElementById("nombreUsuario");
 const btnAsignar = document.getElementById("btnAsignarAdmin");
 const mensajeDiv = document.getElementById("mensajeResultado");
 
-// Cargar usuarios
-function cargarUsuarios() {
-    fetch("/api/usuarios", { credentials: "same-origin" })
-    .then(r => r.json())
-    .then(usuarios => {
-        usuarioLista.innerHTML = '';
-        usuarios.forEach(usuario => {
-            console.log("Usuario:", usuario);
-            const usuarioElemento = document.createElement("div");
-            usuarioElemento.classList.add("usuario-item");
-            usuarioElemento.innerHTML = `
-                <h3>${usuario.ID_USUARIO}</h3>
-                <p>Nombre: ${usuario.NOMBRE}</p>
-                <p>Género: ${usuario.GENERO}</p>
-                <p>Rol: ${usuario.rol_nombre || 'Sin rol'}</p>
-            `;
-            usuarioLista.appendChild(usuarioElemento);
-        });
-    })
-    .catch(error => console.error("Error:", error));
-}
+/* ==========================================
+   CARGAR USUARIOS
+========================================== */
 
-// Asignar rol de administrador
+function cargarUsuarios() {
+
+    fetch("/api/usuarios", {
+        credentials: "same-origin"
+    })
+
+    .then(r => r.json())
+
+    .then(usuarios => {
+
+        usuarioLista.innerHTML = '';
+
+        usuarios.forEach(usuario => {
+
+            const inicial =
+                usuario.NOMBRE
+                ? usuario.NOMBRE.charAt(0).toUpperCase()
+                : '?';
+
+            const usuarioElemento = document.createElement("div");
+
+            usuarioElemento.classList.add("usuario-item");
+
+            usuarioElemento.innerHTML = `
+
+                <div class="col nombre">
+
+                    <div class="avatar">
+                        ${inicial}
+                    </div>
+
+                    <span>
+                        ${usuario.NOMBRE}
+                    </span>
+
+                </div>
+
+                <div class="col usuario">
+                    ${usuario.ID_USUARIO}
+                </div>
+
+                <div class="col genero">
+                    ${usuario.GENERO}
+                </div>
+
+                 <span class="badge-rol">
+                    ${
+                 usuario.rol_nombre === "Administrador"
+                  ? "Admin"
+                 : usuario.rol_nombre || "Sin rol"
+                     }
+</span>
+
+                <div class="col acciones">
+
+                    <button
+                        class="btn-accion btn-admin"
+                        title="Hacer Administrador"
+                        data-id="${usuario.ID_USUARIO}">
+
+                        <i class="fas fa-user-shield"></i>
+
+                    </button>
+
+                    <button
+                        class="btn-accion btn-quitar"
+                        title="Quitar Rol"
+                        data-id="${usuario.ID_USUARIO}">
+
+                        <i class="fas fa-user-minus"></i>
+
+                    </button>
+
+                    <button
+                        class="btn-accion btn-eliminar"
+                        title="Eliminar Usuario" 
+                        onclick="eliminarUsuario(${JSON.stringify(usuario.ID_USUARIO)})">
+
+                        <i class="fas fa-trash-alt"></i>
+
+                    </button>
+
+                </div>
+
+            `;
+
+            usuarioLista.appendChild(usuarioElemento);
+
+        });
+
+    })
+
+    .catch(error => {
+        console.error("Error:", error);
+    });
+}
+/* ==========================================
+   ASIGNAR ADMIN
+========================================== */
+
 btnAsignar.addEventListener("click", async () => {
+
     const nombre = inputNombre.value.trim();
-    
+
     if (!nombre) {
+
         mensajeDiv.className = "mensaje error";
-        mensajeDiv.textContent = "Por favor escribe un nombre de usuario";
+        mensajeDiv.textContent =
+            "Por favor escribe un nombre de usuario";
+
         return;
     }
-    
+
     try {
-        const response = await fetch("/api/cambiar_rol_admin", {
+
+        const response =
+        await fetch("/api/cambiar_rol_admin", {
+
             method: "POST",
+
             headers: {
                 "Content-Type": "application/json"
             },
+
             credentials: "same-origin",
-            body: JSON.stringify({ nombre_usuario: nombre })
+
+            body: JSON.stringify({
+                nombre_usuario: nombre
+            })
+
         });
-        
+
         const data = await response.json();
-        
+
         if (data.ok) {
+
             mensajeDiv.className = "mensaje exito";
             mensajeDiv.textContent = data.mensaje;
+
             inputNombre.value = '';
-            cargarUsuarios(); // Recargar la lista
-            setTimeout(() => mensajeDiv.textContent = '', 3000);
+
+            cargarUsuarios();
+
+            setTimeout(() => {
+                mensajeDiv.textContent = '';
+            }, 3000);
+
         } else {
+
             mensajeDiv.className = "mensaje error";
             mensajeDiv.textContent = data.mensaje;
-            setTimeout(() => mensajeDiv.textContent = '', 3000);
+
+            setTimeout(() => {
+                mensajeDiv.textContent = '';
+            }, 3000);
+
         }
+
     } catch (error) {
+
         mensajeDiv.className = "mensaje error";
-        mensajeDiv.textContent = "Error al asignar rol";
+        mensajeDiv.textContent =
+            "Error al asignar rol";
+
         console.error("Error:", error);
+
     }
+
 });
 
-// Cargar usuarios al iniciar
+/* ==========================================
+   INICIAR
+========================================== */
+
 cargarUsuarios();
+
+/* ==========================================
+    ELIMINAR USUARIO
+========================================== */
+
+async function eliminarUsuario(id_usuario) {
+    if (!confirm("¿Estás seguro de que deseas eliminar este usuario?")) {
+        return;
+    }
+
+    try {
+        const res = await fetch("/api/admin_borrar_usuario", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id_usuario })
+        });
+        const response = await res.json();
+        if (response.ok) {
+            alert("Usuario eliminado exitosamente.");
+            location.reload();
+        } else {
+            alert("Error al eliminar el usuario: " + (response.error || "Error desconocido"));
+        }
+    } catch (error) {
+        console.error("Error:", error);
+    }
+};
+
 </script>
-    
+
 {% endblock %}

@@ -71,8 +71,8 @@ function toggleFabMenu(){
 const fab = document.getElementById("fab");
 const menu = document.getElementById("fabMenu");
 
-fab.classList.toggle("active");
-menu.classList.toggle("active");
+if (fab) fab.classList.toggle("active");
+if (menu) menu.classList.toggle("active");
 }
 
 // Cargar estadísticas al iniciar la página
