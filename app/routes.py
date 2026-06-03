@@ -364,7 +364,7 @@ def init_routes(app):
             cursor = conexion.cursor(cursor_factory=RealDictCursor)
             cursor.execute(
             """
-                SELECT u."ID_USUARIO", u."NOMBRE", u."GENERO", u."ID_ROL", r."NOMBRE" as ROL_NOMBRE
+                SELECT u."ID_USUARIO", u."NOMBRE", u."GENERO", u."ID_ROL", r."NOMBRE" as "ROL_NOMBRE"
                 FROM public."Usuarios" u
                 LEFT JOIN public."Roles" r ON u."ID_ROL" = r."ID_ROL"
                 ORDER BY u."ID_USUARIO" DESC;   
@@ -2156,33 +2156,27 @@ def init_routes(app):
     def gestionar_usuarios():
         return redirect("/usuarios")
     
-    # RUTA PARA CAMBIAR EL ROL A ADMINISTRADOR POR NOMBRE
+    # ---------------------------------------------
+    # RUTA PARA HACER UN ADMIN
+    #-----------------------------------------------
+    
     @app.route("/api/cambiar_rol_admin", methods=["POST"])
     @admin_required
     def cambiar_rol_admin():
         try:
             data = request.json
-            nombre_usuario = data.get("nombre_usuario")
+            id_usuario = data.get("id_usuario")
             
-            if not nombre_usuario:
-                return jsonify({"ok": False, "mensaje": "El nombre del usuario es requerido"}), 400
+            if not id_usuario:
+                return jsonify({"ok": False, "mensaje": "El ID del usuario es requerido"}), 400
             
             conexion = conectar_db()
             cursor = conexion.cursor(cursor_factory=RealDictCursor)
             
-            # Buscar el usuario por nombre
-            cursor.execute(
-                'SELECT "ID_USUARIO" FROM public."Usuarios" WHERE "NOMBRE" = %s',
-                (nombre_usuario,)
-            )
-            usuario = cursor.fetchone()
-            
-            if not usuario:
+            if not id_usuario:
                 cursor.close()
                 conexion.close()
-                return jsonify({"ok": False, "mensaje": "Usuario no encontrado"}), 404
-            
-            id_usuario = usuario["ID_USUARIO"]
+                return jsonify({"ok": False, "mensaje": "se requiere el id del usuario"}), 500
             
             # Actualizar el rol a Administrador (ID_ROL = 2)
             cursor.execute(
@@ -2195,7 +2189,46 @@ def init_routes(app):
             
             return jsonify({
                 "ok": True, 
-                "mensaje": f"Usuario '{nombre_usuario}' ahora es Administrador"
+                "mensaje": f"Usuario '{id_usuario}' ahora es Administrador"
+            }), 200
+            
+        except Exception as e:
+            return jsonify({"ok": False, "mensaje": f"Error: {str(e)}"}), 500
+        
+    # ---------------------------------------------
+    # RUTA PARA QUITAR UN ADMIN
+    #-----------------------------------------------
+    
+    @app.route("/api/cambiar_rol_usuario", methods=["POST"])
+    @admin_required
+    def cambiar_rol_usuario():
+        try:
+            data = request.json
+            id_usuario = data.get("id_usuario")
+            
+            if not id_usuario:
+                return jsonify({"ok": False, "mensaje": "El ID del usuario es requerido"}), 400
+            
+            conexion = conectar_db()
+            cursor = conexion.cursor(cursor_factory=RealDictCursor)
+            
+            if not id_usuario:
+                cursor.close()
+                conexion.close()
+                return jsonify({"ok": False, "mensaje": "se requiere el id del usuario"}), 500
+            
+            # Actualizar el rol a Usuario (ID_ROL = 1)
+            cursor.execute(
+                'UPDATE public."Usuarios" SET "ID_ROL" = 1 WHERE "ID_USUARIO" = %s',
+                (id_usuario,)
+            )
+            conexion.commit()
+            cursor.close()
+            conexion.close()
+            
+            return jsonify({
+                "ok": True, 
+                "mensaje": f"Usuario '{id_usuario}' ahora es Usuario"
             }), 200
             
         except Exception as e:

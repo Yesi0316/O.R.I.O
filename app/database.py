@@ -51,7 +51,7 @@ PLANES_DEFAULT = [
 
 ROLES_DEFAULT = [
     (1, "Usuario"),
-    (2, "Administrador"),
+    (2, "Admin"),
 ]
 
 

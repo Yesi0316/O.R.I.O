@@ -10,20 +10,13 @@
 <h1>Gestión de Usuarios</h1>
 
 <div class="admin-section">
-    <h2>Otorgar Rol de Administrador</h2>
 
     <div class="form-asignar-admin">
         <input
             type="text"
             id="nombreUsuario"
-            placeholder="Escribe el nombre del usuario"
+            placeholder="buscar usuario"
         >
-
-        <button id="btnAsignarAdmin">
-            Hacer Administrador
-        </button>
-
-        <div id="mensajeResultado" class="mensaje"></div>
     </div>
 </div>
 
@@ -44,6 +37,8 @@
     <div class="usuario-lista"></div>
 
 </div>
+
+<div id="mensajeResultado" class="mensaje"></div>
 
 <script>
 
@@ -101,12 +96,10 @@ function cargarUsuarios() {
                     ${usuario.GENERO}
                 </div>
 
-                 <span class="badge-rol">
+                <span class="badge-rol">
                     ${
-                 usuario.rol_nombre === "Administrador"
-                  ? "Admin"
-                 : usuario.rol_nombre || "Sin rol"
-                     }
+                    usuario.ROL_NOMBRE || "Sin rol"
+                    }
 </span>
 
                 <div class="col acciones">
@@ -114,7 +107,8 @@ function cargarUsuarios() {
                     <button
                         class="btn-accion btn-admin"
                         title="Hacer Administrador"
-                        data-id="${usuario.ID_USUARIO}">
+                        data-id="${usuario.ID_USUARIO}"
+                        onclick="asignarAdmin('${usuario.ID_USUARIO}')">
 
                         <i class="fas fa-user-shield"></i>
 
@@ -123,7 +117,8 @@ function cargarUsuarios() {
                     <button
                         class="btn-accion btn-quitar"
                         title="Quitar Rol"
-                        data-id="${usuario.ID_USUARIO}">
+                        data-id="${usuario.ID_USUARIO}"
+                        onclick="quitarAdmin('${usuario.ID_USUARIO}')">
 
                         <i class="fas fa-user-minus"></i>
 
@@ -132,8 +127,7 @@ function cargarUsuarios() {
                     <button
                         class="btn-accion btn-eliminar"
                         title="Eliminar Usuario" 
-                        onclick="eliminarUsuario(${JSON.stringify(usuario.ID_USUARIO)})">
-
+                        onclick="eliminarUsuario('${usuario.ID_USUARIO}')">
                         <i class="fas fa-trash-alt"></i>
 
                     </button>
@@ -156,23 +150,9 @@ function cargarUsuarios() {
    ASIGNAR ADMIN
 ========================================== */
 
-btnAsignar.addEventListener("click", async () => {
+async function asignarAdmin(id_usuario) {
 
-    const nombre = inputNombre.value.trim();
-
-    if (!nombre) {
-
-        mensajeDiv.className = "mensaje error";
-        mensajeDiv.textContent =
-            "Por favor escribe un nombre de usuario";
-
-        return;
-    }
-
-    try {
-
-        const response =
-        await fetch("/api/cambiar_rol_admin", {
+        const response = await fetch("/api/cambiar_rol_admin", {
 
             method: "POST",
 
@@ -183,7 +163,7 @@ btnAsignar.addEventListener("click", async () => {
             credentials: "same-origin",
 
             body: JSON.stringify({
-                nombre_usuario: nombre
+                id_usuario: id_usuario
             })
 
         });
@@ -214,20 +194,59 @@ btnAsignar.addEventListener("click", async () => {
 
         }
 
-    } catch (error) {
-
-        mensajeDiv.className = "mensaje error";
-        mensajeDiv.textContent =
-            "Error al asignar rol";
-
-        console.error("Error:", error);
-
-    }
-
-});
+    };
 
 /* ==========================================
-   INICIAR
+   QUITAR ADMIN
+========================================== */
+
+async function quitarAdmin(id_usuario) {
+
+        const response = await fetch("/api/cambiar_rol_usuario", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            credentials: "same-origin",
+
+            body: JSON.stringify({
+                id_usuario: id_usuario
+            })
+}        );
+
+        const data = await response.json();
+
+        if (data.ok) {
+
+            mensajeDiv.className = "mensaje exito";
+            mensajeDiv.textContent = data.mensaje;
+
+            inputNombre.value = '';
+
+            cargarUsuarios();
+
+            setTimeout(() => {
+                mensajeDiv.textContent = '';
+            }, 3000);
+
+        } else {
+
+            mensajeDiv.className = "mensaje error";
+            mensajeDiv.textContent = data.mensaje;
+
+            setTimeout(() => {
+                mensajeDiv.textContent = '';
+            }, 3000);
+
+        }
+
+    };
+
+/* ==========================================
+INICIAR
 ========================================== */
 
 cargarUsuarios();
