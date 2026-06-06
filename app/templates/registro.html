@@ -130,6 +130,7 @@ const mensaje = document.getElementById("mensaje")
 
 const passwordInput = document.getElementById("contrasena")
 const pass2Input = document.getElementById("contrasena_repetida")
+const generoInputs = document.getElementsByName("genero")
 
 const ruleLength = document.getElementById("rule-length")
 const ruleLetter = document.getElementById("rule-letter")
@@ -174,7 +175,6 @@ formRegistro.addEventListener("submit", async (e) => {
 
     const pass = passwordInput.value
     const pass2 = pass2Input.value
-
     if(pass !== pass2){
         mensaje.innerText = "Las contraseñas no coinciden"
         mensaje.style.color = "#b23b3b"
@@ -208,6 +208,7 @@ formRegistro.addEventListener("submit", async (e) => {
         },800)
     }
 })
+
 </script>
 
 </body>

@@ -206,8 +206,8 @@ def init_routes(app):
                 return jsonify({"mensaje": "El Usuario no puede tener espacios"}), 400
             if contrasena != contrasena_repetida:
                 return jsonify({"mensaje": "Las contraseñas no coinciden"}), 400
-            if genero not in ["masculino", "femenino"]:
-                return jsonify({"mensaje": "Debes seleccionar masculino o femenino"}), 400
+            if genero != "masculino" and genero != "femenino":
+                return jsonify({"mensaje": "Debes seleccionar un genero"}), 400
 
             # validaciones de seguridad de contraseña
             if len(contrasena) < 6:
@@ -2735,4 +2735,39 @@ def init_routes(app):
     @admin_required
     def admin_perfil():
         return render_template("admin_perfil.html", active="perfil")
+    
+    # -------------------------------------
+    # Buscar usuarios para admin
+    # -------------------------------------
 
+    @app.route("/api/buscar_usuarios", methods=["GET"])
+    @admin_required
+    def usuarios_buscar():
+        try:
+            query = request.args.get("query", "").strip()
+            if not query:
+                return jsonify({"ok": False, "error": "Consulta vacía"}), 400
+
+            db = conectar_db()
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+
+            like_query = f"%{query}%"
+            cursor.execute("""
+                SELECT "ID_USUARIO", "NOMBRE", "APELLIDOS", "EMAIL", "GENERO", r."NAME_ROL"
+                FROM "Usuarios" u
+                JOIN "Roles" r ON u."ID_ROL" = r."ID_ROL"
+                WHERE u."NOMBRE" ILIKE %s OR u."APELLIDOS" ILIKE %s OR u."EMAIL" ILIKE %s
+                ORDER BY u."ID_USUARIO" DESC
+                LIMIT 20
+            """, (like_query, like_query, like_query))
+
+            usuarios = cursor.fetchall()
+            cursor.close()
+            db.close()
+
+            return jsonify({"ok": True, "datos": usuarios})
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return jsonify({"ok": False, "error": str(e)}), 500
+        

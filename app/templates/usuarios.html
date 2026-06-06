@@ -278,6 +278,53 @@ async function eliminarUsuario(id_usuario) {
     }
 };
 
+/* ==========================================
+    BUSCAR USUARIOS 
+========================================== */
+
+function cargarUsuarios() {
+    const q = inputNombre.value.trim();
+    const url = q ? `/api/usuarios?q=${encodeURIComponent(q)}` : "/api/usuarios";
+
+    fetch(url, { credentials: "same-origin" })
+        .then(r => r.json())
+        if(p)
+        .then(usuarios => {
+            usuarioLista.innerHTML = '';
+            usuarios.forEach(usuario => {
+                const inicial = usuario.NOMBRE ? usuario.NOMBRE.charAt(0).toUpperCase() : '?';
+                const usuarioElemento = document.createElement("div");
+                usuarioElemento.classList.add("usuario-item");
+                usuarioElemento.innerHTML = `
+                    <div class="col nombre">
+                        <div class="avatar">${inicial}</div>
+                        <span>${usuario.NOMBRE || ''}</span>
+                    </div>
+                    <div class="col usuario">${usuario.ID_USUARIO}</div>
+                    <div class="col genero">${usuario.GENERO || ''}</div>
+                    <span class="badge-rol">${usuario.ROL_NOMBRE || 'Sin rol'}</span>
+                    <div class="col acciones">
+                        <button class="btn-accion btn-admin" title="Hacer Administrador" onclick="asignarAdmin('${usuario.ID_USUARIO}')">
+                            <i class="fas fa-user-shield"></i>
+                        </button>
+                        <button class="btn-accion btn-quitar" title="Quitar Rol" onclick="quitarAdmin('${usuario.ID_USUARIO}')">
+                            <i class="fas fa-user-minus"></i>
+                        </button>
+                        <button class="btn-accion btn-eliminar" title="Eliminar Usuario" onclick="eliminarUsuario('${usuario.ID_USUARIO}')">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                `;
+                usuarioLista.appendChild(usuarioElemento);
+            });
+        })
+        .catch(error => {
+            console.error("Error:", error);
+        });
+}
+
+inputNombre.addEventListener("input", cargarUsuarios);
+
 </script>
 
 {% endblock %}

@@ -12,8 +12,13 @@
 
         <div>
 
-            <h2>Bienvenido, Administrador</h2>
-
+            <h2>
+                {% if session.get("genero") == "femenino" %}
+                Bienvenida, admin {{ session.get("nombre") }}
+                {% else %}
+                Bienvenido, admin {{ session.get("nombre") }}
+                {% endif %}
+            </h2>
             <p>
                 Aquí tienes un resumen general de la plataforma.
             </p>
@@ -23,11 +28,26 @@
         <div class="top-right">
 
             <div class="search">
+            <div class="search-bar">
+            <i class="fas fa-search"></i>
+            <input type="text" id="motorBusqueda" placeholder="Buscar objeto..." autocomplete="off">
+            </div>
 
-                <i class="fa-solid fa-magnifying-glass"></i>
+            <select id="categoria" class="filter-select">
+            <option value="">Todas las categorías</option>
+            <option value="Documentos">Documentos</option>
+            <option value="Tecnología">Tecnología</option>
+            <option value="Accesorios">Accesorios</option>
+            <option value="Ropa">Ropa</option>
+            <option value="Llaves">Llaves</option>
+            <option value="Otros">Otros</option>
+            </select>
 
-                <input type="text" placeholder="Buscar...">
-
+            <select id="tipo" class="filter-select">
+            <option value="">Todos los tipos</option>
+            <option value="perdido">Perdido</option>
+            <option value="encontrado">Encontrado</option>
+            </select>
             </div>
 
             <div class="notification">
@@ -42,219 +62,111 @@
 
     </div>
 
-    <!-- CARDS -->
+<div class="contenidoPrincipal" id="contenidoPrincipal">
 
-    <div class="cards">
+        <!-- CARDS -->
 
-        <div class="card">
+        <div class="cards">
 
-            <div class="circle ">
-                <img src="{{ url_for('static', filename='img/imagen1-Photoroom.png') }}">
-            </div>
+            <div class="card">
 
-            <div>
-                <h3 id="reportes-totales">-</h3>
-                <span>Reportes totales</span>
-            </div>
+                <div class="circle ">
+                    <img src="{{ url_for('static', filename='img/imagen1-Photoroom.png') }}">
+                </div>
 
-        </div>
-
-        <div class="card">
-
-            <div class="circle ">
-                <img src="{{ url_for('static', filename='img/imagen4-Photoroom.png') }}">
-            </div>
-
-            <div>
-                <h3 id="recuperados">-</h3>
-                <span>Recuperados</span>
-            </div>
-
-        </div>
-
-        <div class="card">
-
-            <div class="circle ">
-                <img src="{{ url_for('static', filename='img/imagen2-Photoroom.png') }}">
-            </div>
-
-            <div>
-                <h3 id="reportes-falsos">-</h3>
-                <span>Reportes falsos</span>
-            </div>
-
-        </div>
-
-        <div class="card">
-
-            <div class="circle ">
-                <img src="{{ url_for('static', filename='img/imagen3-Photoroom.png') }}">
-            </div>
-
-            <div>
-                <h3 id="usuarios">-</h3>
-                <span>Usuarios registrados</span>
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- GRAFICAS -->
-
-    <div class="charts">
-
-        <div class="chart-box">
-
-            <div class="title">
-
-                <h3>Resumen de Reportes</h3>
-
-                <button>Últimos 7 días</button>
+                <div>
+                    <h3 id="reportes-totales">-</h3>
+                    <span>Reportes totales</span>
+                </div>
 
             </div>
 
-            <div class="fake-chart">
+            <div class="card">
 
-                <div class="line"></div>
+                <div class="circle ">
+                    <img src="{{ url_for('static', filename='img/imagen4-Photoroom.png') }}">
+                </div>
+
+                <div>
+                    <h3 id="recuperados">-</h3>
+                    <span>Recuperados</span>
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <div class="circle ">
+                    <img src="{{ url_for('static', filename='img/imagen2-Photoroom.png') }}">
+                </div>
+
+                <div>
+                    <h3 id="reportes-falsos">-</h3>
+                    <span>Reportes falsos</span>
+                </div>
+
+            </div>
+
+            <div class="card">
+
+                <div class="circle ">
+                    <img src="{{ url_for('static', filename='img/imagen3-Photoroom.png') }}">
+                </div>
+
+                <div>
+                    <h3 id="usuarios">-</h3>
+                    <span>Usuarios registrados</span>
+                </div>
 
             </div>
 
         </div>
 
-        <div class="chart-box">
+        <!-- GRAFICAS -->
 
-            <h3>Distribución por Estado</h3>
+        <div class="charts">
 
-            <div class="donut"></div>
+            <div class="chart-box">
 
-            <div class="legend">
+                <div class="title">
 
-                <div><span class="dot blue bg"></span> Activos</div>
-                <div><span class="dot royal"></span> Encontrados</div>
-                <div><span class="dot gold"></span> Falsos</div>
-                <div><span class="dot font-body"></span> Eliminados</div>
+                    <h3>Resumen de Reportes</h3>
+
+                    <button>Últimos 7 días</button>
+
+                </div>
+
+                <div class="fake-chart">
+
+                    <div class="line"></div>
+
+                </div>
+
+            </div>
+
+            <div class="chart-box">
+
+                <h3>Distribución por Estado</h3>
+
+                <div class="donut"></div>
+
+                <div class="legend">
+
+                    <div><span class="dot blue bg"></span> Activos</div>
+                    <div><span class="dot royal"></span> Encontrados</div>
+                    <div><span class="dot gold"></span> Falsos</div>
+                    <div><span class="dot font-body"></span> Eliminados</div>
+
+                </div>
 
             </div>
 
         </div>
+        
+</div>
 
-    </div>
-
-    <!-- TABLA -->
-
-    <div class="table-container">
-
-        <div class="table-top">
-
-            <h3>Gestión de Reportes Recientes</h3>
-
-            <div>
-
-                <button class="filter">
-                    <i class="fa-solid fa-filter"></i>
-                    Filtros
-                </button>
-
-                <button class="new">
-                    + Nuevo Reporte
-                </button>
-
-            </div>
-
-        </div>
-
-        <table>
-
-            <thead>
-
-                <tr>
-
-                    <th>Objeto</th>
-                    <th>Categoría</th>
-                    <th>Usuario</th>
-                    <th>Estado</th>
-                    <th>Motivo</th>
-                    <th>Fecha</th>
-                    <th>Acciones</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-                <tr>
-
-                    <td>iPhone 14 Pro Max</td>
-                    <td>Tecnología</td>
-                    <td>Yessica López</td>
-
-                    <td>
-                        <span class="status active-status">
-                            Activo
-                        </span>
-                    </td>
-
-                    <td>En búsqueda</td>
-                    <td> May 2026</td>
-
-                    <td>
-
-                        <button class="icon-btn">
-                            <i class="fa-regular fa-eye"></i>
-                        </button>
-
-                        <button class="icon-btn">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-
-                        <button class="icon-btn delete-btn">
-                            <i class="fa-regular fa-trash-can"></i>
-                        </button>
-
-                    </td>
-
-                </tr>
-
-                <tr>
-
-                    <td>Cartera Negra</td>
-                    <td>Accesorios</td>
-                    <td>Laura Martínez</td>
-
-                    <td>
-                        <span class="status found-status">
-                            Encontrado
-                        </span>
-                    </td>
-
-                    <td>Ya entregado</td>
-                    <td> May 2026</td>
-
-                    <td>
-
-                        <button class="icon-btn">
-                            <i class="fa-regular fa-eye"></i>
-                        </button>
-
-                        <button class="icon-btn">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-
-                        <button class="icon-btn delete-btn">
-                            <i class="fa-regular fa-trash-can"></i>
-                        </button>
-
-                    </td>
-
-                </tr>
-
-            </tbody>
-
-        </table>
-
-    </div>
+<div id="resultadosBusqueda" class="grid-resultados" style="display:none;">
+</div>
 
 </div>
 
@@ -281,6 +193,84 @@
 document.addEventListener('DOMContentLoaded', () => {
     cargarEstadisticas();
 });
+
+const motorBusqueda = document.getElementById("motorBusqueda");
+const categoria = document.getElementById("categoria");
+const tipo = document.getElementById("tipo");
+const contenidoPrincipal = document.getElementById("contenidoPrincipal");
+const resultadosBusqueda = document.getElementById("resultadosBusqueda");
+
+async function realizarBusqueda() {
+const q = motorBusqueda.value.trim();
+const cat = categoria.value;
+const tip = tipo.value;
+
+if (!contenidoPrincipal || !resultadosBusqueda || !motorBusqueda || !categoria || !tipo) {
+console.error("Elementos de búsqueda no encontrados en el DOM");
+return;
+}
+
+if (!q && !cat && !tip) {
+// Si no hay filtros ni texto, volver a mostrar el contenido principal
+contenidoPrincipal.style.display = "block";
+resultadosBusqueda.style.display = "none";
+return;
+}
+
+// Hay búsqueda, ocultar contenido principal
+contenidoPrincipal.style.display = "none";
+resultadosBusqueda.style.display = "grid";
+
+const params = new URLSearchParams({
+q: q,
+categoria: cat,
+tipo: tip
+});
+
+try {
+const res = await fetch(`/busquedas?${params.toString()}`);
+const datos = await res.json();
+resultadosBusqueda.innerHTML = "";
+
+if (datos["datos"] && datos["datos"].length > 0) {
+const objetos = datos["datos"];
+objetos.forEach(objeto => {
+const nombre = objeto.NOMBRE || objeto.nombre || objeto.Nombre || 'Sin nombre';
+const categoriaTexto = objeto.CATEGORIA || objeto.categoria || objeto.Categoria || 'Sin categoría';
+const color = objeto.COLOR || objeto.color || objeto.Color || 'Sin color';
+const idObjeto = objeto.ID_OBJETO || objeto.id_objeto || objeto.idObjeto || objeto.ID_OBJETO || '';
+const imagen = objeto.IMAGEN || objeto.imagen || objeto.Imagen || '';
+
+let imagen_html = "";
+if (imagen) {
+imagen_html = `<img src="${imagen}" alt="Imagen del objeto" class="tarjeta-img">`;
+}
+
+let html = `<div class="tarjeta-resultado">
+${imagen_html}
+<div class="tarjeta-contenido">
+<div class="tarjeta-titulo">${nombre}</div>
+<div class="tarjeta-categoria">${categoriaTexto}</div>
+<div class="tarjeta-color">${color}</div>
+<a class="tarjeta-btn" href="/detalles/${idObjeto}">Ver</a>
+</div>
+</div>`;
+
+resultadosBusqueda.insertAdjacentHTML("beforeend", html);
+});
+} else {
+resultadosBusqueda.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--sapphire); font-size: 14px;">${datos["mensaje"] || "No se encontraron resultados"}</div>`;
+}
+} catch (error) {
+console.error("Error en la búsqueda:", error);
+resultadosBusqueda.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: red; font-size: 14px;">Error al realizar la búsqueda</div>`;
+}
+}
+
+// Event listeners
+motorBusqueda.addEventListener("input", realizarBusqueda);
+categoria.addEventListener("change", realizarBusqueda);
+tipo.addEventListener("change", realizarBusqueda);
 
 </script>
 
