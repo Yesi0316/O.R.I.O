@@ -96,7 +96,7 @@ def init_routes(app):
                     r."FECHA", 
                     r."OBSERVACIONES", 
                     r."ID_USUARIO", 
-                    u."NOMBRE" as NOMBRE_USUARIO,
+                    COALESCE(u."NOMBRE", r."ID_USUARIO") as NOMBRE_USUARIO,
                     'perdido' AS tipo
                 FROM "Objetos" o
                 LEFT JOIN "Reportes_perdidos" r ON o."ID_OBJETO" = r."ID_OBJETO"
@@ -115,7 +115,7 @@ def init_routes(app):
                     r."FECHA", 
                     r."OBSERVACIONES", 
                     r."ID_USUARIO", 
-                    u."NOMBRE" as NOMBRE_USUARIO,
+                    COALESCE(u."NOMBRE", r."ID_USUARIO") as NOMBRE_USUARIO,
                     'encontrado' AS tipo
                 FROM "Objetos" o
                 LEFT JOIN "Reportes_encontrados" r ON o."ID_OBJETO" = r."ID_OBJETO"
@@ -2268,7 +2268,434 @@ def init_routes(app):
     @app.route("/buzon")
     @login_required
     def buzon():
-        return render_template("buzon.html", active="buzon")
+        try:
+            db = conectar_db()
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+
+            id_usuario = session.get("id_usuario")
+
+            # mensajes recibidos
+            cursor.execute(
+                '''
+                SELECT m."ID_MENSAJE", m."ID_REMITENTE", p."NOMBRE" as REMITENTE_NOMBRE,
+                       m."ASUNTO", m."CUERPO", m."FECHA", m."LEIDO"
+                FROM public."Mensajes" m
+                LEFT JOIN public."Perfiles" p ON m."ID_REMITENTE" = p."ID_USUARIO"
+                WHERE m."ID_DESTINATARIO" = %s
+                ORDER BY m."FECHA" DESC
+                LIMIT 50
+                ''',
+                (id_usuario,)
+            )
+            mensajes = cursor.fetchall()
+
+            # notificaciones no leídas
+            cursor.execute(
+                'SELECT COUNT(*) as total FROM public."Notificaciones" WHERE "ID_USUARIO"=%s AND "LEIDO"=FALSE',
+                (id_usuario,)
+            )
+            unread = cursor.fetchone()["total"] if cursor.rowcount != 0 else 0
+
+            cursor.close()
+            db.close()
+
+            return render_template("buzon.html", active="buzon", mensajes=mensajes, unread_count=unread)
+        except Exception as e:
+            print(f"Error cargando buzón: {e}")
+            return render_template("buzon.html", active="buzon", mensajes=[], unread_count=0)
+
+
+    # -----------------------------
+    # API MENSAJERÍA
+    # -----------------------------
+    def usuario_tiene_reportes(cursor, id_usuario):
+        cursor.execute(
+            '''
+            SELECT 1 FROM public."Reportes_perdidos" WHERE "ID_USUARIO" = %s
+            UNION ALL
+            SELECT 1 FROM public."Reportes_encontrados" WHERE "ID_USUARIO" = %s
+            LIMIT 1
+            ''',
+            (id_usuario, id_usuario),
+        )
+        return cursor.fetchone() is not None
+
+    @app.route('/api/mensajes/enviar', methods=['POST'])
+    @login_required
+    def api_enviar_mensaje():
+        try:
+            remitente = session.get('id_usuario')
+            destinatario = request.form.get('destinatario') or request.form.get('to')
+            id_objeto = request.form.get('id_objeto') or request.form.get('objeto')
+            asunto = request.form.get('asunto') or request.form.get('subject')
+            cuerpo = request.form.get('cuerpo') or request.form.get('body')
+
+            if not destinatario or not cuerpo:
+                return jsonify({'ok': False, 'error': 'Faltan campos requeridos'}), 400
+
+            db = conectar_db()
+            cursor = db.cursor()
+
+            # verificar que el destinatario exista
+            cursor.execute('SELECT 1 FROM public."Usuarios" WHERE "ID_USUARIO"=%s', (destinatario,))
+            if not cursor.fetchone():
+                cursor.close()
+                db.close()
+                return jsonify({'ok': False, 'error': 'Usuario destinatario no existe'}), 404
+
+            # ambos usuarios deben haber publicado al menos un reporte
+            if not usuario_tiene_reportes(cursor, destinatario):
+                cursor.close()
+                db.close()
+                return jsonify({'ok': False, 'error': 'El destinatario no tiene reportes publicados'}), 403
+
+            if not usuario_tiene_reportes(cursor, remitente):
+                cursor.close()
+                db.close()
+                return jsonify({'ok': False, 'error': 'Debes tener al menos un reporte publicado para enviar mensajes'}), 403
+
+            # validar objeto si se proporciona
+            if id_objeto:
+                cursor.execute('SELECT 1 FROM public."Objetos" WHERE "ID_OBJETO"=%s', (id_objeto,))
+                if not cursor.fetchone():
+                    cursor.close()
+                    db.close()
+                    return jsonify({'ok': False, 'error': 'Objeto asociado no válido'}), 400
+
+            # insertar mensaje y obtener id
+            cursor.execute(
+                'INSERT INTO public."Mensajes" ("ID_REMITENTE","ID_DESTINATARIO","ID_OBJETO","ASUNTO","CUERPO") VALUES (%s,%s,%s,%s,%s) RETURNING "ID_MENSAJE"',
+                (remitente, destinatario, id_objeto, asunto, cuerpo),
+            )
+            id_mensaje = cursor.fetchone()[0]
+
+            # manejar archivos adjuntos
+            adjuntos = request.files.getlist('adjuntos') or request.files.getlist('files')
+            for f in adjuntos:
+                if f and f.filename:
+                    filename = secure_filename(f.filename)
+                    unique = f"{uuid.uuid4()}_{filename}"
+                    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+                    save_path = os.path.join(app.config['UPLOAD_FOLDER'], unique)
+                    f.save(save_path)
+                    ruta_rel = f"/uploads/{unique}"
+                    cursor.execute(
+                        'INSERT INTO public."Adjuntos_mensajes" ("ID_MENSAJE","RUTA","NOMBRE_ORIGINAL","TIPO") VALUES (%s,%s,%s,%s)',
+                        (id_mensaje, ruta_rel, filename, f.mimetype),
+                    )
+
+            # crear notificación interna para el destinatario
+            notif_text = f"Nuevo mensaje de {remitente}: {asunto or '(sin asunto)'}"
+            if id_objeto:
+                notif_text += f" sobre el objeto {id_objeto}"
+            cursor.execute(
+                'INSERT INTO public."Notificaciones" ("ID_USUARIO","TIPO","MENSAJE") VALUES (%s,%s,%s)',
+                (destinatario, 'mensaje', notif_text),
+            )
+
+            db.commit()
+            cursor.close()
+            db.close()
+
+            return jsonify({'ok': True, 'id_mensaje': id_mensaje})
+        except Exception as e:
+            print(f"Error enviando mensaje: {e}")
+            return jsonify({'ok': False, 'error': str(e)}), 500
+
+
+    @app.route('/chat/<destinatario_id>/<id_objeto>')
+    @login_required
+    def chat(destinatario_id, id_objeto):
+        id_usuario = session.get('id_usuario')
+        if id_usuario == destinatario_id:
+            return redirect('/buzon')
+
+        if id_objeto in (None, 'None', 'null', '0', ''):
+            id_objeto = None
+
+        db = conectar_db()
+        cursor = db.cursor(cursor_factory=RealDictCursor)
+
+        cursor.execute('SELECT "ID_USUARIO" FROM public."Usuarios" WHERE "ID_USUARIO"=%s', (destinatario_id,))
+        if not cursor.fetchone():
+            cursor.close()
+            db.close()
+            return redirect('/buzon')
+
+        # comprobar que el destinatario y el usuario actual tienen reportes publicados
+        if not usuario_tiene_reportes(cursor, destinatario_id):
+            cursor.close()
+            db.close()
+            return render_template('chat.html', error='El usuario no tiene reportes publicados.', destinatario=None, mensajes=[])
+
+        if not usuario_tiene_reportes(cursor, id_usuario):
+            cursor.close()
+            db.close()
+            return render_template('chat.html', error='Debes tener un reporte publicado para chatear.', destinatario=None, mensajes=[])
+
+        if id_objeto:
+            cursor.execute('SELECT "NOMBRE" FROM public."Objetos" WHERE "ID_OBJETO"=%s', (id_objeto,))
+            objeto_row = cursor.fetchone()
+            if not objeto_row:
+                cursor.close()
+                db.close()
+                return render_template('chat.html', error='Objeto asociado no válido.', destinatario=None, mensajes=[])
+            objeto_nombre = objeto_row['NOMBRE']
+        else:
+            objeto_nombre = None
+
+        cursor.execute(
+            '''
+            SELECT m."ID_MENSAJE", m."ID_REMITENTE", m."ID_DESTINATARIO", m."ID_OBJETO", m."ASUNTO", m."CUERPO", m."FECHA", m."LEIDO", pr."NOMBRE" as REMITENTE_NOMBRE, pd."NOMBRE" as DESTINATARIO_NOMBRE
+            FROM public."Mensajes" m
+            LEFT JOIN public."Perfiles" pr ON m."ID_REMITENTE" = pr."ID_USUARIO"
+            LEFT JOIN public."Perfiles" pd ON m."ID_DESTINATARIO" = pd."ID_USUARIO"
+            WHERE ((m."ID_REMITENTE"=%s AND m."ID_DESTINATARIO"=%s)
+               OR (m."ID_REMITENTE"=%s AND m."ID_DESTINATARIO"=%s))
+              AND COALESCE(m."ID_OBJETO", '') = %s
+            ORDER BY m."FECHA" ASC
+            ''',
+            (id_usuario, destinatario_id, destinatario_id, id_usuario, id_objeto or ''),
+        )
+        mensajes = cursor.fetchall()
+
+        cursor.execute('SELECT p."NOMBRE" FROM public."Perfiles" p WHERE p."ID_USUARIO"=%s', (destinatario_id,))
+        perfil = cursor.fetchone()
+        destinatario_nombre = perfil['NOMBRE'] if perfil else destinatario_id
+        report_id = request.args.get('report_id')
+
+        cursor.close()
+        db.close()
+
+        return render_template(
+            'chat.html',
+            destinatario_id=destinatario_id,
+            destinatario_nombre=destinatario_nombre,
+            mensajes=mensajes,
+            report_id=report_id,
+            id_objeto=id_objeto,
+            objeto_nombre=objeto_nombre,
+        )
+
+
+    @app.route('/api/mensajes', methods=['GET'])
+    @login_required
+    def api_listar_mensajes():
+        try:
+            id_usuario = session.get('id_usuario')
+            db = conectar_db()
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+            cursor.execute(
+                '''
+                SELECT m."ID_MENSAJE", m."ID_REMITENTE", p."NOMBRE" as REMITENTE_NOMBRE,
+                       m."ASUNTO", m."CUERPO", m."FECHA", m."LEIDO"
+                FROM public."Mensajes" m
+                LEFT JOIN public."Perfiles" p ON m."ID_REMITENTE" = p."ID_USUARIO"
+                WHERE m."ID_DESTINATARIO" = %s
+                ORDER BY m."FECHA" DESC
+                LIMIT 200
+                ''',
+                (id_usuario,)
+            )
+            mensajes = cursor.fetchall()
+            cursor.close()
+            db.close()
+            return jsonify(mensajes)
+        except Exception as e:
+            print(f"Error listando mensajes: {e}")
+            return jsonify([]), 500
+
+
+    @app.route('/api/conversaciones', methods=['GET'])
+    @login_required
+    def api_conversaciones():
+        try:
+            id_usuario = session.get('id_usuario')
+            db = conectar_db()
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+            cursor.execute(
+                '''
+                SELECT m."ID_MENSAJE", m."ID_REMITENTE", m."ID_DESTINATARIO", m."ID_OBJETO", m."ASUNTO", m."CUERPO", m."FECHA", m."LEIDO",
+                       o."NOMBRE" as OBJETO_NOMBRE,
+                       pr."NOMBRE" as REMITENTE_NOMBRE,
+                       pd."NOMBRE" as DESTINATARIO_NOMBRE
+                FROM public."Mensajes" m
+                LEFT JOIN public."Objetos" o ON m."ID_OBJETO" = o."ID_OBJETO"
+                LEFT JOIN public."Perfiles" pr ON m."ID_REMITENTE" = pr."ID_USUARIO"
+                LEFT JOIN public."Perfiles" pd ON m."ID_DESTINATARIO" = pd."ID_USUARIO"
+                WHERE m."ID_REMITENTE" = %s OR m."ID_DESTINATARIO" = %s
+                ORDER BY m."FECHA" DESC
+                ''',
+                (id_usuario, id_usuario),
+            )
+            mensajes = cursor.fetchall()
+            cursor.close()
+            db.close()
+
+            threads = {}
+            for m in mensajes:
+                other_user = m['ID_DESTINATARIO'] if m['ID_REMITENTE'] == id_usuario else m['ID_REMITENTE']
+                other_name = m['DESTINATARIO_NOMBRE'] if m['ID_REMITENTE'] == id_usuario else m['REMITENTE_NOMBRE']
+                if not other_name:
+                    other_name = other_user
+
+                thread_id_objeto = m['ID_OBJETO'] or ''
+                thread_key = f"{other_user}||{thread_id_objeto}"
+                if thread_key not in threads:
+                    threads[thread_key] = {
+                        'destinatario': other_user,
+                        'nombre': other_name,
+                        'id_objeto': thread_id_objeto,
+                        'objeto_nombre': m['OBJETO_NOMBRE'] or (thread_id_objeto or 'Objeto general'),
+                        'ultimo_mensaje': m['CUERPO'] or '',
+                        'ultimo_asunto': m['ASUNTO'] or '',
+                        'ultima_fecha': m['FECHA'],
+                        'unread': 0,
+                    }
+                if m['ID_DESTINATARIO'] == id_usuario and not m['LEIDO']:
+                    threads[thread_key]['unread'] += 1
+
+            thread_list = sorted(threads.values(), key=lambda x: x['ultima_fecha'] or '', reverse=True)
+            return jsonify(thread_list)
+        except Exception as e:
+            print(f"Error listando conversaciones: {e}")
+            return jsonify([]), 500
+
+
+    @app.route('/api/conversacion/<destinatario_id>/<id_objeto>', methods=['GET'])
+    @login_required
+    def api_conversacion(destinatario_id, id_objeto):
+        try:
+            id_usuario = session.get('id_usuario')
+            db = conectar_db()
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+            cursor.execute('SELECT "ID_USUARIO" FROM public."Usuarios" WHERE "ID_USUARIO"=%s', (destinatario_id,))
+            if not cursor.fetchone():
+                cursor.close()
+                db.close()
+                return jsonify({'ok': False, 'error': 'Contacto no encontrado'}), 404
+
+            cursor.execute(
+                '''
+                SELECT m."ID_MENSAJE", m."ID_REMITENTE", m."ID_DESTINATARIO", m."ID_OBJETO", m."ASUNTO", m."CUERPO", m."FECHA", m."LEIDO",
+                       pr."NOMBRE" as REMITENTE_NOMBRE, pd."NOMBRE" as DESTINATARIO_NOMBRE,
+                       o."NOMBRE" as OBJETO_NOMBRE
+                FROM public."Mensajes" m
+                LEFT JOIN public."Perfiles" pr ON m."ID_REMITENTE" = pr."ID_USUARIO"
+                LEFT JOIN public."Perfiles" pd ON m."ID_DESTINATARIO" = pd."ID_USUARIO"
+                LEFT JOIN public."Objetos" o ON m."ID_OBJETO" = o."ID_OBJETO"
+                WHERE ((m."ID_REMITENTE"=%s AND m."ID_DESTINATARIO"=%s)
+                       OR (m."ID_REMITENTE"=%s AND m."ID_DESTINATARIO"=%s))
+                  AND COALESCE(m."ID_OBJETO", '') = %s
+                ORDER BY m."FECHA" ASC
+                ''',
+                (id_usuario, destinatario_id, destinatario_id, id_usuario, id_objeto or ''),
+            )
+            mensajes = cursor.fetchall()
+            cursor.close()
+            db.close()
+
+            return jsonify({'ok': True, 'mensajes': mensajes})
+        except Exception as e:
+            print(f"Error obteniendo conversación: {e}")
+            return jsonify({'ok': False, 'error': str(e)}), 500
+
+
+    @app.route('/api/mensajes/<int:id_mensaje>', methods=['GET'])
+    @login_required
+    def api_ver_mensaje(id_mensaje):
+        try:
+            id_usuario = session.get('id_usuario')
+            db = conectar_db()
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+            cursor.execute('SELECT * FROM public."Mensajes" WHERE "ID_MENSAJE"=%s', (id_mensaje,))
+            mensaje = cursor.fetchone()
+            if not mensaje:
+                cursor.close()
+                db.close()
+                return jsonify({'ok': False, 'error': 'Mensaje no encontrado'}), 404
+
+            # sólo destinatario o remitente pueden ver
+            if mensaje['ID_DESTINATARIO'] != id_usuario and mensaje['ID_REMITENTE'] != id_usuario:
+                cursor.close()
+                db.close()
+                return jsonify({'ok': False, 'error': 'Acceso denegado'}), 403
+
+            # obtener adjuntos
+            cursor.execute('SELECT "ID_ADJUNTO","RUTA","NOMBRE_ORIGINAL","TIPO" FROM public."Adjuntos_mensajes" WHERE "ID_MENSAJE"=%s', (id_mensaje,))
+            adjuntos = cursor.fetchall()
+
+            # si quien lo abre es el destinatario, marcar como leído
+            if mensaje['ID_DESTINATARIO'] == id_usuario and not mensaje['LEIDO']:
+                cursor2 = db.cursor()
+                cursor2.execute('UPDATE public."Mensajes" SET "LEIDO"=TRUE WHERE "ID_MENSAJE"=%s', (id_mensaje,))
+                db.commit()
+                cursor2.close()
+
+            cursor.close()
+            db.close()
+            return jsonify({'ok': True, 'mensaje': mensaje, 'adjuntos': adjuntos})
+        except Exception as e:
+            print(f"Error obteniendo mensaje: {e}")
+            return jsonify({'ok': False, 'error': str(e)}), 500
+
+
+    @app.route('/mensaje/adjunto/<int:id_adjunto>')
+    @login_required
+    def descargar_adjunto(id_adjunto):
+        try:
+            db = conectar_db()
+            cursor = db.cursor()
+            cursor.execute('SELECT "RUTA" FROM public."Adjuntos_mensajes" WHERE "ID_ADJUNTO"=%s', (id_adjunto,))
+            row = cursor.fetchone()
+            cursor.close()
+            db.close()
+            if not row:
+                return 'Adjunto no encontrado', 404
+            ruta = row[0]
+            # ruta esperada: /uploads/filename
+            filename = ruta.split('/')[-1]
+            return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
+        except Exception as e:
+            print(f"Error descargando adjunto: {e}")
+            return 'Error', 500
+
+
+    # -----------------------------
+    # NOTIFICACIONES
+    # -----------------------------
+    @app.route('/api/notificaciones', methods=['GET'])
+    @login_required
+    def api_listar_notificaciones():
+        try:
+            id_usuario = session.get('id_usuario')
+            db = conectar_db()
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+            cursor.execute('SELECT "ID_NOTIF","TIPO","MENSAJE","LEIDO","FECHA" FROM public."Notificaciones" WHERE "ID_USUARIO"=%s ORDER BY "FECHA" DESC LIMIT 100', (id_usuario,))
+            notifs = cursor.fetchall()
+            cursor.close()
+            db.close()
+            return jsonify(notifs)
+        except Exception as e:
+            print(f"Error listando notificaciones: {e}")
+            return jsonify([]), 500
+
+
+    @app.route('/api/notificaciones/leer/<int:id_notif>', methods=['POST'])
+    @login_required
+    def api_marcar_notificacion_leida(id_notif):
+        try:
+            id_usuario = session.get('id_usuario')
+            db = conectar_db()
+            cursor = db.cursor()
+            cursor.execute('UPDATE public."Notificaciones" SET "LEIDO"=TRUE WHERE "ID_NOTIF"=%s AND "ID_USUARIO"=%s', (id_notif, id_usuario))
+            db.commit()
+            cursor.close()
+            db.close()
+            return jsonify({'ok': True})
+        except Exception as e:
+            print(f"Error marcando notificación: {e}")
+            return jsonify({'ok': False, 'error': str(e)}), 500
     
     #-----------------------------------------
     # RUTA PARA QUE EL ADMIN BORRE REPORTES

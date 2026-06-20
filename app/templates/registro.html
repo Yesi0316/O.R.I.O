@@ -6,6 +6,7 @@
 <title>O.R.I.O - Registro</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/registro.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
 </head>
@@ -69,8 +70,11 @@
                         </div>
                     </div>
                     
-                    <div class="input-group">
+                    <div class="input-group password-group">
                         <input type="password" name="contrasena" id="contrasena" placeholder="Contraseña" required>
+                        <button type="button" class="password-toggle" aria-label="Mostrar contraseña">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
                     </div>
 
                     <div class="password-rules" id="password-rules">
@@ -79,8 +83,11 @@
                         <p id="rule-number">✖ Al menos un número</p>
                     </div>
 
-                    <div class="input-group">
+                    <div class="input-group password-group">
                         <input type="password" name="contrasena_repetida" id="contrasena_repetida" placeholder="Repetir contraseña" required>
+                        <button type="button" class="password-toggle" aria-label="Mostrar contraseña">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
                     </div>
 
                     <div class="security-section">
@@ -103,6 +110,11 @@
                         <input type="text" name="respuesta2" placeholder="Respuesta 2" required>
                     </div>
 
+                    </div>
+
+                    <div class="telefono">
+                        <label for="telefono">Número de teléfono</label>
+                        <input type="tel" name="telefono" id="telefono" placeholder="Ej: +34123456789" required>
                     </div>
 
                     <button type="submit">Crear Cuenta</button>
@@ -131,6 +143,32 @@ const mensaje = document.getElementById("mensaje")
 const passwordInput = document.getElementById("contrasena")
 const pass2Input = document.getElementById("contrasena_repetida")
 const generoInputs = document.getElementsByName("genero")
+
+function initPasswordToggles() {
+    document.querySelectorAll(".password-toggle").forEach(button => {
+        const wrapper = button.closest(".password-group")
+        const input = wrapper ? wrapper.querySelector("input") : null
+
+        if (wrapper && input) wrapper.classList.toggle('closed', input.type === 'password')
+
+        button.addEventListener("click", () => {
+            if (!wrapper || !input) return
+
+            const wasPassword = input.type === "password"
+            input.type = wasPassword ? "text" : "password"
+
+            wrapper.classList.toggle('closed', input.type === 'password')
+
+            const icon = button.querySelector("i")
+            if (icon) {
+                icon.classList.replace(wasPassword ? "fa-eye" : "fa-eye-slash", wasPassword ? "fa-eye-slash" : "fa-eye")
+            }
+            button.setAttribute("aria-label", wasPassword ? "Ocultar contraseña" : "Mostrar contraseña")
+        })
+    })
+}
+
+initPasswordToggles()
 
 const ruleLength = document.getElementById("rule-length")
 const ruleLetter = document.getElementById("rule-letter")

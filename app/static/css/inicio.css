@@ -230,6 +230,51 @@ header{
     margin-bottom:20px;
 }
 
+.input-group.password-group{
+    position:relative;
+}
+
+.input-group.password-group input{
+    padding-right:44px;
+}
+
+.password-toggle{
+    position:absolute;
+    top:50%;
+    right:14px;
+    transform:translateY(-50%);
+    border:none;
+    background:transparent;
+    color:#4b4b4b;
+    cursor:pointer;
+    font-size:16px;
+    padding:6px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    z-index:3;
+}
+
+.password-toggle:focus{
+    outline:none;
+    color:var(--sapphire);
+}
+
+.password-toggle i{
+    pointer-events:none;
+}
+
+/* Cuando el campo está cerrado (type=password) mostrar el botón a la izquierda */
+.input-group.password-group.closed .password-toggle{
+    left:14px;
+    right:auto;
+}
+
+.input-group.password-group.closed input{
+    padding-left:44px;
+    padding-right:15px;
+}
+
 /* estilos de los inputs */
 .input-group input{
     width:100%;

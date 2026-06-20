@@ -73,14 +73,20 @@
   <div id="msgError" class="msg-error"></div>
 
   <form id="passwordForm" onsubmit="event.preventDefault(); cambiarContrasena();">
-    <div class="form-group">
+    <div class="form-group password-group">
       <label>Contraseña actual</label>
       <input type="password" id="inputPassActual" placeholder="Tu contraseña actual">
+      <button type="button" class="password-toggle" aria-label="Mostrar contraseña">
+          <i class="fa-regular fa-eye"></i>
+      </button>
     </div>
 
-    <div class="form-group">
+    <div class="form-group password-group">
       <label>Nueva contraseña</label>
       <input type="password" id="inputPassNueva" placeholder="Nueva contraseña (mín. 6 caracteres)">
+      <button type="button" class="password-toggle" aria-label="Mostrar contraseña">
+          <i class="fa-regular fa-eye"></i>
+      </button>
     </div>
 
     <div class="password-rules" id="passwordRulesConfig">
@@ -89,9 +95,12 @@
       <p id="ruleNumberConfig">✖ Al menos un número</p>
     </div>
 
-    <div class="form-group">
+    <div class="form-group password-group">
       <label>Confirmar contraseña</label>
       <input type="password" id="inputPassConfirm" placeholder="Confirma tu nueva contraseña">
+      <button type="button" class="password-toggle" aria-label="Mostrar contraseña">
+          <i class="fa-regular fa-eye"></i>
+      </button>
       <div class="password-match" id="passwordMatchMessage"></div>
     </div>
 
@@ -331,6 +340,30 @@ function verificarFormulario() {
   input.addEventListener("input", verificarFormulario);
 });
 
+function initPasswordToggles() {
+  document.querySelectorAll('.password-toggle').forEach(button => {
+    const wrapper = button.closest('.password-group')
+    const input = wrapper ? wrapper.querySelector('input') : null
+
+    if (wrapper && input) wrapper.classList.toggle('closed', input.type === 'password')
+
+    button.addEventListener('click', () => {
+      if (!wrapper || !input) return
+
+      const wasPassword = input.type === 'password'
+      input.type = wasPassword ? 'text' : 'password'
+
+      wrapper.classList.toggle('closed', input.type === 'password')
+
+      const icon = button.querySelector('i')
+      if (icon) {
+        icon.classList.replace(wasPassword ? 'fa-eye' : 'fa-eye-slash', wasPassword ? 'fa-eye-slash' : 'fa-eye')
+      }
+      button.setAttribute('aria-label', wasPassword ? 'Ocultar contraseña' : 'Mostrar contraseña')
+    })
+  })
+}
+
 function showPopup(message, type = 'success') {
   if (!alertPopup || !alertPopupText) {
     initAlertPopup();
@@ -477,6 +510,7 @@ async function cambiarContrasena() {
 document.addEventListener('DOMContentLoaded', () => {
   initAlertPopup();
   cargarConfig();
+  initPasswordToggles();
 });
 </script>
 

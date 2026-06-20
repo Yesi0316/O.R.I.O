@@ -345,6 +345,45 @@ CREATE TABLE IF NOT EXISTS public."Metodos_pago"
                 NOT VALID
         );
         """,
+        # Tablas para sistema de mensajería privada
+        "Mensajes": """
+            CREATE TABLE IF NOT EXISTS public."Mensajes"(
+                "ID_MENSAJE" SERIAL PRIMARY KEY,
+                "ID_REMITENTE" TEXT NOT NULL,
+                "ID_DESTINATARIO" TEXT NOT NULL,
+                "ID_OBJETO" TEXT,
+                "ASUNTO" TEXT,
+                "CUERPO" TEXT,
+                "FECHA" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                "LEIDO" BOOLEAN DEFAULT FALSE,
+                FOREIGN KEY ("ID_REMITENTE") REFERENCES public."Usuarios" ("ID_USUARIO") ON DELETE CASCADE,
+                FOREIGN KEY ("ID_DESTINATARIO") REFERENCES public."Usuarios" ("ID_USUARIO") ON DELETE CASCADE,
+                FOREIGN KEY ("ID_OBJETO") REFERENCES public."Objetos" ("ID_OBJETO") ON DELETE SET NULL
+            );
+        """,
+
+        "Adjuntos_mensajes": """
+            CREATE TABLE IF NOT EXISTS public."Adjuntos_mensajes"(
+                "ID_ADJUNTO" SERIAL PRIMARY KEY,
+                "ID_MENSAJE" INTEGER NOT NULL,
+                "RUTA" TEXT NOT NULL,
+                "NOMBRE_ORIGINAL" TEXT,
+                "TIPO" TEXT,
+                FOREIGN KEY ("ID_MENSAJE") REFERENCES public."Mensajes" ("ID_MENSAJE") ON DELETE CASCADE
+            );
+        """,
+
+        "Notificaciones": """
+            CREATE TABLE IF NOT EXISTS public."Notificaciones"(
+                "ID_NOTIF" SERIAL PRIMARY KEY,
+                "ID_USUARIO" TEXT NOT NULL,
+                "TIPO" TEXT NOT NULL,
+                "MENSAJE" TEXT,
+                "LEIDO" BOOLEAN DEFAULT FALSE,
+                "FECHA" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY ("ID_USUARIO") REFERENCES public."Usuarios" ("ID_USUARIO") ON DELETE CASCADE
+            );
+        """,
     
 
 }
@@ -414,6 +453,20 @@ def crear_tabla_Reportes_perdidos():
     """Crea la tabla Reportes_perdidos."""
     ejecutar_sql(TABLAS["Reportes_perdidos"], "Tabla Reportes_perdidos")
 
+def crear_tabla_Mensajes():
+    """Crea la tabla Mensajes."""
+    ejecutar_sql(TABLAS["Mensajes"], "Tabla Mensajes")
+
+
+def crear_tabla_Adjuntos_mensajes():
+    """Crea la tabla Adjuntos_mensajes."""
+    ejecutar_sql(TABLAS["Adjuntos_mensajes"], "Tabla Adjuntos_mensajes")
+
+
+def crear_tabla_Notificaciones():
+    """Crea la tabla Notificaciones."""
+    ejecutar_sql(TABLAS["Notificaciones"], "Tabla Notificaciones")
+
 def crear_tabla_Planes():
     """Crea la tabla Planes."""
     ejecutar_sql(TABLAS["Planes"], "Tabla Planes")
@@ -447,6 +500,10 @@ def aplicar_migraciones():
             ALTER TABLE public."Categorias"
             ADD COLUMN IF NOT EXISTS "NOMBRE" TEXT
         """)
+        cursor.execute("""
+            ALTER TABLE public."Mensajes"
+            ADD COLUMN IF NOT EXISTS "ID_OBJETO" TEXT
+        """)
         conexion.commit()
         print("✓ Migraciones aplicadas correctamente")
     except Exception as e:
@@ -473,6 +530,10 @@ def crear_tablas():
     crear_tabla_Objetos()
     crear_tabla_Reportes_encontrados()
     crear_tabla_Reportes_perdidos()
+    # tablas de mensajería y notificaciones
+    crear_tabla_Mensajes()
+    crear_tabla_Adjuntos_mensajes()
+    crear_tabla_Notificaciones()
     crear_tabla_Planes()
     crear_tabla_Metodos_pago()
     crear_tabla_Facturas()

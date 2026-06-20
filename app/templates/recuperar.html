@@ -84,24 +84,34 @@
 <!-- PASO 4 -->
 <div class="step" id="paso4">
 <h2>Cambiar Contraseña</h2>
-<input 
-    id="nueva_contrasena" 
-    type="password" 
-    placeholder="Nueva contraseña"
-    minlength="6"
-    required
->
+<div class="password-group">
+    <input 
+        id="nueva_contrasena" 
+        type="password" 
+        placeholder="Nueva contraseña"
+        minlength="6"
+        required
+    >
+    <button type="button" class="password-toggle" aria-label="Mostrar contraseña">
+        <i class="fa-regular fa-eye"></i>
+    </button>
+</div>
 <div class="password-rules" id="passwordRulesRecuperar">
     <p id="ruleLengthRec">✖ Mínimo 6 caracteres</p>
     <p id="ruleLetterRec">✖ Al menos una letra</p>
     <p id="ruleNumberRec">✖ Al menos un número</p>
 </div>
 
-<input 
-    id="confirmar_contrasena" 
-    type="password" 
-    placeholder="Confirmar contraseña"
->
+<div class="password-group">
+    <input 
+        id="confirmar_contrasena" 
+        type="password" 
+        placeholder="Confirmar contraseña"
+    >
+    <button type="button" class="password-toggle" aria-label="Mostrar contraseña">
+        <i class="fa-regular fa-eye"></i>
+    </button>
+</div>
 <button onclick="changePassword()">Actualizar contraseña</button>
 <div id="msg_paso4" class="mensaje-estado"></div>
 </div>
@@ -164,7 +174,34 @@ function ajustarAlturaWrapper(){
 }
 
 // ejecutar al cargar pagina
-window.addEventListener('load', ajustarAlturaWrapper);
+function initPasswordToggles() {
+    document.querySelectorAll('.password-toggle').forEach(button => {
+        const wrapper = button.closest('.password-group');
+        const input = wrapper ? wrapper.querySelector('input') : null;
+
+        if (wrapper && input) wrapper.classList.toggle('closed', input.type === 'password');
+
+        button.addEventListener('click', () => {
+            if (!wrapper || !input) return;
+
+            const wasPassword = input.type === 'password';
+            input.type = wasPassword ? 'text' : 'password';
+
+            wrapper.classList.toggle('closed', input.type === 'password');
+
+            const icon = button.querySelector('i');
+            if (icon) {
+                icon.classList.replace(wasPassword ? 'fa-eye' : 'fa-eye-slash', wasPassword ? 'fa-eye-slash' : 'fa-eye');
+            }
+            button.setAttribute('aria-label', wasPassword ? 'Ocultar contraseña' : 'Mostrar contraseña');
+        });
+    });
+}
+
+window.addEventListener('load', () => {
+    ajustarAlturaWrapper();
+    initPasswordToggles();
+});
 
 // ====================== TECLA ENTER ======================
 document.addEventListener("keydown", function(e){

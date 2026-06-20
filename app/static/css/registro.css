@@ -243,6 +243,39 @@ header{
     margin-bottom:10px;
 }
 
+.input-group.password-group{
+    position:relative;
+}
+
+.input-group.password-group input{
+    padding-right:44px;
+}
+
+.password-toggle{
+    position:absolute;
+    top:50%;
+    right:14px;
+    transform:translateY(-50%);
+    border:none;
+    background:transparent;
+    color:#4b4b4b;
+    cursor:pointer;
+    font-size:16px;
+    padding:6px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.password-toggle:focus{
+    outline:none;
+    color:var(--sapphire);
+}
+
+.password-toggle i{
+    pointer-events:none;
+}
+
 /* Campos de entrada */
 .input-group input{
     width:100%;
@@ -253,6 +286,17 @@ header{
     font-family:"Bodoni Moda", serif;
     font-size: 14px;
     transition:0.3s;
+}
+
+/* Cuando el campo está cerrado mostrar el ojo a la izquierda */
+.input-group.password-group.closed .password-toggle{
+    left:14px;
+    right:auto;
+}
+
+.input-group.password-group.closed input{
+    padding-left:44px;
+    padding-right:14px;
 }
 
 /* Efecto cuando el input está activo */

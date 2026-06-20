@@ -26,12 +26,20 @@
     <div id="composePanel" class="new-message-panel hidden">
         <h2>Escribir mensaje</h2>
         <div class="form-row">
+            <label for="composeTo">Para (usuario)</label>
+            <input id="composeTo" type="text" placeholder="ID del destinatario">
+        </div>
+        <div class="form-row">
             <label for="composeSubject">Asunto</label>
             <input id="composeSubject" type="text" placeholder="Asunto del mensaje">
         </div>
         <div class="form-row">
             <label for="composeBody">Mensaje</label>
             <textarea id="composeBody" rows="5" placeholder="Escribe tu mensaje aquí..."></textarea>
+        </div>
+        <div class="form-row">
+            <label for="composeFiles">Adjuntos (imagen/archivo)</label>
+            <input id="composeFiles" type="file" multiple>
         </div>
         <div class="form-actions">
             <button class="btn-outline" type="button" onclick="closeCompose()">Cancelar</button>
@@ -40,22 +48,9 @@
     </div>
 
     <div>
-        <h2>Mensajes recientes</h2>
+        <h2>Conversaciones</h2>
         <ul class="buzon-list" id="messageList">
-            <li>
-                <div>
-                    <strong>Actualización de servicio</strong>
-                    <span>Todo tu historial de reportes está seguro y disponible.</span>
-                </div>
-                <span>Hoy</span>
-            </li>
-            <li>
-                <div>
-                    <strong>Recordatorio de perfil</strong>
-                    <span>Completa tu información para mejorar tus resultados.</span>
-                </div>
-                <span>Ayer</span>
-            </li>
+            <li class="buzon-empty">Cargando conversaciones...</li>
         </ul>
     </div>
 </section>
@@ -71,21 +66,82 @@ function closeCompose() {
 }
 
 function refreshBuzon() {
-    const list = document.getElementById('messageList');
-    list.innerHTML = '<li class="buzon-empty">Buzón actualizado. No hay mensajes nuevos por el momento.</li>';
+    fetch('/api/conversaciones')
+        .then(r => r.json())
+        .then(data => {
+            const list = document.getElementById('messageList');
+            if (!data || data.length === 0) {
+                list.innerHTML = '<li class="buzon-empty">No hay conversaciones activas.</li>';
+                return;
+            }
+            list.innerHTML = '';
+            data.forEach(thread => {
+                const li = document.createElement('li');
+                li.className = 'message-item ' + (thread.unread > 0 ? 'unread' : '');
+                li.onclick = () => {
+                    const objetoSegment = thread.id_objeto ? '/' + thread.id_objeto : '/0';
+                    window.location.href = `/chat/${thread.destinatario}${objetoSegment}`;
+                };
+                const preview = thread.ultimo_asunto || thread.ultimo_mensaje || 'Sin mensajes aún';
+                li.innerHTML = `<div><strong>${thread.nombre}</strong><span>${thread.objeto_nombre} · ${preview.substring(0,120)}${preview.length > 120 ? '...' : ''}</span></div><span>${thread.ultima_fecha || ''}</span>`;
+                list.appendChild(li);
+            });
+        })
+        .catch(e => console.error('Error refrescando buzón', e));
 }
 
+document.addEventListener('DOMContentLoaded', refreshBuzon);
+
 function sendMessage() {
+    const to = document.getElementById('composeTo').value.trim();
     const subject = document.getElementById('composeSubject').value.trim();
     const body = document.getElementById('composeBody').value.trim();
-    if (!subject || !body) {
-        alert('Por favor escribe asunto y mensaje.');
+    if (!to || !body) {
+        alert('Por favor completa destinatario y mensaje.');
         return;
     }
-    alert('Mensaje enviado al buzón (solo frontend).');
-    document.getElementById('composeSubject').value = '';
-    document.getElementById('composeBody').value = '';
-    closeCompose();
+    const files = document.getElementById('composeFiles').files;
+    const fd = new FormData();
+    fd.append('destinatario', to);
+    fd.append('asunto', subject);
+    fd.append('cuerpo', body);
+    for (let i=0;i<files.length;i++) fd.append('adjuntos', files[i]);
+
+    fetch('/api/mensajes/enviar', { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(resp => {
+            if (resp.ok) {
+                alert('Mensaje enviado');
+                document.getElementById('composeTo').value = '';
+                document.getElementById('composeSubject').value = '';
+                document.getElementById('composeBody').value = '';
+                document.getElementById('composeFiles').value = '';
+                closeCompose();
+                refreshBuzon();
+            } else {
+                alert('Error: ' + (resp.error || 'No enviado'));
+            }
+        })
+        .catch(e => { console.error(e); alert('Error enviando mensaje') });
+}
+
+function viewMessage(id) {
+    fetch(`/api/mensajes/${id}`)
+        .then(r => r.json())
+        .then(resp => {
+            if (!resp.ok) return alert('No se pudo abrir el mensaje');
+            const m = resp.mensaje;
+            let text = `De: ${m.ID_REMITENTE}\nAsunto: ${m.ASUNTO || '(sin asunto)'}\nFecha: ${m.FECHA}\n\n${m.CUERPO}`;
+            if (resp.adjuntos && resp.adjuntos.length) {
+                text += '\n\nAdjuntos:\n';
+                resp.adjuntos.forEach(a => {
+                    text += `- ${a.NOMBRE_ORIGINAL} -> ${a.RUTA}\n`;
+                });
+            }
+            alert(text);
+            refreshBuzon();
+        })
+        .catch(e => console.error(e));
 }
 
 </script>

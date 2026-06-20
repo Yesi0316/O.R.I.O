@@ -36,7 +36,7 @@
                 <p><strong>Categoría:</strong> {{ item.categoria or 'no disponible'}}</p>
                 <p><strong>Color:</strong> {{ item.COLOR }}</p>
                 <p><strong>Fecha Reporte:</strong> {{ item.FECHA }}</p>
-                <p><strong>Persona que reportó:</strong> {{ item.NOMBRE_USUARIO or 'No disponible' }}</p>
+                <p><strong>Persona que reportó:</strong> {{ item.NOMBRE_USUARIO or item.ID_USUARIO or 'No disponible' }}</p>
 
                 <div class="observaciones">
                     <strong>Observaciones:</strong>
@@ -52,6 +52,9 @@
                 <div class="acciones">
                     <a href="javascript:history.back()" class="btn btn-volver">Volver</a>
                     <a href="/reporte_problema" class="btn btn-reporte">Reportar</a>
+                    {% if session.id_usuario and item.ID_USUARIO and session.id_usuario != item.ID_USUARIO %}
+                        <a href="/chat/{{ item.ID_USUARIO }}/{{ item.ID_OBJETO }}" class="btn btn-chat">Chatear con la persona</a>
+                    {% endif %}
                </div>
 
             </div>

@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Chat privado | O.R.I.O{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/buzon.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>Chat privado</h1>
+    <p>Comunícate directamente con {{ destinatario_nombre or 'el usuario' }}.</p>
+</div>
+
+<section class="buzon-card chat-panel">
+    {% if error %}
+    <div class="notification error">{{ error }}</div>
+    <a href="/buzon" class="btn btn-outline">Volver al buzón</a>
+    {% else %}
+    <div class="chat-header">
+        <div>
+            <h2>{{ destinatario_nombre or 'Contacto' }}</h2>
+            {% if objeto_nombre %}
+                <p class="chat-object">Objeto: {{ objeto_nombre }}</p>
+            {% elif id_objeto %}
+                <p class="chat-object">Objeto: {{ id_objeto }}</p>
+            {% else %}
+                <p class="chat-object">Chat general</p>
+            {% endif %}
+        </div>
+        <a href="/buzon" class="btn btn-outline">Volver al buzón</a>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+        {% if mensajes and mensajes|length > 0 %}
+            {% for m in mensajes %}
+            <div class="chat-message {{ 'outgoing' if m.ID_REMITENTE == session.id_usuario else 'incoming' }}">
+                <div class="message-meta">
+                    <strong>{{ 'Tú' if m.ID_REMITENTE == session.id_usuario else destinatario_nombre }}</strong>
+                    <span>{{ m.FECHA }}</span>
+                </div>
+                <p>{{ m.CUERPO }}</p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="chat-empty">No hay mensajes aún. Escribe el primero.</div>
+        {% endif %}
+    </div>
+
+    <div class="compose-panel">
+        <textarea id="messageBody" placeholder="Escribe tu mensaje..." rows="4"></textarea>
+        <div class="compose-actions">
+            <button class="btn" onclick="sendChatMessage()">Enviar</button>
+        </div>
+    </div>
+    {% endif %}
+</section>
+
+<script>
+const destinatarioId = '{{ destinatario_id }}';
+const idObjeto = '{{ id_objeto or '' }}';
+
+function sendChatMessage() {
+    const body = document.getElementById('messageBody').value.trim();
+    if (!body) {
+        alert('Escribe un mensaje.');
+        return;
+    }
+    const fd = new FormData();
+    fd.append('destinatario', destinatarioId);
+    fd.append('cuerpo', body);
+    fd.append('asunto', 'Chat privado');
+    if (idObjeto) {
+        fd.append('id_objeto', idObjeto);
+    }
+
+    fetch('/api/mensajes/enviar', { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(resp => {
+            if (resp.ok) {
+                document.getElementById('messageBody').value = '';
+                window.location.reload();
+            } else {
+                alert('Error: ' + (resp.error || 'No se pudo enviar'));
+            }
+        })
+        .catch(e => {
+            console.error(e);
+            alert('Error enviando mensaje');
+        });
+}
+</script>
+{% endblock %}

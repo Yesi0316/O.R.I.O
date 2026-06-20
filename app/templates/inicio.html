@@ -6,8 +6,9 @@
 <title>O.R.I.O - Inicio de Sesión</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;600&display=swap" rel="stylesheet">
- <link rel="stylesheet" href="static/css/inicio.css">
- <link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="static/css/inicio.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
 </head>
 </head>
 
@@ -57,7 +58,7 @@
                         >
                     </div>
 
-                    <div class="input-group">
+                    <div class="input-group password-group">
                         <input
                             type="password"
                             name="contrasena"
@@ -65,6 +66,9 @@
                             required
                             autocomplete="current-password"
                         >
+                        <button type="button" class="password-toggle" aria-label="Mostrar contraseña">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
                     </div>
 
                     <button type="submit">Ingresar</button>
@@ -90,6 +94,34 @@
 const formLogin = document.getElementById("form-login")
 const mensaje = document.getElementById("mensaje")
 const olvido = document.getElementById("olvido")
+
+function initPasswordToggles() {
+    document.querySelectorAll(".password-toggle").forEach(button => {
+        const wrapper = button.closest(".password-group")
+        const input = wrapper ? wrapper.querySelector("input") : null
+
+        // establecer estado inicial (closed si es type=password)
+        if (wrapper && input) wrapper.classList.toggle('closed', input.type === 'password')
+
+        button.addEventListener("click", () => {
+            if (!wrapper || !input) return
+
+            const wasPassword = input.type === "password"
+            input.type = wasPassword ? "text" : "password"
+
+            // alternar clase closed para ajustar posición del botón
+            wrapper.classList.toggle('closed', input.type === 'password')
+
+            const icon = button.querySelector("i")
+            if (icon) {
+                icon.classList.replace(wasPassword ? "fa-eye" : "fa-eye-slash", wasPassword ? "fa-eye-slash" : "fa-eye")
+            }
+            button.setAttribute("aria-label", wasPassword ? "Ocultar contraseña" : "Mostrar contraseña")
+        })
+    })
+}
+
+initPasswordToggles()
 
 formLogin.addEventListener("submit", async (e) => {
     e.preventDefault()
