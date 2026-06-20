@@ -1,5 +1,35 @@
-db_data/
-uploads/
+# Python
 __pycache__/
-instance/
 *.pyc
+*.pyo
+*.pyd
+
+# Flask
+instance/
+*.sqlite3
+
+# DB local
+db_data/
+
+# uploads
+uploads/
+
+# logs y temporales
+*.log
+*.txt
+
+# cloudflared / tunnels
+cf*
+cloudflared*
+
+# secrets (MUY IMPORTANTE)
+ftp_password.txt
+.env
+
+# windows basura
+CONOUT$
+nul
+
+# venv
+venv/
+.env/
