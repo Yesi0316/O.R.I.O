@@ -183,10 +183,6 @@ def init_routes(app):
     def registro():
         return render_template("registro.html")
 
-    # ----------------------------------
-    # GUARDAR USUARIO AL REGISTRARSE
-    # ----------------------------------
-
     @app.route("/guardar_usuario", methods=["POST"])
     def guardar_usuario():
         try:
@@ -203,6 +199,7 @@ def init_routes(app):
             respuesta1_hash = generate_password_hash(respuesta1)
             respuesta2_hash = generate_password_hash(respuesta2)
             id_rol = 1 #rol de usuario por defecto
+            telefono = request.form.get("telefono")
 
             if not id_usuario or not contrasena:
                 return jsonify({"mensaje": "Usuario y contraseña obligatorios"}), 400
@@ -210,7 +207,7 @@ def init_routes(app):
                 return jsonify({"mensaje": "El Usuario no puede tener espacios"}), 400
             if contrasena != contrasena_repetida:
                 return jsonify({"mensaje": "Las contraseñas no coinciden"}), 400
-            if genero != "masculino" and genero != "femenino":
+            if genero != "masculino" and genero != "femenino" and genero != "otro":
                 return jsonify({"mensaje": "Debes seleccionar un genero"}), 400
 
             # validaciones de seguridad de contraseña
@@ -257,8 +254,8 @@ def init_routes(app):
             cursor.execute(
                 """
                 INSERT INTO public."Usuarios"
-                ("ID_USUARIO", "NOMBRE", "GENERO", "CONTRASENA", "PREGUNTA_1", "PREGUNTA_2", "RESPUESTA_1", "RESPUESTA_2", "ID_ROL")
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ("ID_USUARIO", "NOMBRE", "GENERO", "CONTRASENA", "PREGUNTA_1", "PREGUNTA_2", "RESPUESTA_1", "RESPUESTA_2", "ID_ROL", "TELEFONO")
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """,
             (
                 id_usuario,
@@ -270,6 +267,7 @@ def init_routes(app):
                 respuesta1_hash,
                 respuesta2_hash,
                 id_rol,
+                telefono,
             ),
             )
 
@@ -277,10 +275,10 @@ def init_routes(app):
             cursor.execute(
                 """
                 INSERT INTO public."Perfiles"
-                ("ID_USUARIO", "NOMBRE", "FOTO_PERFIL")
-                VALUES (%s, %s, %s)
+                ("ID_USUARIO", "NOMBRE", "FOTO_PERFIL", "TELEFONO")
+                VALUES (%s, %s, %s, %s)
             """,
-                (id_usuario, nombre, "https://via.placeholder.com/200"),
+                (id_usuario, nombre, "https://via.placeholder.com/200", telefono),
             )
 
             conexion.commit()
@@ -578,6 +576,7 @@ def init_routes(app):
                 {
                     "reportes_totales": reportes_totales,
                     "recuperados": recuperados,
+                    "reportes_falsos": 0,
                     "usuarios": usuarios,
                 }
             )

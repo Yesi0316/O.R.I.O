@@ -2,6 +2,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -125,43 +126,9 @@
         <!-- GRAFICAS -->
 
         <div class="charts">
-
-            <div class="chart-box">
-
-                <div class="title">
-
-                    <h3>Resumen de Reportes</h3>
-
-                    <button>Últimos 7 días</button>
-
-                </div>
-
-                <div class="fake-chart">
-
-                    <div class="line"></div>
-
-                </div>
-
-            </div>
-
-            <div class="chart-box">
-
-                <h3>Distribución por Estado</h3>
-
-                <div class="donut"></div>
-
-                <div class="legend">
-
-                    <div><span class="dot blue bg"></span> Activos</div>
-                    <div><span class="dot royal"></span> Encontrados</div>
-                    <div><span class="dot gold"></span> Falsos</div>
-                    <div><span class="dot font-body"></span> Eliminados</div>
-
-                </div>
-
-            </div>
-
+            <canvas id="graficaReportes"></canvas>
         </div>
+
         
 </div>
 
@@ -174,6 +141,53 @@
 
     //Dashboard datos de la base de datos//
 
+    let graficaReportes = null;
+
+    function actualizarGrafica(datos) {
+        const canvas = document.getElementById('graficaReportes');
+
+        if (!canvas || typeof Chart === 'undefined') {
+            return;
+        }
+
+        const valores = [
+            Number(datos.reportes_totales) || 0,
+            Number(datos.recuperados) || 0,
+            Number(datos.reportes_falsos) || 0
+        ];
+
+        if (graficaReportes) {
+            graficaReportes.data.datasets[0].data = valores;
+            graficaReportes.update();
+            return;
+        }
+
+        //Grafica de pastel
+
+        graficaReportes = new Chart(canvas, {
+            type: 'doughnut',
+            data: {
+                labels: ['Reportes totales', 'Recuperados', 'Reportes falsos'],
+                datasets: [{
+                    label: 'Estadisticas',
+                    data: valores,
+                    backgroundColor: ["#112250","#E0C58F","#3C507D"],
+                    borderColor: "#ffffff",
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
     async function cargarEstadisticas() {
         try {
             const res = await fetch('/api/admin_estadisticas');
@@ -181,7 +195,9 @@
 
             document.getElementById('reportes-totales').textContent = datos.reportes_totales || '-';
             document.getElementById('recuperados').textContent = datos.recuperados || '-';
+            document.getElementById('reportes-falsos').textContent = datos.reportes_falsos || '0';
             document.getElementById('usuarios').textContent = datos.usuarios || '-';
+            actualizarGrafica(datos);
 
         } catch (error) {
             console.error('Error al cargar estadísticas:', error);
@@ -271,6 +287,7 @@ resultadosBusqueda.innerHTML = `<div style="grid-column: 1/-1; text-align: cente
 motorBusqueda.addEventListener("input", realizarBusqueda);
 categoria.addEventListener("change", realizarBusqueda);
 tipo.addEventListener("change", realizarBusqueda);
+
 
 </script>
 
