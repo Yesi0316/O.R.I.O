@@ -31,6 +31,8 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if "id_usuario" not in session:
+            if request.path.startswith("/api/"):
+                return jsonify({"ok": False, "error": "No autenticado"}), 401
             return redirect("/inicio")
         return f(*args, **kwargs)
 
@@ -92,6 +94,7 @@ def init_routes(app):
                     o."ID_OBJETO", 
                     o."COLOR", 
                     o."IMAGEN", 
+                    o."LUGAR_ENCONTRADO" AS LUGAR,
                     COALESCE(c."NOMBRE", o."ID_CATEGORIA") as CATEGORIA,
                     r."FECHA", 
                     r."OBSERVACIONES", 
@@ -102,7 +105,7 @@ def init_routes(app):
                 LEFT JOIN "Reportes_perdidos" r ON o."ID_OBJETO" = r."ID_OBJETO"
                 LEFT JOIN "Usuarios" u ON r."ID_USUARIO" = u."ID_USUARIO"
                 LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
-                WHERE o."ID_OBJETO" = %s
+                WHERE o."ID_OBJETO" = %s OR r."ID_REPORTE" = %s
 
                 UNION ALL
 
@@ -111,6 +114,7 @@ def init_routes(app):
                     o."ID_OBJETO", 
                     o."COLOR", 
                     o."IMAGEN", 
+                    o."LUGAR_ENCONTRADO" AS LUGAR,
                     COALESCE(c."NOMBRE", o."ID_CATEGORIA") as CATEGORIA,
                     r."FECHA", 
                     r."OBSERVACIONES", 
@@ -121,12 +125,12 @@ def init_routes(app):
                 LEFT JOIN "Reportes_encontrados" r ON o."ID_OBJETO" = r."ID_OBJETO"
                 LEFT JOIN "Usuarios" u ON r."ID_USUARIO" = u."ID_USUARIO"
                 LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
-                WHERE o."ID_OBJETO" = %s
+                WHERE o."ID_OBJETO" = %s OR r."ID_REPORTE_ENC" = %s
             ) t
             ORDER BY t."FECHA" DESC NULLS LAST
             LIMIT 1
             """,
-            (id_objeto, id_objeto),
+            (id_objeto, id_objeto, id_objeto, id_objeto),
         )
         item = cursor.fetchone()
 
@@ -303,42 +307,111 @@ def init_routes(app):
         q = request.args.get("q", "").strip()
         categoria = request.args.get("categoria", "").strip()
         tipo = request.args.get("tipo", "").strip()
+        fecha_inicio = request.args.get("fecha_inicio", "").strip() or None
+        fecha_fin = request.args.get("fecha_fin", "").strip() or None
+
+        print(f"[BUSQUEDAS] params q={q!r} categoria={categoria!r} tipo={tipo!r} fecha_inicio={fecha_inicio!r} fecha_fin={fecha_fin!r}")
 
         db = conectar_db()
+        if db is None:
+            error_msg = "Error de conexión a la base de datos"
+            print(f"[BUSQUEDAS] {error_msg}")
+            return jsonify({"ok": False, "error": error_msg}), 500
+
         cursor = db.cursor(cursor_factory=RealDictCursor)
 
-        # Selecciona la tabla según el tipo
-        if tipo == "perdido":
-            join = 'INNER JOIN "Reportes_perdidos" r ON o."ID_OBJETO" = r."ID_OBJETO"'
-        elif tipo == "encontrado":
-            join = (
-                'INNER JOIN "Reportes_encontrados" r ON o."ID_OBJETO" = r."ID_OBJETO"'
-            )
-        else:
-            join = ""
-
-        query = f'SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", o."ID_CATEGORIA" AS CATEGORIA FROM "Objetos" o {join} WHERE 1=1'
         params = []
+        conditions = ['1=1']
 
-        # Buscar por nombre o por categoría (nombre o id)
         if q:
-            query += ' AND (o."NOMBRE" ILIKE %s OR o."ID_CATEGORIA" ILIKE %s)'
-            params.append(f"%{q}%")
-            params.append(f"%{q}%")
+            conditions.append(
+                '(o."NOMBRE" ILIKE %s OR o."COLOR" ILIKE %s OR c."NOMBRE" ILIKE %s)'
+            )
+            params.extend([f"%{q}%"] * 3)
+
         if categoria:
-            query += ' AND o."ID_CATEGORIA" = %s'
-            params.append(categoria)
+            if categoria.isdigit():
+                conditions.append('o."ID_CATEGORIA" = %s')
+                params.append(int(categoria))
+            else:
+                conditions.append('c."NOMBRE" ILIKE %s')
+                params.append(f"%{categoria}%")
 
-        query += ' ORDER BY o."NOMBRE" ASC'
+        if fecha_inicio:
+            conditions.append('r."FECHA" >= %s::DATE')
+            params.append(fecha_inicio)
 
-        cursor.execute(query, params)
+        if fecha_fin:
+            conditions.append('r."FECHA" <= %s::DATE')
+            params.append(fecha_fin)
+
+        where = ' AND '.join(conditions)
+
+        if tipo == "perdido":
+            query = f'''
+                SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", 
+                       o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
+                       o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA", 'perdido' AS tipo, r."ID_REPORTE" AS id_reporte
+                FROM "Objetos" o
+                JOIN "Reportes_perdidos" r ON o."ID_OBJETO" = r."ID_OBJETO"
+                LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
+                WHERE {where}
+                ORDER BY r."FECHA" DESC
+            '''
+            print(f"[BUSQUEDAS] SQL PERDIDO: {query.strip()} params={params}")
+            cursor.execute(query, params)
+        elif tipo == "encontrado":
+            query = f'''
+                SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", 
+                       o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
+                       o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA", 'encontrado' AS tipo, r."ID_REPORTE_ENC" AS id_reporte
+                FROM "Objetos" o
+                JOIN "Reportes_encontrados" r ON o."ID_OBJETO" = r."ID_OBJETO"
+                LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
+                WHERE {where}
+                ORDER BY r."FECHA" DESC
+            '''
+            print(f"[BUSQUEDAS] SQL ENCONTRADO: {query.strip()} params={params}")
+            cursor.execute(query, params)
+        else:
+            params_union = params + params
+            query = f'''
+                SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", 
+                       o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
+                       o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA", 'perdido' AS tipo, r."ID_REPORTE" AS id_reporte
+                FROM "Objetos" o
+                JOIN "Reportes_perdidos" r ON o."ID_OBJETO" = r."ID_OBJETO"
+                LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
+                WHERE {where}
+                UNION ALL
+                SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", 
+                       o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
+                       o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA", 'encontrado' AS tipo, r."ID_REPORTE_ENC" AS id_reporte
+                FROM "Objetos" o
+                JOIN "Reportes_encontrados" r ON o."ID_OBJETO" = r."ID_OBJETO"
+                LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
+                WHERE {where}
+                ORDER BY "FECHA" DESC
+            '''
+            print(f"[BUSQUEDAS] SQL UNION: {query.strip()} params={params_union}")
+            cursor.execute(query, params_union)
+
         objetos = cursor.fetchall()
+        print(f"[BUSQUEDAS] resultados={len(objetos)}")
         cursor.close()
         db.close()
 
+        for objeto in objetos:
+            fecha_val = objeto.get("FECHA")
+            if fecha_val is not None and not isinstance(fecha_val, str):
+                try:
+                    objeto["FECHA"] = fecha_val.isoformat()
+                except Exception:
+                    objeto["FECHA"] = str(fecha_val)
+
         if not objetos:
-            return jsonify({"datos": False, "mensaje": "No se encontraron resultados"})
-        return jsonify({"datos": objetos})
+            return jsonify({"datos": [], "mensaje": "No se encontraron resultados"})
+        return jsonify({"ok": True, "datos": objetos})
     
     # --------------------------------
     # RUTA PARA EL HTML DE USUARIOS
@@ -1240,16 +1313,25 @@ def init_routes(app):
         """Devuelve JSON con los reportes (perdidos/encontrados) del usuario en sesión
         
         Parámetros GET opcionales:
-        - categoria: ID_CATEGORIA para filtrar por categoría
+        - categoria: ID_CATEGORIA o nombre de categoría para filtrar
+        - tipo: 'perdido' o 'encontrado'
         - fecha_inicio: Fecha inicio (YYYY-MM-DD)
         - fecha_fin: Fecha fin (YYYY-MM-DD)
         """
         try:
             id_usuario = session["id_usuario"]
             categoria = request.args.get("categoria", "").strip() or None
+            tipo = request.args.get("tipo", "").strip() or None
             fecha_inicio = request.args.get("fecha_inicio", "").strip() or None
             fecha_fin = request.args.get("fecha_fin", "").strip() or None
             
+            def build_category_condition(alias):
+                if not categoria:
+                    return None, []
+                if categoria.isdigit():
+                    return f'{alias}."ID_CATEGORIA" = %s', [int(categoria)]
+                return f'c."NOMBRE" ILIKE %s', [f"%{categoria}%"]
+
             db = conectar_db()
             cursor = db.cursor(cursor_factory=RealDictCursor)
 
@@ -1257,34 +1339,34 @@ def init_routes(app):
             conditions_p = ['r."ID_USUARIO" = %s']
             params_p = [id_usuario]
             
-            if categoria:
-                conditions_p.append('o."ID_CATEGORIA" = %s')
-                params_p.append(categoria)
-            
-            if fecha_inicio:
-                conditions_p.append('r."FECHA" >= %s::DATE')
-                params_p.append(fecha_inicio)
-            
-            if fecha_fin:
-                conditions_p.append('r."FECHA" <= %s::DATE')
-                params_p.append(fecha_fin)
-            
-            # Construir condiciones para ENCONTRADOS (mismas condiciones)
+            # Construir condiciones para ENCONTRADOS
             conditions_e = ['r."ID_USUARIO" = %s']
             params_e = [id_usuario]
-            
-            if categoria:
-                conditions_e.append('o."ID_CATEGORIA" = %s')
-                params_e.append(categoria)
-            
+
+            category_condition, category_params = build_category_condition('o')
+            if category_condition:
+                conditions_p.append(category_condition)
+                conditions_e.append(category_condition)
+                params_p.extend(category_params)
+                params_e.extend(category_params)
+
             if fecha_inicio:
+                conditions_p.append('r."FECHA" >= %s::DATE')
                 conditions_e.append('r."FECHA" >= %s::DATE')
+                params_p.append(fecha_inicio)
                 params_e.append(fecha_inicio)
             
             if fecha_fin:
+                conditions_p.append('r."FECHA" <= %s::DATE')
                 conditions_e.append('r."FECHA" <= %s::DATE')
+                params_p.append(fecha_fin)
                 params_e.append(fecha_fin)
-            
+
+            if tipo == 'perdido':
+                conditions_e.append('FALSE')
+            elif tipo == 'encontrado':
+                conditions_p.append('FALSE')
+
             # Combinar todos los parámetros en el orden correcto
             params = params_p + params_e
             
@@ -1310,6 +1392,58 @@ def init_routes(app):
             reportes = cursor.fetchall()
             cursor.close()
             db.close()
+
+            return jsonify({"ok": True, "datos": reportes})
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return jsonify({"ok": False, "error": str(e)}), 500
+
+    @app.route('/api/reportes_recientes', methods=['GET'])
+    def api_reportes_recientes():
+        try:
+            print('[API_REPORTES_RECIENTES] llamada recibida')
+            db = conectar_db()
+            if db is None:
+                error_msg = 'Error de conexión a la base de datos'
+                print(f'[API_REPORTES_RECIENTES] {error_msg}')
+                return jsonify({'ok': False, 'error': error_msg}), 500
+
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+            query = '''
+                SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN",
+                       o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
+                       o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA", 'perdido' AS tipo, r."ID_REPORTE" AS id_reporte,
+                       COALESCE(u."NOMBRE", 'Usuario') AS NOMBRE_USUARIO
+                FROM "Reportes_perdidos" r
+                JOIN "Objetos" o ON r."ID_OBJETO" = o."ID_OBJETO"
+                LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
+                LEFT JOIN "Usuarios" u ON r."ID_USUARIO" = u."ID_USUARIO"
+                UNION ALL
+                SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN",
+                       o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
+                       o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA", 'encontrado' AS tipo, r."ID_REPORTE_ENC" AS id_reporte,
+                       COALESCE(u."NOMBRE", 'Usuario') AS NOMBRE_USUARIO
+                FROM "Reportes_encontrados" r
+                JOIN "Objetos" o ON r."ID_OBJETO" = o."ID_OBJETO"
+                LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
+                LEFT JOIN "Usuarios" u ON r."ID_USUARIO" = u."ID_USUARIO"
+                ORDER BY "FECHA" DESC
+            '''
+            print(f'[API_REPORTES_RECIENTES] SQL: {query.strip()}')
+            cursor.execute(query)
+            reportes = cursor.fetchall()
+            print(f'[API_REPORTES_RECIENTES] resultados={len(reportes)}')
+            cursor.close()
+            db.close()
+
+            for reporte in reportes:
+                fecha_val = reporte.get("FECHA")
+                if fecha_val is not None and not isinstance(fecha_val, str):
+                    try:
+                        reporte["FECHA"] = fecha_val.isoformat()
+                    except Exception:
+                        reporte["FECHA"] = str(fecha_val)
 
             return jsonify({"ok": True, "datos": reportes})
         except Exception as e:
@@ -2262,47 +2396,137 @@ def init_routes(app):
         return render_template("admin_reportes.html")
     
     #-----------------------------------------
-    # RUTA PARA EL BUZON 
+    # RUTA PARA EL BUZON
     #-----------------------------------------
+
+    def _format_fecha_mensaje(raw_fecha):
+        if isinstance(raw_fecha, datetime):
+            try:
+                return raw_fecha.strftime("%d/%m/%Y %H:%M"), raw_fecha.timestamp()
+            except Exception:
+                return raw_fecha.isoformat(), 0
+        if raw_fecha:
+            return str(raw_fecha), 0
+        return "", 0
+
+    def _build_conversations(cursor, id_usuario):
+        cursor.execute(
+            '''
+            SELECT m."ID_MENSAJE", m."ID_REMITENTE", m."ID_DESTINATARIO", m."ID_OBJETO", m."ASUNTO", m."CUERPO", m."FECHA", m."LEIDO",
+                   o."NOMBRE" as OBJETO_NOMBRE, o."IMAGEN" as OBJETO_IMAGEN,
+                   pr."NOMBRE" as REMITENTE_NOMBRE,
+                   pd."NOMBRE" as DESTINATARIO_NOMBRE
+            FROM public."Mensajes" m
+            LEFT JOIN public."Objetos" o ON m."ID_OBJETO" = o."ID_OBJETO"
+            LEFT JOIN public."Perfiles" pr ON m."ID_REMITENTE" = pr."ID_USUARIO"
+            LEFT JOIN public."Perfiles" pd ON m."ID_DESTINATARIO" = pd."ID_USUARIO"
+            WHERE m."ID_REMITENTE" = %s OR m."ID_DESTINATARIO" = %s
+            ORDER BY m."FECHA" DESC
+            ''',
+            (id_usuario, id_usuario),
+        )
+        mensajes = cursor.fetchall()
+        threads = {}
+        for m in mensajes:
+            remitente = m.get("ID_REMITENTE")
+            destinatario = m.get("ID_DESTINATARIO")
+            other_user = destinatario if remitente == id_usuario else remitente
+            other_name = (
+                m.get("DESTINATARIO_NOMBRE")
+                if remitente == id_usuario
+                else m.get("REMITENTE_NOMBRE")
+            ) or other_user
+            fecha_str, fecha_ts = _format_fecha_mensaje(m.get("FECHA"))
+            if other_user not in threads:
+                threads[other_user] = {
+                    "contacto_id": other_user,
+                    "destinatario": other_user,
+                    "nombre": other_name,
+                    "id_objeto": "0",
+                    "objeto_nombre": m.get("OBJETO_NOMBRE") or "Chat general",
+                    "objeto_imagen": m.get("OBJETO_IMAGEN") or None,
+                    "ultimo_mensaje": m.get("CUERPO") or "",
+                    "ultimo_asunto": m.get("ASUNTO") or "",
+                    "ultima_fecha": fecha_str,
+                    "ultima_fecha_ts": fecha_ts,
+                    "sent": remitente == id_usuario,
+                    "unread": 0,
+                }
+            elif fecha_ts > (threads[other_user].get("ultima_fecha_ts") or 0):
+                threads[other_user].update(
+                    {
+                        "objeto_nombre": m.get("OBJETO_NOMBRE") or "Chat general",
+                        "objeto_imagen": m.get("OBJETO_IMAGEN") or None,
+                        "ultimo_mensaje": m.get("CUERPO") or "",
+                        "ultimo_asunto": m.get("ASUNTO") or "",
+                        "ultima_fecha": fecha_str,
+                        "ultima_fecha_ts": fecha_ts,
+                        "sent": remitente == id_usuario,
+                    }
+                )
+            if destinatario == id_usuario and not m.get("LEIDO"):
+                threads[other_user]["unread"] += 1
+        thread_list = sorted(
+            threads.values(), key=lambda x: x.get("ultima_fecha_ts", 0), reverse=True
+        )
+        for t in thread_list:
+            t.pop("ultima_fecha_ts", None)
+        return thread_list
+
+    def _serialize_mensaje_row(m):
+        row = dict(m)
+        if isinstance(row.get("FECHA"), datetime):
+            row["FECHA"] = row["FECHA"].strftime("%d/%m/%Y %H:%M")
+        if row.get("LEIDO") is None:
+            row["LEIDO"] = False
+        return row
+
+    def _marcar_mensajes_leidos(db, id_usuario, contacto_id, id_objeto=None):
+        cursor = db.cursor()
+        if id_objeto:
+            cursor.execute(
+                '''
+                UPDATE public."Mensajes" SET "LEIDO"=TRUE
+                WHERE "ID_DESTINATARIO"=%s AND "ID_REMITENTE"=%s
+                  AND COALESCE("ID_OBJETO", '') = %s AND "LEIDO"=FALSE
+                ''',
+                (id_usuario, contacto_id, id_objeto),
+            )
+        else:
+            cursor.execute(
+                '''
+                UPDATE public."Mensajes" SET "LEIDO"=TRUE
+                WHERE "ID_DESTINATARIO"=%s AND "ID_REMITENTE"=%s AND "LEIDO"=FALSE
+                ''',
+                (id_usuario, contacto_id),
+            )
+        db.commit()
+        cursor.close()
 
     @app.route("/buzon")
     @login_required
     def buzon():
+        id_usuario = session.get("id_usuario")
+        conversaciones = []
+        unread_count = 0
         try:
             db = conectar_db()
+            if not db:
+                raise RuntimeError("Sin conexión a la base de datos")
             cursor = db.cursor(cursor_factory=RealDictCursor)
-
-            id_usuario = session.get("id_usuario")
-
-            # mensajes recibidos
-            cursor.execute(
-                '''
-                SELECT m."ID_MENSAJE", m."ID_REMITENTE", p."NOMBRE" as REMITENTE_NOMBRE,
-                       m."ASUNTO", m."CUERPO", m."FECHA", m."LEIDO"
-                FROM public."Mensajes" m
-                LEFT JOIN public."Perfiles" p ON m."ID_REMITENTE" = p."ID_USUARIO"
-                WHERE m."ID_DESTINATARIO" = %s
-                ORDER BY m."FECHA" DESC
-                LIMIT 50
-                ''',
-                (id_usuario,)
-            )
-            mensajes = cursor.fetchall()
-
-            # notificaciones no leídas
-            cursor.execute(
-                'SELECT COUNT(*) as total FROM public."Notificaciones" WHERE "ID_USUARIO"=%s AND "LEIDO"=FALSE',
-                (id_usuario,)
-            )
-            unread = cursor.fetchone()["total"] if cursor.rowcount != 0 else 0
-
+            conversaciones = _build_conversations(cursor, id_usuario)
+            unread_count = sum(t.get("unread", 0) for t in conversaciones)
             cursor.close()
             db.close()
-
-            return render_template("buzon.html", active="buzon", mensajes=mensajes, unread_count=unread)
         except Exception as e:
             print(f"Error cargando buzón: {e}")
-            return render_template("buzon.html", active="buzon", mensajes=[], unread_count=0)
+        return render_template(
+            "buzon.html",
+            active="buzon",
+            conversaciones=conversaciones,
+            unread_count=unread_count,
+            id_usuario=id_usuario,
+        )
 
 
     # -----------------------------
@@ -2327,6 +2551,7 @@ def init_routes(app):
             remitente = session.get('id_usuario')
             destinatario = request.form.get('destinatario') or request.form.get('to')
             id_objeto = request.form.get('id_objeto') or request.form.get('objeto')
+            reply_to = request.form.get('reply_to') or request.form.get('id_respuesta')
             asunto = request.form.get('asunto') or request.form.get('subject')
             cuerpo = request.form.get('cuerpo') or request.form.get('body')
 
@@ -2362,10 +2587,34 @@ def init_routes(app):
                     db.close()
                     return jsonify({'ok': False, 'error': 'Objeto asociado no válido'}), 400
 
+            # validar respuesta si se proporciona
+            id_respuesta = None
+            if reply_to:
+                try:
+                    id_respuesta = int(reply_to)
+                except (ValueError, TypeError):
+                    id_respuesta = None
+                if id_respuesta:
+                    cursor.execute(
+                        'SELECT "ID_OBJETO", "ID_REMITENTE", "ID_DESTINATARIO" FROM public."Mensajes" WHERE "ID_MENSAJE"=%s',
+                        (id_respuesta,),
+                    )
+                    respuesta_row = cursor.fetchone()
+                    if not respuesta_row:
+                        cursor.close()
+                        db.close()
+                        return jsonify({'ok': False, 'error': 'Mensaje al que respondes no existe'}), 400
+                    if respuesta_row[1] not in (remitente, destinatario) or respuesta_row[2] not in (remitente, destinatario):
+                        cursor.close()
+                        db.close()
+                        return jsonify({'ok': False, 'error': 'No puedes responder a ese mensaje'}), 403
+                    if not id_objeto:
+                        id_objeto = respuesta_row[0]
+
             # insertar mensaje y obtener id
             cursor.execute(
-                'INSERT INTO public."Mensajes" ("ID_REMITENTE","ID_DESTINATARIO","ID_OBJETO","ASUNTO","CUERPO") VALUES (%s,%s,%s,%s,%s) RETURNING "ID_MENSAJE"',
-                (remitente, destinatario, id_objeto, asunto, cuerpo),
+                'INSERT INTO public."Mensajes" ("ID_REMITENTE","ID_DESTINATARIO","ID_OBJETO","ID_RESPUESTA","ASUNTO","CUERPO") VALUES (%s,%s,%s,%s,%s,%s) RETURNING "ID_MENSAJE"',
+                (remitente, destinatario, id_objeto, id_respuesta, asunto, cuerpo),
             )
             id_mensaje = cursor.fetchone()[0]
 
@@ -2410,7 +2659,8 @@ def init_routes(app):
         if id_usuario == destinatario_id:
             return redirect('/buzon')
 
-        if id_objeto in (None, 'None', 'null', '0', ''):
+        show_all = id_objeto in (None, 'None', 'null', '0', '')
+        if show_all:
             id_objeto = None
 
         db = conectar_db()
@@ -2433,31 +2683,54 @@ def init_routes(app):
             db.close()
             return render_template('chat.html', error='Debes tener un reporte publicado para chatear.', destinatario=None, mensajes=[])
 
-        if id_objeto:
-            cursor.execute('SELECT "NOMBRE" FROM public."Objetos" WHERE "ID_OBJETO"=%s', (id_objeto,))
+        objeto_nombre = None
+        objeto_imagen = None
+        if not show_all and id_objeto:
+            cursor.execute('SELECT "NOMBRE", "IMAGEN" FROM public."Objetos" WHERE "ID_OBJETO"=%s', (id_objeto,))
             objeto_row = cursor.fetchone()
             if not objeto_row:
                 cursor.close()
                 db.close()
                 return render_template('chat.html', error='Objeto asociado no válido.', destinatario=None, mensajes=[])
             objeto_nombre = objeto_row['NOMBRE']
-        else:
-            objeto_nombre = None
+            objeto_imagen = objeto_row['IMAGEN']
 
-        cursor.execute(
-            '''
-            SELECT m."ID_MENSAJE", m."ID_REMITENTE", m."ID_DESTINATARIO", m."ID_OBJETO", m."ASUNTO", m."CUERPO", m."FECHA", m."LEIDO", pr."NOMBRE" as REMITENTE_NOMBRE, pd."NOMBRE" as DESTINATARIO_NOMBRE
-            FROM public."Mensajes" m
-            LEFT JOIN public."Perfiles" pr ON m."ID_REMITENTE" = pr."ID_USUARIO"
-            LEFT JOIN public."Perfiles" pd ON m."ID_DESTINATARIO" = pd."ID_USUARIO"
-            WHERE ((m."ID_REMITENTE"=%s AND m."ID_DESTINATARIO"=%s)
-               OR (m."ID_REMITENTE"=%s AND m."ID_DESTINATARIO"=%s))
-              AND COALESCE(m."ID_OBJETO", '') = %s
-            ORDER BY m."FECHA" ASC
-            ''',
-            (id_usuario, destinatario_id, destinatario_id, id_usuario, id_objeto or ''),
-        )
+        if show_all:
+            cursor.execute(
+                '''
+                SELECT m."ID_MENSAJE", m."ID_REMITENTE", m."ID_DESTINATARIO", m."ID_OBJETO", m."ID_RESPUESTA", m."ASUNTO", m."CUERPO", m."FECHA", m."LEIDO", pr."NOMBRE" as REMITENTE_NOMBRE, pd."NOMBRE" as DESTINATARIO_NOMBRE,
+                       rm."CUERPO" as RESPUESTA_CUERPO, rm."ID_REMITENTE" as RESPUESTA_REMITENTE
+                FROM public."Mensajes" m
+                LEFT JOIN public."Perfiles" pr ON m."ID_REMITENTE" = pr."ID_USUARIO"
+                LEFT JOIN public."Perfiles" pd ON m."ID_DESTINATARIO" = pd."ID_USUARIO"
+                LEFT JOIN public."Mensajes" rm ON m."ID_RESPUESTA" = rm."ID_MENSAJE"
+                WHERE (m."ID_REMITENTE"=%s AND m."ID_DESTINATARIO"=%s)
+                   OR (m."ID_REMITENTE"=%s AND m."ID_DESTINATARIO"=%s)
+                ORDER BY m."FECHA" ASC
+                ''',
+                (id_usuario, destinatario_id, destinatario_id, id_usuario),
+            )
+        else:
+            cursor.execute(
+                '''
+                SELECT m."ID_MENSAJE", m."ID_REMITENTE", m."ID_DESTINATARIO", m."ID_OBJETO", m."ID_RESPUESTA", m."ASUNTO", m."CUERPO", m."FECHA", m."LEIDO", pr."NOMBRE" as REMITENTE_NOMBRE, pd."NOMBRE" as DESTINATARIO_NOMBRE,
+                       o."NOMBRE" as OBJETO_NOMBRE, o."IMAGEN" as OBJETO_IMAGEN,
+                       rm."CUERPO" as RESPUESTA_CUERPO, rm."ID_REMITENTE" as RESPUESTA_REMITENTE
+                FROM public."Mensajes" m
+                LEFT JOIN public."Perfiles" pr ON m."ID_REMITENTE" = pr."ID_USUARIO"
+                LEFT JOIN public."Perfiles" pd ON m."ID_DESTINATARIO" = pd."ID_USUARIO"
+                LEFT JOIN public."Objetos" o ON m."ID_OBJETO" = o."ID_OBJETO"
+                LEFT JOIN public."Mensajes" rm ON m."ID_RESPUESTA" = rm."ID_MENSAJE"
+                WHERE ((m."ID_REMITENTE"=%s AND m."ID_DESTINATARIO"=%s)
+                   OR (m."ID_REMITENTE"=%s AND m."ID_DESTINATARIO"=%s))
+                  AND m."ID_OBJETO" = %s
+                ORDER BY m."FECHA" ASC
+                ''',
+                (id_usuario, destinatario_id, destinatario_id, id_usuario, id_objeto),
+            )
         mensajes = cursor.fetchall()
+
+        _marcar_mensajes_leidos(db, id_usuario, destinatario_id, None if show_all else id_objeto)
 
         cursor.execute('SELECT p."NOMBRE" FROM public."Perfiles" p WHERE p."ID_USUARIO"=%s', (destinatario_id,))
         perfil = cursor.fetchone()
@@ -2471,10 +2744,12 @@ def init_routes(app):
             'chat.html',
             destinatario_id=destinatario_id,
             destinatario_nombre=destinatario_nombre,
-            mensajes=mensajes,
+            mensajes=[_serialize_mensaje_row(m) for m in mensajes],
             report_id=report_id,
             id_objeto=id_objeto,
             objeto_nombre=objeto_nombre,
+            objeto_imagen=objeto_imagen,
+            id_usuario=id_usuario,
         )
 
 
@@ -2484,6 +2759,8 @@ def init_routes(app):
         try:
             id_usuario = session.get('id_usuario')
             db = conectar_db()
+            if not db:
+                return jsonify({'ok': False, 'error': 'Sin conexión a la base de datos'}), 500
             cursor = db.cursor(cursor_factory=RealDictCursor)
             cursor.execute(
                 '''
@@ -2497,7 +2774,7 @@ def init_routes(app):
                 ''',
                 (id_usuario,)
             )
-            mensajes = cursor.fetchall()
+            mensajes = [_serialize_mensaje_row(m) for m in cursor.fetchall()]
             cursor.close()
             db.close()
             return jsonify(mensajes)
@@ -2506,60 +2783,44 @@ def init_routes(app):
             return jsonify([]), 500
 
 
+    @app.route('/api/mensajes/no-leidos', methods=['GET'])
+    @login_required
+    def api_mensajes_no_leidos():
+        try:
+            id_usuario = session.get('id_usuario')
+            db = conectar_db()
+            if not db:
+                return jsonify({'ok': False, 'error': 'Sin conexión a la base de datos'}), 500
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+            cursor.execute(
+                'SELECT COUNT(*) as total FROM public."Mensajes" WHERE "ID_DESTINATARIO"=%s AND "LEIDO"=FALSE',
+                (id_usuario,),
+            )
+            total = cursor.fetchone()['total']
+            cursor.close()
+            db.close()
+            return jsonify({'ok': True, 'total': total})
+        except Exception as e:
+            print(f"Error contando mensajes no leídos: {e}")
+            return jsonify({'ok': False, 'total': 0}), 500
+
+
     @app.route('/api/conversaciones', methods=['GET'])
     @login_required
     def api_conversaciones():
         try:
             id_usuario = session.get('id_usuario')
             db = conectar_db()
+            if not db:
+                return jsonify({'ok': False, 'error': 'Sin conexión a la base de datos'}), 500
             cursor = db.cursor(cursor_factory=RealDictCursor)
-            cursor.execute(
-                '''
-                SELECT m."ID_MENSAJE", m."ID_REMITENTE", m."ID_DESTINATARIO", m."ID_OBJETO", m."ASUNTO", m."CUERPO", m."FECHA", m."LEIDO",
-                       o."NOMBRE" as OBJETO_NOMBRE,
-                       pr."NOMBRE" as REMITENTE_NOMBRE,
-                       pd."NOMBRE" as DESTINATARIO_NOMBRE
-                FROM public."Mensajes" m
-                LEFT JOIN public."Objetos" o ON m."ID_OBJETO" = o."ID_OBJETO"
-                LEFT JOIN public."Perfiles" pr ON m."ID_REMITENTE" = pr."ID_USUARIO"
-                LEFT JOIN public."Perfiles" pd ON m."ID_DESTINATARIO" = pd."ID_USUARIO"
-                WHERE m."ID_REMITENTE" = %s OR m."ID_DESTINATARIO" = %s
-                ORDER BY m."FECHA" DESC
-                ''',
-                (id_usuario, id_usuario),
-            )
-            mensajes = cursor.fetchall()
+            thread_list = _build_conversations(cursor, id_usuario)
             cursor.close()
             db.close()
-
-            threads = {}
-            for m in mensajes:
-                other_user = m['ID_DESTINATARIO'] if m['ID_REMITENTE'] == id_usuario else m['ID_REMITENTE']
-                other_name = m['DESTINATARIO_NOMBRE'] if m['ID_REMITENTE'] == id_usuario else m['REMITENTE_NOMBRE']
-                if not other_name:
-                    other_name = other_user
-
-                thread_id_objeto = m['ID_OBJETO'] or ''
-                thread_key = f"{other_user}||{thread_id_objeto}"
-                if thread_key not in threads:
-                    threads[thread_key] = {
-                        'destinatario': other_user,
-                        'nombre': other_name,
-                        'id_objeto': thread_id_objeto,
-                        'objeto_nombre': m['OBJETO_NOMBRE'] or (thread_id_objeto or 'Objeto general'),
-                        'ultimo_mensaje': m['CUERPO'] or '',
-                        'ultimo_asunto': m['ASUNTO'] or '',
-                        'ultima_fecha': m['FECHA'],
-                        'unread': 0,
-                    }
-                if m['ID_DESTINATARIO'] == id_usuario and not m['LEIDO']:
-                    threads[thread_key]['unread'] += 1
-
-            thread_list = sorted(threads.values(), key=lambda x: x['ultima_fecha'] or '', reverse=True)
             return jsonify(thread_list)
         except Exception as e:
             print(f"Error listando conversaciones: {e}")
-            return jsonify([]), 500
+            return jsonify({'ok': False, 'error': str(e)}), 500
 
 
     @app.route('/api/conversacion/<destinatario_id>/<id_objeto>', methods=['GET'])
@@ -2568,6 +2829,8 @@ def init_routes(app):
         try:
             id_usuario = session.get('id_usuario')
             db = conectar_db()
+            if not db:
+                return jsonify({'ok': False, 'error': 'Sin conexión a la base de datos'}), 500
             cursor = db.cursor(cursor_factory=RealDictCursor)
             cursor.execute('SELECT "ID_USUARIO" FROM public."Usuarios" WHERE "ID_USUARIO"=%s', (destinatario_id,))
             if not cursor.fetchone():
@@ -2575,23 +2838,50 @@ def init_routes(app):
                 db.close()
                 return jsonify({'ok': False, 'error': 'Contacto no encontrado'}), 404
 
-            cursor.execute(
-                '''
-                SELECT m."ID_MENSAJE", m."ID_REMITENTE", m."ID_DESTINATARIO", m."ID_OBJETO", m."ASUNTO", m."CUERPO", m."FECHA", m."LEIDO",
-                       pr."NOMBRE" as REMITENTE_NOMBRE, pd."NOMBRE" as DESTINATARIO_NOMBRE,
-                       o."NOMBRE" as OBJETO_NOMBRE
-                FROM public."Mensajes" m
-                LEFT JOIN public."Perfiles" pr ON m."ID_REMITENTE" = pr."ID_USUARIO"
-                LEFT JOIN public."Perfiles" pd ON m."ID_DESTINATARIO" = pd."ID_USUARIO"
-                LEFT JOIN public."Objetos" o ON m."ID_OBJETO" = o."ID_OBJETO"
-                WHERE ((m."ID_REMITENTE"=%s AND m."ID_DESTINATARIO"=%s)
+            if id_objeto in (None, 'None', 'null', '0', ''):
+                id_objeto = None
+
+            if id_objeto:
+                cursor.execute(
+                    '''
+                    SELECT m."ID_MENSAJE", m."ID_REMITENTE", m."ID_DESTINATARIO", m."ID_OBJETO", m."ID_RESPUESTA", m."ASUNTO", m."CUERPO", m."FECHA", m."LEIDO",
+                           pr."NOMBRE" as REMITENTE_NOMBRE, pd."NOMBRE" as DESTINATARIO_NOMBRE,
+                           o."NOMBRE" as OBJETO_NOMBRE,
+                           rm."CUERPO" as RESPUESTA_CUERPO, rm."ID_REMITENTE" as RESPUESTA_REMITENTE
+                    FROM public."Mensajes" m
+                    LEFT JOIN public."Perfiles" pr ON m."ID_REMITENTE" = pr."ID_USUARIO"
+                    LEFT JOIN public."Perfiles" pd ON m."ID_DESTINATARIO" = pd."ID_USUARIO"
+                    LEFT JOIN public."Objetos" o ON m."ID_OBJETO" = o."ID_OBJETO"
+                    LEFT JOIN public."Mensajes" rm ON m."ID_RESPUESTA" = rm."ID_MENSAJE"
+                    WHERE ((m."ID_REMITENTE"=%s AND m."ID_DESTINATARIO"=%s)
                        OR (m."ID_REMITENTE"=%s AND m."ID_DESTINATARIO"=%s))
-                  AND COALESCE(m."ID_OBJETO", '') = %s
-                ORDER BY m."FECHA" ASC
-                ''',
-                (id_usuario, destinatario_id, destinatario_id, id_usuario, id_objeto or ''),
-            )
-            mensajes = cursor.fetchall()
+                      AND m."ID_OBJETO" = %s
+                    ORDER BY m."FECHA" ASC
+                    ''',
+                    (id_usuario, destinatario_id, destinatario_id, id_usuario, id_objeto),
+                )
+            else:
+                cursor.execute(
+                    '''
+                    SELECT m."ID_MENSAJE", m."ID_REMITENTE", m."ID_DESTINATARIO", m."ID_OBJETO", m."ID_RESPUESTA", m."ASUNTO", m."CUERPO", m."FECHA", m."LEIDO",
+                           pr."NOMBRE" as REMITENTE_NOMBRE, pd."NOMBRE" as DESTINATARIO_NOMBRE,
+                           o."NOMBRE" as OBJETO_NOMBRE,
+                           rm."CUERPO" as RESPUESTA_CUERPO, rm."ID_REMITENTE" as RESPUESTA_REMITENTE
+                    FROM public."Mensajes" m
+                    LEFT JOIN public."Perfiles" pr ON m."ID_REMITENTE" = pr."ID_USUARIO"
+                    LEFT JOIN public."Perfiles" pd ON m."ID_DESTINATARIO" = pd."ID_USUARIO"
+                    LEFT JOIN public."Objetos" o ON m."ID_OBJETO" = o."ID_OBJETO"
+                    LEFT JOIN public."Mensajes" rm ON m."ID_RESPUESTA" = rm."ID_MENSAJE"
+                    WHERE (m."ID_REMITENTE"=%s AND m."ID_DESTINATARIO"=%s)
+                       OR (m."ID_REMITENTE"=%s AND m."ID_DESTINATARIO"=%s)
+                    ORDER BY m."FECHA" ASC
+                    ''',
+                    (id_usuario, destinatario_id, destinatario_id, id_usuario),
+                )
+            mensajes = [_serialize_mensaje_row(m) for m in cursor.fetchall()]
+
+            _marcar_mensajes_leidos(db, id_usuario, destinatario_id, id_objeto)
+
             cursor.close()
             db.close()
 

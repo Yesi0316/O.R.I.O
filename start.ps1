@@ -20,19 +20,31 @@ if (-not (Test-Path $cloudflaredPath)) {
 Write-Host "cloudflared OK -> $cloudflaredPath"
 
 
-# ---------------- START TUNNEL (SIN START-PROCESS) ----------------
+# 🔥 MATAR PROCESO ANTERIOR
+Get-Process cloudflared -ErrorAction SilentlyContinue | Stop-Process -Force
+
+
+# ---------------- LOG (FIX BLOQUEO) ----------------
+$logFile = "$PSScriptRoot\cf.log"
+
+# 🔥 IMPORTANTE: cerrar handle antes de limpiar
+Start-Sleep -Milliseconds 500
+
+if (Test-Path $logFile) {
+    Remove-Item $logFile -Force -ErrorAction SilentlyContinue
+}
+
+New-Item $logFile -ItemType File | Out-Null
+
+
+# ---------------- START CLOUDFLARED (SIN START-PROCESS BUG) ----------------
 Write-Host "`nIniciando Cloudflare Tunnel..."
 
-$logFile = "$PSScriptRoot\cf.log"
-if (Test-Path $logFile) { Remove-Item $logFile -Force }
-
-
-# Ejecutar cloudflared en segundo plano
-Start-Job -ScriptBlock {
+$job = Start-Job -ScriptBlock {
     param($path, $log)
 
     & $path tunnel --url http://localhost:5000 *>> $log
-} -ArgumentList $cloudflaredPath, $logFile | Out-Null
+} -ArgumentList $cloudflaredPath, $logFile
 
 
 # ---------------- WAIT URL ----------------
@@ -40,23 +52,25 @@ Write-Host "`nEsperando URL..."
 
 $publicUrl = $null
 
-for ($i = 0; $i -lt 120; $i++) {
+for ($i = 0; $i -lt 200; $i++) {
 
     Start-Sleep -Milliseconds 500
 
-    if (Test-Path $logFile) {
+    if (!(Test-Path $logFile)) { continue }
 
-        $text = Get-Content $logFile -Raw
+    $text = Get-Content $logFile -Raw
 
-        if ($text -match "https://[a-zA-Z0-9\-]+\.trycloudflare\.com") {
-            $publicUrl = $matches[0]
-            break
-        }
+    if ([string]::IsNullOrWhiteSpace($text)) { continue }
+
+    if ($text -match "https://[a-zA-Z0-9\-\.]+\.trycloudflare\.com") {
+        $publicUrl = $matches[0]
+        break
     }
 }
 
 if (-not $publicUrl) {
     Write-Host "ERROR: no se pudo capturar URL"
+    Stop-Job $job -ErrorAction SilentlyContinue
     exit 1
 }
 
@@ -90,6 +104,41 @@ window.location.href = "$publicUrl";
 
 $html | Set-Content "$PSScriptRoot\index.html" -Encoding UTF8
 
-
 Write-Host "`nOK: HTML actualizado"
-Write-Host "URL FINAL: $publicUrl"
+
+
+# ---------------- FTP (.ENV) ----------------
+Write-Host "`nSubiendo a Unaux..."
+
+$envFile = "$PSScriptRoot\.env"
+
+if (!(Test-Path $envFile)) {
+    Write-Host "ERROR: .env no encontrado"
+    exit 1
+}
+
+$ftpPassword = (Get-Content $envFile | Where-Object { $_ -match "^FTP_PASSWORD=" }) `
+    -split "=",2 | Select-Object -Last 1
+
+$ftpPassword = $ftpPassword.Trim().Trim('"').Trim("'")
+
+$winscp = "C:\Program Files (x86)\WinSCP\WinSCP.com"
+
+if (!(Test-Path $winscp)) {
+    Write-Host "ERROR: WinSCP no encontrado"
+    exit 1
+}
+
+$ftpScript = @"
+open ftp://ezyro_42225335:$ftpPassword@ftpupload.net
+cd htdocs
+put "$PSScriptRoot\index.html"
+exit
+"@
+
+$ftpFile = "$PSScriptRoot\ftp.txt"
+Set-Content $ftpFile $ftpScript
+
+& $winscp /script=$ftpFile
+
+Write-Host "`nOK: Unaux actualizado -> https://orio.unaux.com"

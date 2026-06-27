@@ -8,57 +8,135 @@
 
 {% block content %}
 <div class="header">
-    <h1>Chat privado</h1>
+    <h1><i class="fas fa-comments"></i> Chat privado</h1>
     <p>Comunícate directamente con {{ destinatario_nombre or 'el usuario' }}.</p>
 </div>
 
 <section class="buzon-card chat-panel">
     {% if error %}
     <div class="notification error">{{ error }}</div>
-    <a href="/buzon" class="btn btn-outline">Volver al buzón</a>
+    <a href="/buzon" class="btn btn-volver">Volver al buzón</a>
     {% else %}
     <div class="chat-header">
-        <div>
-            <h2>{{ destinatario_nombre or 'Contacto' }}</h2>
-            {% if objeto_nombre %}
-                <p class="chat-object">Objeto: {{ objeto_nombre }}</p>
-            {% elif id_objeto %}
-                <p class="chat-object">Objeto: {{ id_objeto }}</p>
-            {% else %}
-                <p class="chat-object">Chat general</p>
-            {% endif %}
+        <div class="chat-contact-info">
+            <div class="avatar-circle">{{ (destinatario_nombre or destinatario_id or '?')[:1]|upper }}</div>
+            <div>
+                <h2>{{ destinatario_nombre or 'Contacto' }}</h2>
+                {% if objeto_nombre and objeto_imagen %}
+                    <div class="chat-report-card">
+                        <img src="{{ objeto_imagen }}" alt="{{ objeto_nombre }}" class="chat-report-image">
+                        <span class="chat-report-name">{{ objeto_nombre }}</span>
+                    </div>
+                {% elif objeto_nombre %}
+                    <div class="chat-report-card chat-report-card-noimage">
+                        <span class="chat-report-name">{{ objeto_nombre }}</span>
+                    </div>
+                {% endif %}
+            </div>
         </div>
-        <a href="/buzon" class="btn btn-outline">Volver al buzón</a>
+        <a href="/buzon?u={{ destinatario_id }}" class="btn btn-volver"><i class="fas fa-arrow-left"></i> Volver al buzón</a>
     </div>
 
     <div class="chat-messages" id="chatMessages">
         {% if mensajes and mensajes|length > 0 %}
             {% for m in mensajes %}
-            <div class="chat-message {{ 'outgoing' if m.ID_REMITENTE == session.id_usuario else 'incoming' }}">
+            <div class="chat-message {% if m.ID_REMITENTE == id_usuario %}outgoing{% else %}incoming{% endif %}">
                 <div class="message-meta">
-                    <strong>{{ 'Tú' if m.ID_REMITENTE == session.id_usuario else destinatario_nombre }}</strong>
+                    <strong>{% if m.ID_REMITENTE == id_usuario %}Tú{% else %}{{ destinatario_nombre }}{% endif %}</strong>
                     <span>{{ m.FECHA }}</span>
+                    <button type="button" class="reply-btn" onclick='setReply({{ m.ID_MENSAJE }}, {{ ('Tú' if m.ID_REMITENTE == id_usuario else destinatario_nombre)|tojson }}, {{ (m.CUERPO or '')|tojson }})'>Responder</button>
                 </div>
+                {% if m.ID_RESPUESTA and m.RESPUESTA_CUERPO %}
+                <div class="message-reply">
+                    <strong>{% if m.RESPUESTA_REMITENTE == id_usuario %}Tú{% else %}{{ destinatario_nombre }}{% endif %}</strong>
+                    <p>{{ m.RESPUESTA_CUERPO }}</p>
+                </div>
+                {% endif %}
                 <p>{{ m.CUERPO }}</p>
             </div>
             {% endfor %}
         {% else %}
-            <div class="chat-empty">No hay mensajes aún. Escribe el primero.</div>
+            <div class="chat-empty">
+                <div>
+                    <p>No hay mensajes aún.</p>
+                    <p>Escribe el primero para comenzar la conversación.</p>
+                </div>
+            </div>
         {% endif %}
     </div>
 
     <div class="compose-panel">
-        <textarea id="messageBody" placeholder="Escribe tu mensaje..." rows="4"></textarea>
+        <div id="replyPreview" class="reply-preview hidden"></div>
+        <textarea id="messageBody" placeholder="Escribe tu mensaje..." rows="3"></textarea>
         <div class="compose-actions">
-            <button class="btn" onclick="sendChatMessage()">Enviar</button>
+            <button class="btn" type="button" onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i> Enviar</button>
         </div>
     </div>
     {% endif %}
 </section>
 
+{% if not error %}
 <script>
-const destinatarioId = '{{ destinatario_id }}';
-const idObjeto = '{{ id_objeto or '' }}';
+const destinatarioId = {{ destinatario_id|tojson }};
+const idObjeto = {{ (id_objeto or '')|tojson }};
+let activeReplyId = null;
+let activeReplyAuthor = '';
+let activeReplyText = '';
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
+}
+
+function renderReplyPreview() {
+    const preview = document.getElementById('replyPreview');
+    if (!preview) return;
+    if (activeReplyId && activeReplyText) {
+        preview.innerHTML = `
+            <div class="reply-preview-card">
+                <div class="reply-preview-header">
+                    <span>Respondiendo a ${escapeHtml(activeReplyAuthor)}</span>
+                    <button type="button" class="reply-cancel" onclick="clearReply()">Cerrar</button>
+                </div>
+                <p>${escapeHtml(activeReplyText)}</p>
+            </div>`;
+        preview.classList.remove('hidden');
+    } else {
+        preview.classList.add('hidden');
+        preview.innerHTML = '';
+    }
+}
+
+function setReply(messageId, author, text) {
+    activeReplyId = messageId;
+    activeReplyAuthor = author || 'mensaje';
+    activeReplyText = text || '';
+    renderReplyPreview();
+    document.getElementById('messageBody').focus();
+}
+
+function clearReply() {
+    activeReplyId = null;
+    activeReplyAuthor = '';
+    activeReplyText = '';
+    renderReplyPreview();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const chatMessages = document.getElementById('chatMessages');
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    renderReplyPreview();
+});
+
+document.getElementById('messageBody')?.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendChatMessage();
+    }
+});
 
 function sendChatMessage() {
     const body = document.getElementById('messageBody').value.trim();
@@ -74,11 +152,13 @@ function sendChatMessage() {
         fd.append('id_objeto', idObjeto);
     }
 
-    fetch('/api/mensajes/enviar', { method: 'POST', body: fd })
+    if (activeReplyId) {
+        fd.append('reply_to', activeReplyId);
+    }
+    fetch('/api/mensajes/enviar', { method: 'POST', body: fd, credentials: 'same-origin' })
         .then(r => r.json())
         .then(resp => {
             if (resp.ok) {
-                document.getElementById('messageBody').value = '';
                 window.location.reload();
             } else {
                 alert('Error: ' + (resp.error || 'No se pudo enviar'));
@@ -90,4 +170,5 @@ function sendChatMessage() {
         });
 }
 </script>
+{% endif %}
 {% endblock %}

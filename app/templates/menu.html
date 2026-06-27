@@ -8,56 +8,71 @@
 {% endblock %}
 
 {% block content %}
+<div class="dashboard-page">
 
-<div class="header">
-<h1>
-{% if session.get("genero") == "femenino" %}
-Bienvenida {{ session.get("nombre") }}
-{% else %}
-Bienvenido {{ session.get("nombre") }}
-{% endif %}
-</h1>
+<div class="dashboard-top">
+    <button type="button" class="header-icon-btn" aria-label="Menú">
+        <i class="fas fa-crown"></i>
+    </button>
+    <button type="button" class="notifications-btn" aria-label="Notificaciones">
+        <span class="notification-dot"></span>
+        <i class="fas fa-bell"></i>
+    </button>
 </div>
 
-<!-- BUSCADOR CON FILTROS EN UNA SOLA BARRA -->
+<div class="dashboard-title">
+    <span class="dashboard-greeting" id="dashboardGreeting">Buenos días</span>
+    <h1>
+        {% if session.get("genero") == "femenino" %}
+        Bienvenida {{ session.get("nombre") }}
+        {% else %}
+        Bienvenido {{ session.get("nombre") }}
+        {% endif %}
+    </h1>
+</div>
+
 <div class="search-section">
-<div class="search-bar">
-<i class="fas fa-search"></i>
-<input type="text" id="motorBusqueda" placeholder="Buscar objeto..." autocomplete="off">
-</div>
-
-<select id="categoria" class="filter-select">
-<option value="">Todas las categorías</option>
-<option value="Documentos">Documentos</option>
-<option value="Tecnología">Tecnología</option>
-<option value="Accesorios">Accesorios</option>
-<option value="Ropa">Ropa</option>
-<option value="Llaves">Llaves</option>
-<option value="Otros">Otros</option>
-</select>
-
-<select id="tipo" class="filter-select">
-<option value="">Todos los tipos</option>
-<option value="perdido">Perdido</option>
-<option value="encontrado">Encontrado</option>
-</select>
+    <div class="search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" id="motorBusqueda" placeholder="Buscar objeto..." autocomplete="off">
+    </div>
+    <div class="filters-row">
+        <label class="filter-pill">
+            <i class="fas fa-th-large"></i>
+            <select id="categoria" class="filter-select">
+                <option value="">Categorías</option>
+                <option value="Documentos">Documentos</option>
+                <option value="Tecnología">Tecnología</option>
+                <option value="Accesorios">Accesorios</option>
+                <option value="Ropa">Ropa</option>
+                <option value="Llaves">Llaves</option>
+                <option value="Otros">Otros</option>
+            </select>
+        </label>
+        <label class="filter-pill">
+            <i class="fas fa-tag"></i>
+            <select id="tipo" class="filter-select">
+                <option value="">Tipo</option>
+                <option value="perdido">Perdido</option>
+                <option value="encontrado">Encontrado</option>
+            </select>
+        </label>
+    </div>
 </div>
 
 <!-- CONTENIDO PRINCIPAL (Se oculta cuando hay búsqueda) -->
 <div id="contenidoPrincipal">
-<div class="cards">
-<div class="card"><h3 id="reportes-totales">-</h3><span>Reportes totales</span></div>
-<div class="card"><h3 id="recuperados">-</h3><span>Recuperados</span></div>
-<div class="card"><h3 id="pendientes">-</h3><span>Pendientes</span></div>
-<div class="card"><h3 id="usuarios-activos">-</h3><span>Usuarios activos</span></div>
-</div>
-
-<div class="activity">
-<h2>Historial de Actividad</h2>
-
-<div class="activity-box" id="actividadBox">
-<!-- Items se generan dinámicamente -->
-</div>
+<div class="recent-reports-section">
+    <div class="section-header">
+        <h2>Publicaciones recientes</h2>
+        <div class="header-actions">
+            <a href="/reportes" class="see-all">Ver todas</a>
+            <button id="refreshReports" class="refresh-btn" type="button">Actualizar</button>
+        </div>
+    </div>
+    <div id="recentReports" class="recent-reports-grid">
+        <div class="recent-placeholder">Cargando reportes recientes...</div>
+    </div>
 </div>
 </div>
 
@@ -65,7 +80,9 @@ Bienvenido {{ session.get("nombre") }}
 <div id="resultadosBusqueda" class="grid-resultados" style="display:none;">
 </div>
 
+</div>
 
+<script src="{{ url_for('static', filename='js/report-card.js') }}"></script>
 <script>
 function toggleFabMenu(){
 const fab = document.getElementById("fab");
@@ -75,27 +92,56 @@ if (fab) fab.classList.toggle("active");
 if (menu) menu.classList.toggle("active");
 }
 
-// Cargar estadísticas al iniciar la página
-async function cargarEstadisticas() {
-try {
-const res = await fetch('/api/estadisticas');
-const datos = await res.json();
-
-document.getElementById('reportes-totales').textContent = datos.reportes_totales;
-document.getElementById('recuperados').textContent = datos.recuperados;
-document.getElementById('pendientes').textContent = datos.pendientes;
-document.getElementById('usuarios-activos').textContent = datos.usuarios_activos;
-} catch (error) {
-console.error("Error al cargar estadísticas:", error);
-// En caso de error, dejar los guiones
-}
-}
-
-// Cargar estadísticas cuando la página se cargue
+// Cargar cuando la página se cargue
 document.addEventListener('DOMContentLoaded', () => {
-    cargarEstadisticas();
-    cargarActividad();
+    cargarReportesRecientes();
+    actualizarSaludo();
+    const refreshReports = document.getElementById('refreshReports');
+    if (refreshReports) {
+        refreshReports.addEventListener('click', cargarReportesRecientes);
+    }
 });
+
+function actualizarSaludo() {
+    const saludo = document.getElementById('dashboardGreeting');
+    if (!saludo) return;
+    const hora = new Date().getHours();
+    if (hora < 12) saludo.textContent = 'Buenos días';
+    else if (hora < 18) saludo.textContent = 'Buenas tardes';
+    else saludo.textContent = 'Buenas noches';
+}
+
+async function cargarReportesRecientes() {
+    const contenedor = document.getElementById('recentReports');
+    const refreshReports = document.getElementById('refreshReports');
+    if (!contenedor) return;
+
+    if (refreshReports) {
+        refreshReports.disabled = true;
+        refreshReports.textContent = 'Actualizando...';
+    }
+    contenedor.innerHTML = '<div class="recent-placeholder">Cargando reportes recientes...</div>';
+
+    try {
+        const res = await fetch('/api/reportes_recientes');
+        const data = await res.json();
+
+        if (!data.ok || !Array.isArray(data.datos) || data.datos.length === 0) {
+            renderReportCards(contenedor, [], { emptyMessage: 'No hay reportes recientes para mostrar.' });
+            return;
+        }
+
+        renderReportCards(contenedor, data.datos, { clickable: true, emptyMessage: 'No hay reportes recientes para mostrar.' });
+    } catch (error) {
+        console.error('Error cargando reportes recientes:', error);
+        contenedor.innerHTML = '<div class="recent-placeholder">Error al cargar reportes recientes.</div>';
+    } finally {
+        if (refreshReports) {
+            refreshReports.disabled = false;
+            refreshReports.textContent = 'Actualizar';
+        }
+    }
+}
 
 // calculadora de tiempo transcurrido
 function tiempoTranscurrido(fechaStr) {
@@ -111,39 +157,6 @@ function tiempoTranscurrido(fechaStr) {
     return `Hace ${dias} día${dias === 1 ? '' : 's'}`;
 }
 
-// Cargar actividad del usuario
-async function cargarActividad() {
-    try {
-        const res = await fetch('/api/actividad');
-        const data = await res.json();
-        const contenedor = document.getElementById('actividadBox');
-        contenedor.innerHTML = '';
-        if (data.eventos && data.eventos.length > 0) {
-            data.eventos.forEach(ev => {
-                const icon = ev.tipo === 'perdido' ? 'fa-search' : 'fa-box';
-                const texto = ev.tipo === 'perdido'
-                    ? 'Objeto perdido reportado'
-                    : 'Objeto encontrado registrado';
-                const tiempo = tiempoTranscurrido(ev.fecha);
-                const nombre = ev.nombre || '';
-                const item = document.createElement('div');
-                item.classList.add('activity-item');
-                item.innerHTML = `
-                    <i class="fas ${icon}"></i>
-                    <div>
-                        <strong>${texto}</strong>
-                        <p>${nombre} - ${tiempo}</p>
-                    </div>`;
-                contenedor.appendChild(item);
-            });
-        } else {
-            contenedor.innerHTML = '<div style="padding:20px; text-align:center; color:var(--sapphire);">No hay actividad reciente</div>';
-        }
-    } catch (error) {
-        console.error('Error al cargar actividad:', error);
-    }
-}
-
 // MOTOR DE BÚSQUEDA
 const motorBusqueda = document.getElementById("motorBusqueda");
 const categoria = document.getElementById("categoria");
@@ -156,14 +169,14 @@ const q = motorBusqueda.value.trim();
 const cat = categoria.value;
 const tip = tipo.value;
 
-if (!q) {
-// Si no hay búsqueda, mostrar contenido principal
+if (!q && !cat && !tip) {
+// Si no hay búsqueda ni filtros, mostrar contenido principal
 contenidoPrincipal.style.display = "block";
 resultadosBusqueda.style.display = "none";
 return;
 }
 
-// Hay búsqueda, ocultar contenido principal
+// Hay búsqueda o filtros activos, ocultar contenido principal
 contenidoPrincipal.style.display = "none";
 resultadosBusqueda.style.display = "grid";
 
@@ -178,35 +191,14 @@ const res = await fetch(`/busquedas?${params.toString()}`);
 const datos = await res.json();
 resultadosBusqueda.innerHTML = "";
 
-if (datos["datos"] && datos["datos"].length > 0) {
-const objetos = datos["datos"];
-objetos.forEach(objeto => {
-const nombre = objeto.NOMBRE || objeto.nombre || objeto.Nombre || 'Sin nombre';
-const categoriaTexto = objeto.CATEGORIA || objeto.categoria || objeto.Categoria || 'Sin categoría';
-const color = objeto.COLOR || objeto.color || objeto.Color || 'Sin color';
-const idObjeto = objeto.ID_OBJETO || objeto.id_objeto || objeto.idObjeto || objeto.ID_OBJETO || '';
-const imagen = objeto.IMAGEN || objeto.imagen || objeto.Imagen || '';
-
-let imagen_html = "";
-if (imagen) {
-imagen_html = `<img src="${imagen}" alt="Imagen del objeto" class="tarjeta-img">`;
-}
-
-let html = `<div class="tarjeta-resultado">
-${imagen_html}
-<div class="tarjeta-contenido">
-<div class="tarjeta-titulo">${nombre}</div>
-<div class="tarjeta-categoria">${categoriaTexto}</div>
-<div class="tarjeta-color">${color}</div>
-<a class="tarjeta-btn" href="/detalles/${idObjeto}">Ver</a>
-</div>
-</div>`;
-
-resultadosBusqueda.insertAdjacentHTML("beforeend", html);
-});
-} else {
-resultadosBusqueda.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--sapphire); font-size: 14px;">${datos["mensaje"] || "No se encontraron resultados"}</div>`;
-}
+        if (datos["datos"] && datos["datos"].length > 0) {
+            renderReportCards(resultadosBusqueda, datos.datos, {
+                clickable: true,
+                emptyMessage: datos["mensaje"] || "No se encontraron resultados"
+            });
+        } else {
+            resultadosBusqueda.innerHTML = `<div class="recent-placeholder">${datos["mensaje"] || "No se encontraron resultados"}</div>`;
+        }
 } catch (error) {
 console.error("Error en la búsqueda:", error);
 resultadosBusqueda.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: red; font-size: 14px;">Error al realizar la búsqueda</div>`;

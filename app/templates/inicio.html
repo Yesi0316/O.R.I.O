@@ -67,7 +67,7 @@
                             autocomplete="current-password"
                         >
                         <button type="button" class="password-toggle" aria-label="Mostrar contraseña">
-                            <i class="fa-regular fa-eye"></i>
+                            <i class="fa-solid fa-eye"></i>
                         </button>
                     </div>
 
@@ -100,17 +100,11 @@ function initPasswordToggles() {
         const wrapper = button.closest(".password-group")
         const input = wrapper ? wrapper.querySelector("input") : null
 
-        // establecer estado inicial (closed si es type=password)
-        if (wrapper && input) wrapper.classList.toggle('closed', input.type === 'password')
-
         button.addEventListener("click", () => {
             if (!wrapper || !input) return
 
             const wasPassword = input.type === "password"
             input.type = wasPassword ? "text" : "password"
-
-            // alternar clase closed para ajustar posición del botón
-            wrapper.classList.toggle('closed', input.type === 'password')
 
             const icon = button.querySelector("i")
             if (icon) {

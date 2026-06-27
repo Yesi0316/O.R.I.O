@@ -62,9 +62,10 @@ window.addEventListener('DOMContentLoaded', async function() {
     <i class="fas fa-box-open"></i><span>Mis Reportes</span>
 </a>
 
-<a href="/buzon" class="nav-item {{ 'active' if active=='buzon' else '' }}">
+<a href="/buzon" class="nav-item {{ 'active' if active=='buzon' else '' }}" id="buzoneLink">
     <i class="fas fa-envelope"></i>
         <span>Buzón</span>
+        <span class="menu-badge" id="buzoneCounter"></span>
 </a>
 
 <a href="/perfil" class="{{ 'active' if active=='perfil' else '' }}">
@@ -126,19 +127,30 @@ window.addEventListener('DOMContentLoaded', async function() {
 
 </div>
 
+<nav class="bottom-nav" aria-label="Navegación principal móvil">
+    <a href="/menu" class="nav-item {{ 'active' if active=='panel' else '' }}">
+        <i class="fas fa-home"></i>
+        <span>Inicio</span>
+    </a>
+    <a href="/reportes" class="nav-item {{ 'active' if active=='reportes' else '' }}">
+        <i class="fas fa-box-open"></i>
+        <span>Mis reportes</span>
+    </a>
+    <a href="/formulario_reporte" class="nav-item center-btn" aria-label="Crear reporte">
+        <i class="fas fa-plus"></i>
+    </a>
+    <a href="/buzon" class="nav-item {{ 'active' if active=='buzon' else '' }}">
+        <i class="fas fa-envelope"></i>
+        <span>Buzón</span>
+    </a>
+    <a href="/perfil" class="nav-item {{ 'active' if active=='perfil' else '' }}">
+        <i class="fas fa-user"></i>
+        <span>Perfil</span>
+    </a>
+</nav>
 
 
-{% if active != 'perfil' and not hide_fab %}
 
-<div class="fab" id="fab" onclick="toggleFabMenu()">
-    <i class="fas fa-plus"></i>
-</div>
-
-<a href="/formulario_reporte" class="fab">
-    <i class="fas fa-search"></i>
-</a>
-
-{% endif %}
 
 
 <script>
@@ -209,7 +221,33 @@ document.addEventListener('DOMContentLoaded', async function(){
             img.src = data.datos.FOTO_PERFIL || '/static/img/image.png';
         }
     }catch(e){ /* silencio */ }
+    
+    // Cargar contador de mensajes sin leer
+    updateUnreadCount();
 });
+
+// Actualizar contador de mensajes sin leer
+async function updateUnreadCount() {
+    try {
+        const res = await fetch('/api/mensajes/no-leidos', { credentials: 'same-origin' });
+        if (!res.ok) return;
+        const data = await res.json();
+        const sinLeer = data.ok ? (data.total || 0) : 0;
+
+        const counter = document.getElementById('buzoneCounter');
+        if (counter) {
+            if (sinLeer > 0) {
+                counter.textContent = sinLeer;
+                counter.style.display = 'inline-flex';
+            } else {
+                counter.textContent = '';
+                counter.style.display = 'none';
+            }
+        }
+    } catch (e) {
+        console.error('Error actualizando contador de mensajes:', e);
+    }
+}
 
 async function openProfileModal(){
     try{

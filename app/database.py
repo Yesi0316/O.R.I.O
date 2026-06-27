@@ -352,13 +352,15 @@ CREATE TABLE IF NOT EXISTS public."Metodos_pago"
                 "ID_REMITENTE" TEXT NOT NULL,
                 "ID_DESTINATARIO" TEXT NOT NULL,
                 "ID_OBJETO" TEXT,
+                "ID_RESPUESTA" INTEGER,
                 "ASUNTO" TEXT,
                 "CUERPO" TEXT,
                 "FECHA" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 "LEIDO" BOOLEAN DEFAULT FALSE,
                 FOREIGN KEY ("ID_REMITENTE") REFERENCES public."Usuarios" ("ID_USUARIO") ON DELETE CASCADE,
                 FOREIGN KEY ("ID_DESTINATARIO") REFERENCES public."Usuarios" ("ID_USUARIO") ON DELETE CASCADE,
-                FOREIGN KEY ("ID_OBJETO") REFERENCES public."Objetos" ("ID_OBJETO") ON DELETE SET NULL
+                FOREIGN KEY ("ID_OBJETO") REFERENCES public."Objetos" ("ID_OBJETO") ON DELETE SET NULL,
+                FOREIGN KEY ("ID_RESPUESTA") REFERENCES public."Mensajes" ("ID_MENSAJE") ON DELETE SET NULL
             );
         """,
 
@@ -503,6 +505,10 @@ def aplicar_migraciones():
         cursor.execute("""
             ALTER TABLE public."Mensajes"
             ADD COLUMN IF NOT EXISTS "ID_OBJETO" TEXT
+        """)
+        cursor.execute("""
+            ALTER TABLE public."Mensajes"
+            ADD COLUMN IF NOT EXISTS "ID_RESPUESTA" INTEGER
         """)
         conexion.commit()
         print("✓ Migraciones aplicadas correctamente")

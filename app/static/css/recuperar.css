@@ -151,35 +151,50 @@ input:focus{
 
 .password-group{
   position:relative;
+    display:flex;
+    align-items:center;
 }
 
 .password-group input{
-  padding-right:44px;
+    padding-right:40px;
+    flex:1;
 }
 
 .password-toggle{
-  position:absolute;
-  top:50%;
-  right:14px;
-  transform:translateY(-50%);
-  border:none;
-  background:transparent;
-  color:#4b4b4b;
-  cursor:pointer;
-  font-size:16px;
-  padding:6px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
+    position:absolute;
+    right:8px;
+    top:50%;
+    transform:translateY(-50%);
+    border:none;
+    background:transparent;
+    color:#5a5a5a;
+    cursor:pointer;
+    font-size:16px;
+    padding:4px 6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:0.2s;
+    z-index:5;
+    width:auto;
+    height:auto;
+    min-width:unset;
+}
+
+.password-toggle:hover{
+    color:var(--sapphire);
 }
 
 .password-toggle:focus{
-  outline:none;
-  color:var(--sapphire);
+    outline:none;
+    color:var(--sapphire);
 }
 
 .password-toggle i{
-  pointer-events:none;
+    pointer-events:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 }
 
 /* BOTONES */

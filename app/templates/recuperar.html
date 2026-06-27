@@ -179,15 +179,11 @@ function initPasswordToggles() {
         const wrapper = button.closest('.password-group');
         const input = wrapper ? wrapper.querySelector('input') : null;
 
-        if (wrapper && input) wrapper.classList.toggle('closed', input.type === 'password');
-
         button.addEventListener('click', () => {
             if (!wrapper || !input) return;
 
             const wasPassword = input.type === 'password';
             input.type = wasPassword ? 'text' : 'password';
-
-            wrapper.classList.toggle('closed', input.type === 'password');
 
             const icon = button.querySelector('i');
             if (icon) {

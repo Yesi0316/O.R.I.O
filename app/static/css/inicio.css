@@ -232,27 +232,38 @@ header{
 
 .input-group.password-group{
     position:relative;
+    display:flex;
+    align-items:center;
 }
 
 .input-group.password-group input{
-    padding-right:44px;
+    padding-right:40px;
+    flex:1;
 }
 
 .password-toggle{
     position:absolute;
+    right:8px;
     top:50%;
-    right:14px;
     transform:translateY(-50%);
     border:none;
     background:transparent;
-    color:#4b4b4b;
+    color:#5a5a5a;
     cursor:pointer;
     font-size:16px;
-    padding:6px;
-    display:inline-flex;
+    padding:4px 6px;
+    display:flex;
     align-items:center;
     justify-content:center;
-    z-index:3;
+    transition:0.2s;
+    z-index:5;
+    width:auto;
+    height:auto;
+    min-width:unset;
+}
+
+.password-toggle:hover{
+    color:var(--sapphire);
 }
 
 .password-toggle:focus{
@@ -262,17 +273,9 @@ header{
 
 .password-toggle i{
     pointer-events:none;
-}
-
-/* Cuando el campo está cerrado (type=password) mostrar el botón a la izquierda */
-.input-group.password-group.closed .password-toggle{
-    left:14px;
-    right:auto;
-}
-
-.input-group.password-group.closed input{
-    padding-left:44px;
-    padding-right:15px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 }
 
 /* estilos de los inputs */

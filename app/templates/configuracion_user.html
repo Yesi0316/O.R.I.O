@@ -1,517 +1,351 @@
 {% extends "base.html" %}
 
+{% block title %}Configuración | O.R.I.O{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/configuracion.css') }}">
 {% endblock %}
 
 {% block content %}
 
-<div class="header">
-  <h1>Configuración</h1>
-</div>
-
-<!-- APARIENCIA -->
-<div class="config-section">
-  <h3><i class="fas fa-palette"></i> Apariencia</h3>
-  
-  <div class="config-item">
-    <div class="config-label">
-      <strong>Tema</strong>
-      <p>Elige entre tema claro u oscuro</p>
-    </div>
-    <select id="selectTema" class="select-config">
-      <option value="claro">Claro</option>
-      <option value="oscuro">Oscuro</option>
-      <option value="alto-contraste">Alto contraste</option>
-    </select>
-  </div>
-</div>
-
-<!-- NOTIFICACIONES -->
-<div class="config-section">
-  <h3><i class="fas fa-bell"></i> Notificaciones</h3>
-  
-  <div class="config-item">
-    <div class="config-label">
-      <strong>Notificaciones en la app</strong>
-      <p>Recibe alertas sobre tus reportes</p>
-    </div>
-    <div id="toggleNotif" class="toggle-switch active" onclick="toggleNotif()"></div>
-  </div>
-
-  <div class="config-item">
-    <div class="config-label">
-      <strong>Email por reportes</strong>
-      <p>Recibe correos cuando hay coincidencias</p>
-    </div>
-    <div id="toggleEmail" class="toggle-switch active" onclick="toggleEmail()"></div>
-  </div>
-</div>
-
-<!-- PRIVACIDAD -->
-<div class="config-section">
-  <h3><i class="fas fa-lock"></i> Privacidad</h3>
-  
-  <div class="config-item">
-    <div class="config-label">
-      <strong>Visibilidad de perfil</strong>
-      <p>Controla quién puede ver tu perfil</p>
-    </div>
-    <select id="selectPrivacidad" class="select-config">
-      <option value="publica">Público</option>
-      <option value="amigos">Amigos únicamente</option>
-      <option value="privada">Privado</option>
-    </select>
-  </div>
-</div>
-
-<!-- SEGURIDAD -->
-<div class="config-section">
-  <h3><i class="fas fa-shield-alt"></i> Seguridad</h3>
-  
-  <div id="msgSuccess" class="msg-success"></div>
-  <div id="msgError" class="msg-error"></div>
-
-  <form id="passwordForm" onsubmit="event.preventDefault(); cambiarContrasena();">
-    <div class="form-group password-group">
-      <label>Contraseña actual</label>
-      <input type="password" id="inputPassActual" placeholder="Tu contraseña actual">
-      <button type="button" class="password-toggle" aria-label="Mostrar contraseña">
-          <i class="fa-regular fa-eye"></i>
-      </button>
+<section class="config-page">
+    <div class="page-header">
+        <div>
+            <h1>Configuración</h1>
+            <p class="subtitle">Administra tus preferencias y seguridad desde un solo lugar.</p>
+        </div>
     </div>
 
-    <div class="form-group password-group">
-      <label>Nueva contraseña</label>
-      <input type="password" id="inputPassNueva" placeholder="Nueva contraseña (mín. 6 caracteres)">
-      <button type="button" class="password-toggle" aria-label="Mostrar contraseña">
-          <i class="fa-regular fa-eye"></i>
-      </button>
-    </div>
+    <section class="section-card">
+        <div class="card-header">
+            <h3>Apariencia</h3>
+        </div>
+        <div class="section-list">
+            <div class="settings-row">
+                <div class="settings-left">
+                    <span class="settings-icon"><i class="fas fa-palette"></i></span>
+                    <div>
+                        <p class="settings-title">Tema</p>
+                        <p class="settings-subtitle">Selecciona el tema de la aplicación</p>
+                    </div>
+                </div>
+                <select id="selectTema" class="select-input">
+                    <option value="claro">Claro</option>
+                    <option value="oscuro">Oscuro</option>
+                    <option value="alto-contraste">Alto contraste</option>
+                </select>
+            </div>
+            <div class="settings-row disabled">
+                <div class="settings-left">
+                    <span class="settings-icon"><i class="fas fa-language"></i></span>
+                    <div>
+                        <p class="settings-title">Idioma</p>
+                        <p class="settings-subtitle">Esta opción está lista para el futuro</p>
+                    </div>
+                </div>
+                <select class="select-input" disabled>
+                    <option>Español</option>
+                </select>
+            </div>
+        </div>
+    </section>
 
-    <div class="password-rules" id="passwordRulesConfig">
-      <p id="ruleLengthConfig">✖ Mínimo 6 caracteres</p>
-      <p id="ruleLetterConfig">✖ Al menos una letra</p>
-      <p id="ruleNumberConfig">✖ Al menos un número</p>
-    </div>
+    <section class="section-card">
+        <div class="card-header">
+            <h3>Cuenta</h3>
+        </div>
+        <div class="section-list">
+            <div class="settings-row">
+                <div class="settings-left">
+                    <span class="settings-icon"><i class="fas fa-key"></i></span>
+                    <div>
+                        <p class="settings-title">Cambiar contraseña</p>
+                        <p class="settings-subtitle">Actualiza tu contraseña segura</p>
+                    </div>
+                </div>
+                <button type="button" class="btn-secondary" onclick="openPasswordSection()">Editar</button>
+            </div>
+            <div class="settings-row settings-action" onclick="openPrivacyModal(event)">
+                <div class="settings-left">
+                    <span class="settings-icon"><i class="fas fa-shield-alt"></i></span>
+                    <div>
+                        <p class="settings-title">Privacidad</p>
+                        <p class="settings-subtitle">Controla quién ve tu información</p>
+                    </div>
+                </div>
+                <select id="selectPrivacidad" class="select-input" onclick="event.stopPropagation()"></select>
+            </div>
+        </div>
+    </section>
 
-    <div class="form-group password-group">
-      <label>Confirmar contraseña</label>
-      <input type="password" id="inputPassConfirm" placeholder="Confirma tu nueva contraseña">
-      <button type="button" class="password-toggle" aria-label="Mostrar contraseña">
-          <i class="fa-regular fa-eye"></i>
-      </button>
-      <div class="password-match" id="passwordMatchMessage"></div>
-    </div>
+    <section class="section-card" id="passwordSection" style="display:none;">
+        <div class="card-header">
+            <h3>Cambiar contraseña</h3>
+        </div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="inputPassActual">Contraseña actual</label>
+                <input id="inputPassActual" type="password" placeholder="Contraseña actual">
+            </div>
+            <div class="form-group">
+                <label for="inputPassNueva">Nueva contraseña</label>
+                <input id="inputPassNueva" type="password" placeholder="Nueva contraseña">
+            </div>
+            <div class="form-group">
+                <label for="inputPassConfirm">Confirmar contraseña</label>
+                <input id="inputPassConfirm" type="password" placeholder="Confirma la contraseña">
+            </div>
+            <div class="password-rules" id="passwordRulesConfig">
+                <p id="ruleLengthConfig">✖ Mínimo 6 caracteres</p>
+                <p id="ruleLetterConfig">✖ Al menos una letra</p>
+                <p id="ruleNumberConfig">✖ Al menos un número</p>
+            </div>
+            <div class="password-match" id="passwordMatchMessage"></div>
+            <div class="modal-error" id="configPasswordError"></div>
+            <button class="btn-primary btn-block" id="btnCambiar" disabled onclick="cambiarContrasena()">Cambiar contraseña</button>
+        </div>
+    </section>
 
-    <button class="btn-config" id="btnCambiar" disabled>
-      <i class="fas fa-key"></i> Cambiar contraseña
-    </button>
-  </form>
-</div>
+    <section class="section-card">
+        <div class="card-header">
+            <h3>Notificaciones</h3>
+        </div>
+        <div class="section-list">
+            <div class="settings-row">
+                <div class="settings-left">
+                    <span class="settings-icon"><i class="fas fa-bell"></i></span>
+                    <div>
+                        <p class="settings-title">Notificaciones en la app</p>
+                        <p class="settings-subtitle">Recibe alertas sobre tus reportes</p>
+                    </div>
+                </div>
+                <div id="toggleNotif" class="toggle-switch active" onclick="toggleNotif()"></div>
+            </div>
+            <div class="settings-row">
+                <div class="settings-left">
+                    <span class="settings-icon"><i class="fas fa-envelope"></i></span>
+                    <div>
+                        <p class="settings-title">Email por reportes</p>
+                        <p class="settings-subtitle">Recibe correos cuando hay coincidencias</p>
+                    </div>
+                </div>
+                <div id="toggleEmail" class="toggle-switch active" onclick="toggleEmail()"></div>
+            </div>
+        </div>
+    </section>
 
-<!-- INFO -->
-<div class="config-section">
-  <h3><i class="fas fa-info-circle"></i> Información</h3>
-  
-  <div class="config-item">
-    <div class="config-label">
-      <strong>Versión de O.R.I.O</strong>
-      <p>v1.0.0</p>
-    </div>
-  </div>
-
-  <div class="config-item">
-    <div class="config-label">
-      <strong>Última sincronización</strong>
-      <p id="lastSync">Hace unos momentos</p>
-    </div>
-  </div>
-</div>
+    <section class="section-card">
+        <div class="card-header">
+            <h3>Aplicación</h3>
+        </div>
+        <div class="section-list">
+            <div class="settings-row">
+                <div class="settings-left">
+                    <span class="settings-icon"><i class="fas fa-info-circle"></i></span>
+                    <div>
+                        <p class="settings-title">Acerca de</p>
+                        <p class="settings-subtitle">O.R.I.O versión actual</p>
+                    </div>
+                </div>
+                <span class="settings-arrow">v1.0.0</span>
+            </div>
+            <div class="settings-row disabled">
+                <div class="settings-left">
+                    <span class="settings-icon"><i class="fas fa-rocket"></i></span>
+                    <div>
+                        <p class="settings-title">Actualizaciones</p>
+                        <p class="settings-subtitle">Próximamente disponible</p>
+                    </div>
+                </div>
+                <span class="settings-arrow">—</span>
+            </div>
+        </div>
+    </section>
+</section>
 
 <script>
-let config = {
-  tema: 'claro',
-  notificaciones: true,
-  privacidad: 'publica',
-  email_reportes: true
+const config = {
+    tema: 'claro',
+    notificaciones: true,
+    privacidad: 'publica',
+    email_reportes: true
+};
+const passwordRules = {
+    length: document.getElementById('ruleLengthConfig'),
+    letter: document.getElementById('ruleLetterConfig'),
+    number: document.getElementById('ruleNumberConfig'),
+    matchMessage: document.getElementById('passwordMatchMessage'),
+    errorBox: document.getElementById('configPasswordError'),
+    button: document.getElementById('btnCambiar')
 };
 
-/* ================================
-   CARGAR CONFIGURACIÓN
-================================ */
-async function cargarConfig() {
-  try {
-    // Cargar tema desde BD
-    const resTema = await fetch('/api/tema/obtener');
-    const dataTema = await resTema.json();
-    
-    if (dataTema.ok) {
-      config.tema = dataTema.tema;
-      document.getElementById('selectTema').value = config.tema;
-      
-      document.body.classList.remove('modo-oscuro', 'modo-alto-contraste');
-      if (config.tema === 'oscuro') {
-        document.body.classList.add('modo-oscuro');
-      } else if (config.tema === 'alto-contraste') {
-        document.body.classList.add('modo-alto-contraste');
-      }
-    }
-    
-    // Cargar otras configuraciones desde API
-    const res = await fetch('/api/configuracion');
-    const data = await res.json();
-
-    if (data.ok && data.config) {
-      config.privacidad = data.config.privacidad;
-      config.notificaciones = data.config.notificaciones;
-      config.email_reportes = data.config.email_reportes;
-
-      document.getElementById('selectPrivacidad').value = config.privacidad;
-      document.getElementById('toggleNotif')
-        .classList.toggle('active', config.notificaciones);
-      document.getElementById('toggleEmail')
-        .classList.toggle('active', config.email_reportes);
-    }
-  } catch (e) {
-    console.error(e);
-  }
+function openPasswordSection() {
+    const section = document.getElementById('passwordSection');
+    section.style.display = section.style.display === 'none' ? 'block' : 'none';
 }
 
-/* ================================
-   TOGGLES
-================================ */
+function setRule(element, condition, text) {
+    if (!element) return;
+    element.textContent = `${condition ? '✔' : '✖'} ${text}`;
+    element.classList.toggle('valid', condition);
+    element.classList.toggle('invalid', !condition);
+}
+
+function updatePasswordValidation() {
+    const current = document.getElementById('inputPassActual').value.trim();
+    const nueva = document.getElementById('inputPassNueva').value.trim();
+    const confirm = document.getElementById('inputPassConfirm').value.trim();
+    const validLength = nueva.length >= 6;
+    const validLetter = /[A-Za-z]/.test(nueva);
+    const validNumber = /[0-9]/.test(nueva);
+    const match = nueva && confirm && nueva === confirm;
+
+    setRule(passwordRules.length, validLength, 'Mínimo 6 caracteres');
+    setRule(passwordRules.letter, validLetter, 'Al menos una letra');
+    setRule(passwordRules.number, validNumber, 'Al menos un número');
+
+    passwordRules.matchMessage.textContent = match ? 'Las contraseñas coinciden.' : 'Las contraseñas no coinciden.';
+    passwordRules.matchMessage.className = match ? 'password-match match' : 'password-match mismatch';
+    passwordRules.button.disabled = !(current && validLength && validLetter && validNumber && match);
+}
+
+async function cargarConfig() {
+    try {
+        const resTema = await fetch('/api/tema/obtener');
+        const dataTema = await resTema.json();
+        if (dataTema.ok) {
+            config.tema = dataTema.tema;
+            document.getElementById('selectTema').value = config.tema;
+            document.body.classList.remove('modo-oscuro', 'modo-alto-contraste');
+            if (config.tema === 'oscuro') document.body.classList.add('modo-oscuro');
+            else if (config.tema === 'alto-contraste') document.body.classList.add('modo-alto-contraste');
+        }
+        const res = await fetch('/api/configuracion');
+        const data = await res.json();
+        if (data.ok && data.config) {
+            config.privacidad = data.config.privacidad;
+            config.notificaciones = data.config.notificaciones;
+            config.email_reportes = data.config.email_reportes;
+            document.getElementById('selectPrivacidad').value = config.privacidad;
+            document.getElementById('toggleNotif').classList.toggle('active', config.notificaciones);
+            document.getElementById('toggleEmail').classList.toggle('active', config.email_reportes);
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+document.getElementById('selectTema').addEventListener('change', async function () {
+    config.tema = this.value;
+    document.body.classList.remove('modo-oscuro', 'modo-alto-contraste');
+    if (config.tema === 'oscuro') document.body.classList.add('modo-oscuro');
+    else if (config.tema === 'alto-contraste') document.body.classList.add('modo-alto-contraste');
+    try {
+        await fetch('/api/tema/actualizar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tema: this.value })
+        });
+    } catch (e) {
+        console.error('Error al guardar tema:', e);
+    }
+});
+
+document.getElementById('selectPrivacidad').addEventListener('change', function () {
+    config.privacidad = this.value;
+    guardarConfig();
+});
+
+function openPrivacyModal(event) {
+    if (event) event.stopPropagation();
+    const modal = document.getElementById('privacyModal');
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    const current = config.privacidad || 'publica';
+    const selected = document.querySelector(`input[name="privacyOption"][value="${current}"]`);
+    if (selected) selected.checked = true;
+}
+
+function closePrivacyModal() {
+    const modal = document.getElementById('privacyModal');
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+}
+
+function savePrivacySelection() {
+    const selected = document.querySelector('input[name="privacyOption"]:checked');
+    if (!selected) return;
+    config.privacidad = selected.value;
+    document.getElementById('selectPrivacidad').value = config.privacidad;
+    guardarConfig();
+    closePrivacyModal();
+}
+
+document.getElementById('inputPassActual').addEventListener('input', updatePasswordValidation);
+document.getElementById('inputPassNueva').addEventListener('input', updatePasswordValidation);
+document.getElementById('inputPassConfirm').addEventListener('input', updatePasswordValidation);
+
 function toggleNotif() {
-  const toggle = document.getElementById('toggleNotif');
-  config.notificaciones = !config.notificaciones;
-  toggle.classList.toggle('active');
-  guardarConfig();
+    config.notificaciones = !config.notificaciones;
+    document.getElementById('toggleNotif').classList.toggle('active', config.notificaciones);
+    guardarConfig();
 }
 
 function toggleEmail() {
-  const toggle = document.getElementById('toggleEmail');
-  config.email_reportes = !config.email_reportes;
-  toggle.classList.toggle('active');
-  guardarConfig();
+    config.email_reportes = !config.email_reportes;
+    document.getElementById('toggleEmail').classList.toggle('active', config.email_reportes);
+    guardarConfig();
 }
 
-/* ================================
-   SELECTS
-================================ */
-document.getElementById('selectTema').addEventListener('change', async function() {
-  config.tema = this.value;
-
-  document.body.classList.remove('modo-oscuro', 'modo-alto-contraste');
-
-  if (this.value === 'oscuro') {
-    document.body.classList.add('modo-oscuro');
-  } else if (this.value === 'alto-contraste') {
-    document.body.classList.add('modo-alto-contraste');
-  }
-
-  // Guardar tema en BD
-  try {
-    await fetch('/api/tema/actualizar', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ tema: this.value })
-    });
-  } catch (e) {
-    console.error('Error al guardar tema:', e);
-  }
-});
-
-document.getElementById('selectPrivacidad').addEventListener('change', function() {
-  config.privacidad = this.value;
-  guardarConfig();
-});
-
-/* ================================
-   GUARDAR CONFIG
-================================ */
 async function guardarConfig() {
-  try {
-    await fetch('/api/configuracion', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(config)
-    });
-  } catch (e) {
-    console.error(e);
-  }
-}
-
-/* ================================
-   VALIDACIÓN DINÁMICA CONTRASEÑA
-================================ */
-const inputNueva = document.getElementById('inputPassNueva');
-const ruleLength = document.getElementById('ruleLengthConfig');
-const ruleLetter = document.getElementById('ruleLetterConfig');
-const ruleNumber = document.getElementById('ruleNumberConfig');
-
-
-
-function actualizarRegla(elemento, condicion, texto) {
-  if (!elemento) return;
-
-  if (condicion) {
-    elemento.classList.add("valid");
-    elemento.classList.remove("invalid");
-    elemento.innerHTML = "✔ " + texto;
-  } else {
-    elemento.classList.add("invalid");
-    elemento.classList.remove("valid");
-    elemento.innerHTML = "✖ " + texto;
-  }
-}
-
-function validarPassword(pass) {
-  const cumpleLongitud = pass.length >= 6;
-  const cumpleLetra = /[A-Za-z]/.test(pass);
-  const cumpleNumero = /[0-9]/.test(pass);
-
-  actualizarRegla(ruleLength, cumpleLongitud, "Mínimo 6 caracteres");
-  actualizarRegla(ruleLetter, cumpleLetra, "Al menos una letra");
-  actualizarRegla(ruleNumber, cumpleNumero, "Al menos un número");
-
-  return cumpleLongitud && cumpleLetra && cumpleNumero;
-}
-
-if (inputNueva) {
-  inputNueva.addEventListener("input", () => {
-    const valor = inputNueva.value;
-    const reglas = document.getElementById('passwordRulesConfig');
-
-    if (valor.length === 0) {
-      reglas.classList.remove('active');
-      return;
+    try {
+        await fetch('/api/configuracion', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(config)
+        });
+    } catch (e) {
+        console.error(e);
     }
-
-    reglas.classList.add('active');
-    validarPassword(valor);
-  });
 }
 
-const btnCambiar = document.getElementById('btnCambiar');
-const inputActual = document.getElementById('inputPassActual');
-const inputConfirm = document.getElementById('inputPassConfirm');
-const passwordMatchMessage = document.getElementById('passwordMatchMessage');
-let alertPopup = null;
-let alertPopupText = null;
-let alertPopupTimer;
-
-function actualizarMatchMessage() {
-  const nueva = inputNueva.value.trim();
-  const confirmar = inputConfirm.value.trim();
-
-  if (confirmar.length === 0) {
-    passwordMatchMessage.textContent = '';
-    passwordMatchMessage.classList.remove('match', 'mismatch');
-    return;
-  }
-
-  if (nueva === confirmar) {
-    passwordMatchMessage.textContent = 'Las contraseñas coinciden';
-    passwordMatchMessage.classList.add('match');
-    passwordMatchMessage.classList.remove('mismatch');
-  } else {
-    passwordMatchMessage.textContent = 'Las contraseñas no coinciden';
-    passwordMatchMessage.classList.add('mismatch');
-    passwordMatchMessage.classList.remove('match');
-  }
-}
-
-function verificarFormulario() {
-  const actual = inputActual.value.trim();
-  const nueva = inputNueva.value.trim();
-  const confirmar = inputConfirm.value.trim();
-
-  actualizarMatchMessage();
-
-  const valido =
-    actual.length > 0 &&
-    validarPassword(nueva) &&
-    nueva === confirmar;
-
-  btnCambiar.disabled = !valido;
-}
-
-[inputActual, inputNueva, inputConfirm].forEach(input => {
-  input.addEventListener("input", verificarFormulario);
-});
-
-function initPasswordToggles() {
-  document.querySelectorAll('.password-toggle').forEach(button => {
-    const wrapper = button.closest('.password-group')
-    const input = wrapper ? wrapper.querySelector('input') : null
-
-    if (wrapper && input) wrapper.classList.toggle('closed', input.type === 'password')
-
-    button.addEventListener('click', () => {
-      if (!wrapper || !input) return
-
-      const wasPassword = input.type === 'password'
-      input.type = wasPassword ? 'text' : 'password'
-
-      wrapper.classList.toggle('closed', input.type === 'password')
-
-      const icon = button.querySelector('i')
-      if (icon) {
-        icon.classList.replace(wasPassword ? 'fa-eye' : 'fa-eye-slash', wasPassword ? 'fa-eye-slash' : 'fa-eye')
-      }
-      button.setAttribute('aria-label', wasPassword ? 'Ocultar contraseña' : 'Mostrar contraseña')
-    })
-  })
-}
-
-function showPopup(message, type = 'success') {
-  if (!alertPopup || !alertPopupText) {
-    initAlertPopup();
-  }
-
-  if (!alertPopup || !alertPopupText) return;
-
-  if (alertPopupTimer) {
-    clearTimeout(alertPopupTimer);
-  }
-
-  const title = type === 'success' ? '¡Listo!' : 'Error';
-  const icon = type === 'success' ? '✓' : '✕';
-
-  alertPopupText.textContent = message;
-  document.getElementById('alertPopupTitle').textContent = title;
-  document.getElementById('alertPopupIcon').textContent = icon;
-
-  alertPopup.classList.remove('success', 'error');
-  alertPopup.classList.add(type);
-  alertPopup.classList.add('show');
-
-  alertPopupTimer = setTimeout(closePopup, 5000);
-}
-
-function closePopup() {
-  if (!alertPopup) return;
-  alertPopup.classList.remove('show');
-  if (alertPopupTimer) {
-    clearTimeout(alertPopupTimer);
-    alertPopupTimer = null;
-  }
-}
-
-function initAlertPopup() {
-  const existing = document.getElementById('alertPopup');
-  if (existing) {
-    alertPopup = existing;
-    alertPopupText = document.getElementById('alertPopupText');
-    const closeBtn = existing.querySelector('.alert-close');
-    if (closeBtn) {
-      closeBtn.addEventListener('click', closePopup);
-    }
-    return;
-  }
-
-  const popup = document.createElement('div');
-  popup.id = 'alertPopup';
-  popup.className = 'alert-popup';
-  popup.setAttribute('aria-live', 'assertive');
-  popup.setAttribute('role', 'alert');
-  popup.innerHTML = `
-    <div class="alert-popup-content">
-      <div class="alert-popup-icon" id="alertPopupIcon">✓</div>
-      <div class="alert-popup-body">
-        <h3 id="alertPopupTitle">Mensaje</h3>
-        <p id="alertPopupText">Texto de estado</p>
-      </div>
-      <button type="button" class="alert-close" aria-label="Cerrar">×</button>
-    </div>
-  `;
-
-  document.body.appendChild(popup);
-
-  popup.querySelector('.alert-close').addEventListener('click', closePopup);
-
-  alertPopup = popup;
-  alertPopupText = document.getElementById('alertPopupText');
-}
-
-/* ================================
-   CAMBIAR CONTRASEÑA
-================================ */
 async function cambiarContrasena() {
-  const contrasena_actual = document.getElementById('inputPassActual').value.trim();
-  const contrasena_nueva = document.getElementById('inputPassNueva').value.trim();
-  const contrasena_confirmar = document.getElementById('inputPassConfirm').value.trim();
-  const msgSuccess = document.getElementById('msgSuccess');
-  const msgError = document.getElementById('msgError');
-
-  msgSuccess.textContent = '';
-  msgError.textContent = '';
-
-  if (!contrasena_actual || !contrasena_nueva || !contrasena_confirmar) {
-    showPopup('Todos los campos son requeridos', 'error');
-    return;
-  }
-
-  if (contrasena_nueva !== contrasena_confirmar) {
-    showPopup('Las contraseñas no coinciden', 'error');
-    return;
-  }
-
-  if (contrasena_nueva.length < 6) {
-    showPopup('La contraseña debe tener mínimo 6 caracteres', 'error');
-    return;
-  }
-
-  if (!/[A-Za-z]/.test(contrasena_nueva)) {
-    showPopup('La contraseña debe contener al menos una letra', 'error');
-    return;
-  }
-
-  if (!/[0-9]/.test(contrasena_nueva)) {
-    showPopup('La contraseña debe contener al menos un número', 'error');
-    return;
-  }
-
-  if (contrasena_nueva === contrasena_actual) {
-    showPopup('La nueva contraseña no puede ser igual a la actual', 'error');
-    return;
-  }
-
-  try {
-    const res = await fetch('/api/cambiar_contrasena', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contrasena_actual, contrasena_nueva, contrasena_confirmar })
-    });
-
-    const data = await res.json();
-
-    if (data.ok) {
-      msgSuccess.textContent = 'Contraseña cambiada correctamente';
-      showPopup('Contraseña cambiada correctamente', 'success');
-      document.getElementById('inputPassActual').value = '';
-      document.getElementById('inputPassNueva').value = '';
-      document.getElementById('inputPassConfirm').value = '';
-      document.getElementById('passwordRulesConfig').classList.remove('active');
-      btnCambiar.disabled = true;
-      actualizarMatchMessage();
-    } else {
-      msgError.textContent = data.error || 'Error al cambiar contraseña';
-      showPopup(data.error || 'Error al cambiar contraseña', 'error');
+    passwordRules.errorBox.textContent = '';
+    const currentPass = document.getElementById('inputPassActual').value.trim();
+    const newPass = document.getElementById('inputPassNueva').value.trim();
+    const confirmPass = document.getElementById('inputPassConfirm').value.trim();
+    if (!currentPass || !newPass || !confirmPass) {
+        passwordRules.errorBox.textContent = 'Todos los campos son requeridos.';
+        return;
     }
-  } catch (e) {
-    msgError.textContent = 'Error en la solicitud';
-    showPopup('Error en la solicitud', 'error');
-    console.error(e);
-  }
+    try {
+        const res = await fetch('/api/cambiar_contrasena', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contrasena_actual: currentPass,
+                contrasena_nueva: newPass,
+                contrasena_confirmar: confirmPass
+            })
+        });
+        const data = await res.json();
+        if (!data.ok) {
+            passwordRules.errorBox.textContent = data.error || 'No se pudo cambiar la contraseña.';
+            return;
+        }
+        passwordRules.errorBox.textContent = 'Contraseña actualizada correctamente.';
+        passwordRules.errorBox.className = 'modal-success';
+        document.getElementById('inputPassActual').value = '';
+        document.getElementById('inputPassNueva').value = '';
+        document.getElementById('inputPassConfirm').value = '';
+        updatePasswordValidation();
+    } catch (e) {
+        passwordRules.errorBox.textContent = 'Error al cambiar la contraseña.';
+        console.error(e);
+    }
 }
 
-// Cargar config al inicio
-document.addEventListener('DOMContentLoaded', () => {
-  initAlertPopup();
-  cargarConfig();
-  initPasswordToggles();
-});
+window.addEventListener('DOMContentLoaded', cargarConfig);
 </script>
 
 {% endblock %}

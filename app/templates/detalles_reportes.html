@@ -30,33 +30,69 @@
 
             <!-- DERECHA: DETALLES -->
             <div class="detalle-info">
-                <h1>Detalles del Objeto {{ item.tipo|capitalize }}</h1>
+                <div class="detalle-header">
+                    <span class="detalle-badge">{{ item.tipo|capitalize }}</span>
+                    <h1>{{ item.NOMBRE }}</h1>
+                </div>
 
-                <p><strong>Nombre:</strong> {{ item.NOMBRE }}</p>
-                <p><strong>Categoría:</strong> {{ item.categoria or 'no disponible'}}</p>
-                <p><strong>Color:</strong> {{ item.COLOR }}</p>
-                <p><strong>Fecha Reporte:</strong> {{ item.FECHA }}</p>
-                <p><strong>Persona que reportó:</strong> {{ item.NOMBRE_USUARIO or item.ID_USUARIO or 'No disponible' }}</p>
+                <div class="detalle-meta-list">
+                    <div class="detalle-meta-item">
+                        <i class="fas fa-tags"></i>
+                        <div>
+                            <span class="label">Categoría</span>
+                            <span class="value">{{ item.categoria or 'No disponible' }}</span>
+                        </div>
+                    </div>
+                    <div class="detalle-meta-item">
+                        <i class="fas fa-palette"></i>
+                        <div>
+                            <span class="label">Color</span>
+                            <span class="value">{{ item.COLOR or 'No disponible' }}</span>
+                        </div>
+                    </div>
+                    <div class="detalle-meta-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <div>
+                            <span class="label">Fecha</span>
+                            <span class="value">{{ item.FECHA or 'No disponible' }}</span>
+                        </div>
+                    </div>
+                    <div class="detalle-meta-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <span class="label">Lugar</span>
+                            <span class="value">{{ item.LUGAR or item.LUGAR_ENCONTRADO or 'No disponible' }}</span>
+                        </div>
+                    </div>
+                    <div class="detalle-meta-item">
+                        <i class="fas fa-user"></i>
+                        <div>
+                            <span class="label">Reportado por</span>
+                            <span class="value">{{ item.NOMBRE_USUARIO or item.ID_USUARIO or 'No disponible' }}</span>
+                        </div>
+                    </div>
+                </div>
 
-                <div class="observaciones">
-                    <strong>Observaciones:</strong>
+                <div class="observaciones-card">
+                    <div class="observaciones-title">Observaciones</div>
                     <p>
                         {% if item.OBSERVACIONES %}
                             {{ item.OBSERVACIONES }}
                         {% else %}
-                            No hay observaciones para este objeto
+                            No hay observaciones para este objeto.
                         {% endif %}
                     </p>
                 </div>
 
                 <div class="acciones">
-                    <a href="javascript:history.back()" class="btn btn-volver">Volver</a>
-                    <a href="/reporte_problema" class="btn btn-reporte">Reportar</a>
+                    <div class="acciones-secundarias">
+                        <a href="javascript:history.back()" class="btn btn-volver">Volver</a>
+                        <a href="/reporte_problema" class="btn btn-reporte">Reportar</a>
+                    </div>
                     {% if session.id_usuario and item.ID_USUARIO and session.id_usuario != item.ID_USUARIO %}
-                        <a href="/chat/{{ item.ID_USUARIO }}/{{ item.ID_OBJETO }}" class="btn btn-chat">Chatear con la persona</a>
+                        <a href="/chat/{{ item.ID_USUARIO }}/{{ item.ID_OBJETO }}" class="btn btn-chat">Contactar a la persona</a>
                     {% endif %}
-               </div>
-
+                </div>
             </div>
 
         </div>

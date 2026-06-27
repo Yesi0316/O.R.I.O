@@ -580,6 +580,10 @@ box-shadow:0 15px 35px rgba(0,0,0,.3);
 font-size:22px;
 }
 
+.bottom-nav{
+display:none;
+}
+
 /* =========================================================
    BOTÓN PREMIUM
    ========================================================= */
@@ -804,31 +808,11 @@ body{
 flex-direction:column;
 }
 
-/* SIDEBAR SE CONVIERTE EN NAVBAR INFERIOR */
+/* OCULTAR LA BARRA LATERAL EN MÓVIL PARA USAR LA NUEVA NAVEGACIÓN INFERIOR */
 .sidebar{
-position:fixed;
-top:auto;
-bottom:15px;
-left:50%;
-transform:translateX(-50%);
-width:95%;
-height:70px;
-border-radius:22px;
-flex-direction:row;
-justify-content:space-around;
-align-items:center;
-padding:0 10px;
-background:rgba(17,34,80,.75);
-backdrop-filter:blur(18px);
-z-index:9999;
-box-shadow:0 10px 30px rgba(0,0,0,.25);
+display:none;
 }
 
-.sidebar.collapsed{
-width:95%;
-}
-
-/* OCULTAR ELEMENTOS DE PC */
 .sidebar-profile{
 display:none;
 }
@@ -887,45 +871,89 @@ transition:.3s ease;
 transform:scale(1.15);
 }
 
-/* MAIN EN MÓVIL */
 .main{
 margin-left:0 !important;
+width:100%;
+padding-bottom:120px;
 border-radius:0;
-padding:25px 15px 120px 15px;
 }
 
-/* FAB EN MÓVIL */
-.fab{
-bottom:100px;
-right:20px;
+.bottom-nav{
+display:flex;
+position:fixed;
+left:10px;
+right:10px;
+bottom:12px;
+justify-content:space-between;
+align-items:center;
+padding:12px 18px 16px;
+background:linear-gradient(180deg, #3c4f7dfb, rgba(0, 0, 0, 0.9));
+border-radius:34px;
+box-shadow:0 14px 30px rgba(0,0,0,.14);
+z-index:1500;
+overflow:visible;
 }
 
-/* PREMIUM BTN RESPONSIVE */
-.premium-btn{
-width:50px;
-height:60px;
-padding:0;
+.bottom-nav .nav-item{
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+gap:4px;
+min-width:58px;
+color:#ffffff;
+text-decoration:none;
+font-size:11px;
+transition:.25s ease;
+}
+
+.bottom-nav .nav-item:nth-child(2){
+    margin-right: 50px;
+}
+
+.bottom-nav .nav-item:nth-child(4){
+    margin-left: 35px;
+}
+
+.bottom-nav .nav-item i{
+font-size:18px;
+}
+
+.bottom-nav .nav-item.active,
+.bottom-nav .nav-item:hover{
+color:var(--gold);
+}
+
+.bottom-nav .center-btn{
+width:55px;
+height:55px;
 border-radius:50%;
-margin:0;
-font-size:0;
-gap:0;
-box-shadow:0 4px 12px rgba(0,0,0,.15);
-top:-5px;
-position:relative;
+background:linear-gradient(135deg,var(--gold),#f2d9a6);
+color:var(--royal);
+display:flex;
+align-items:center;
+justify-content:center;
+box-shadow:0 18px 34px rgba(0,0,0,.22);
+position:absolute;
+left:50%;
+transform:translateX(-50%);
+
 }
 
-.premium-btn i{
-font-size:20px;
+.bottom-nav .center-btn i{
+font-size:24px;
 }
 
-.premium-btn span{
+.bottom-nav .nav-item span{
+display:block;
+}
+
+.fab{
 display:none;
 }
 
-/* MODAL EN MÓVIL */
-.modal-content{
-width:85vw;
-padding:25px;
+.fab-menu{
+display:none;
 }
 
 .modal-content h2{
@@ -995,4 +1023,49 @@ padding:10px 16px;
 font-size:13px;
 }
 
+}
+
+/* =========================================================
+   BADGE PARA CONTADOR DE MENSAJES SIN LEER
+   ========================================================= */
+
+.menu-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 4px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: auto;
+    animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.3);
+    }
+}
+
+.unread-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 6px;
 }

@@ -1,0 +1,126 @@
+
+  .filter-date-container {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filter-date-input {
+    flex: 1;
+    min-width: 150px;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  .filter-reset-btn {
+    padding: 8px 16px;
+    background-color: #112250;
+    color: #E0C58F;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+  }
+
+  .filter-reset-btn:hover {
+    background-color: #0c1836;
+  }
+
+  .filter-download-btn {
+    padding: 8px 16px;
+    background-color: #E0C58F;
+    color: #112250;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+  }
+
+  .filter-download-btn:hover {
+    background-color: #c49f55;
+  }
+
+  .filter-download-btn:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+  }
+
+  .filters-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filter-tools {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .filter-tools input[type="date"] {
+    padding: 12px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 18px;
+    background: white;
+    min-width: 150px;
+    font-size: 14px;
+    color: #112250;
+  }
+
+  .filter-reset-btn,
+  .filter-download-btn {
+    border-radius: 999px;
+    border: 2px solid transparent;
+    font-size: 13px;
+    padding: 10px 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all .25s ease;
+  }
+
+  .filter-reset-btn {
+    background: white;
+    color: var(--royal);
+    border-color: rgba(17,34,80,.12);
+  }
+
+  .filter-reset-btn:hover {
+    background: rgba(224,197,143,.12);
+  }
+
+  .filter-download-btn {
+    background: #E0C58F;
+    color: var(--royal);
+    border-color: rgba(224,197,143,.4);
+  }
+
+  .filter-download-btn:hover {
+    background: #d4b56f;
+  }
+
+  .filter-download-btn:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+  }
+
+  .search-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-top: 8px;
+  }

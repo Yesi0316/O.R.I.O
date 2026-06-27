@@ -74,15 +74,14 @@
                     imagen_html = `<img src="${objeto.IMAGEN}" alt="Imagen del objeto">`;
                 }
 
-                let html = `<div class="tarjeta" data-id-objeto="${objeto.ID_OBJETO}">
+                let html = `<a class="tarjeta" href="/detalles/${objeto.ID_OBJETO}">
                                 ${imagen_html}
                                 <div class="contenido">
                                     <div class="titulo">${objeto.NOMBRE}</div>
                                     <div class="categoria">Categoría: ${objeto.CATEGORIA}</div>
                                     <div class="color">Color: ${objeto.COLOR}</div>
-                                    <a class="boton" href="/detalles/${objeto.ID_OBJETO}">Ver detalles</a>
                                 </div>
-                            </div>`;
+                            </a>`;
 
                 caja.insertAdjacentHTML("beforeend", html);
             });

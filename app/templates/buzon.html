@@ -9,88 +9,375 @@
 {% block content %}
 <div class="header">
     <h1><i class="fas fa-envelope"></i> Buzón</h1>
-    <p>Revisa tus mensajes y avisos importantes desde aquí.</p>
+    <p>Revisa tus conversaciones y comunícate con otros usuarios.</p>
 </div>
 
-<section class="buzon-card">
-    <div class="buzon-header">
-        <div>
-            <h2>Mis mensajes</h2>
+<section class="messenger-shell" id="messengerShell">
+    <aside class="messenger-sidebar" id="messengerSidebar">
+        <div class="sidebar-toolbar">
+            <h2>Mis conversaciones</h2>
+            <div class="buzon-actions">
+                <button type="button" onclick="openCompose()" title="Nuevo mensaje"><i class="fas fa-pen"></i></button>
+                <button type="button" class="secondary" onclick="refreshBuzon()" title="Refrescar"><i class="fas fa-sync-alt"></i></button>
+            </div>
         </div>
-        <div class="buzon-actions">
-            <button type="button" onclick="openCompose()"><i class="fas fa-pen"></i> Nuevo mensaje</button>
-            <button type="button" class="secondary" onclick="refreshBuzon()"><i class="fas fa-sync-alt"></i> Refrescar</button>
-        </div>
-    </div>
 
-    <div id="composePanel" class="new-message-panel hidden">
-        <h2>Escribir mensaje</h2>
-        <div class="form-row">
-            <label for="composeTo">Para (usuario)</label>
-            <input id="composeTo" type="text" placeholder="ID del destinatario">
+        <div id="composePanel" class="new-message-panel hidden">
+            <h3>Escribir mensaje</h3>
+            <div class="form-row">
+                <label for="composeTo">Para (usuario)</label>
+                <input id="composeTo" type="text" placeholder="ID del destinatario">
+            </div>
+            <div class="form-row">
+                <label for="composeSubject">Asunto</label>
+                <input id="composeSubject" type="text" placeholder="Asunto del mensaje">
+            </div>
+            <div class="form-row">
+                <label for="composeBody">Mensaje</label>
+                <textarea id="composeBody" rows="4" placeholder="Escribe tu mensaje aquí..."></textarea>
+            </div>
+            <div class="form-row">
+                <label for="composeFiles">Adjuntos</label>
+                <input id="composeFiles" type="file" multiple>
+            </div>
+            <div class="form-actions">
+                <button class="btn-outline" type="button" onclick="closeCompose()">Cancelar</button>
+                <button class="btn" type="button" onclick="sendMessage()">Enviar</button>
+            </div>
         </div>
-        <div class="form-row">
-            <label for="composeSubject">Asunto</label>
-            <input id="composeSubject" type="text" placeholder="Asunto del mensaje">
-        </div>
-        <div class="form-row">
-            <label for="composeBody">Mensaje</label>
-            <textarea id="composeBody" rows="5" placeholder="Escribe tu mensaje aquí..."></textarea>
-        </div>
-        <div class="form-row">
-            <label for="composeFiles">Adjuntos (imagen/archivo)</label>
-            <input id="composeFiles" type="file" multiple>
-        </div>
-        <div class="form-actions">
-            <button class="btn-outline" type="button" onclick="closeCompose()">Cancelar</button>
-            <button class="btn" type="button" onclick="sendMessage()">Enviar</button>
-        </div>
-    </div>
 
-    <div>
-        <h2>Conversaciones</h2>
-        <ul class="buzon-list" id="messageList">
-            <li class="buzon-empty">Cargando conversaciones...</li>
-        </ul>
-    </div>
+        <ul class="conversation-list" id="messageList"></ul>
+    </aside>
+
+    <main class="messenger-chat" id="messengerChat">
+        <div class="chat-placeholder" id="chatPlaceholder">
+            <i class="fas fa-comments"></i>
+            <p>Selecciona una conversación para ver los mensajes</p>
+        </div>
+
+        <div class="chat-active hidden" id="chatActive">
+            <header class="chat-active-header">
+                <button type="button" class="btn-back-mobile" onclick="closeMobileChat()" aria-label="Volver">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="chat-contact-info">
+                    <div class="avatar-circle" id="chatAvatar">?</div>
+                    <div style="min-width: 0; flex: 1;">
+                        <strong id="chatContactName" style="display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Contacto</strong>
+                        <span id="chatContactMeta" class="chat-object" style="display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></span>
+                        <div id="chatReportCard" class="chat-report-card" style="display:none; margin-top:8px;">
+                            <img id="chatReportImage" class="chat-report-image" src="" alt="" style="display:none;">
+                            <span id="chatReportName" class="chat-report-name"></span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="chat-messages" id="chatMessages"></div>
+
+            <div class="compose-panel">
+                <div id="replyPreview" class="reply-preview hidden"></div>
+                <textarea id="messageBody" placeholder="Escribe un mensaje..." rows="2"></textarea>
+                <div class="compose-actions">
+                    <button class="btn" type="button" onclick="sendChatMessage()">
+                        <i class="fas fa-paper-plane"></i> Enviar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
 </section>
 
 <script>
+const CURRENT_USER_ID = {{ id_usuario|tojson }};
+const INITIAL_CONVERSATIONS = {{ conversaciones|tojson }};
+
+let activeContactId = null;
+let activeContactName = '';
+let activeObjectId = '0';
+let conversationsCache = INITIAL_CONVERSATIONS || [];
+let chatPollingInterval = null;
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
+}
+
+function stopChatPolling() {
+    if (chatPollingInterval) {
+        clearInterval(chatPollingInterval);
+        chatPollingInterval = null;
+    }
+}
+
+function refreshActiveConversation() {
+    if (!activeContactId) {
+        return Promise.resolve();
+    }
+
+    return fetch(`/api/conversacion/${encodeURIComponent(activeContactId)}/${encodeURIComponent(activeObjectId)}`, { credentials: 'same-origin' })
+        .then(r => r.json())
+        .then(data => {
+            if (data && data.ok) {
+                renderMessages(data.mensajes, activeContactName);
+                refreshBuzon();
+            }
+        })
+        .catch(e => {
+            console.error('Error actualizando conversación', e);
+        });
+}
+
+function startChatPolling() {
+    stopChatPolling();
+    chatPollingInterval = setInterval(refreshActiveConversation, 5000);
+}
+
+function getInitial(name) {
+    return (name || '?').charAt(0).toUpperCase();
+}
+
 function openCompose() {
     document.getElementById('composePanel').classList.remove('hidden');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function closeCompose() {
     document.getElementById('composePanel').classList.add('hidden');
 }
 
-function refreshBuzon() {
-    fetch('/api/conversaciones')
-        .then(r => r.json())
-        .then(data => {
-            const list = document.getElementById('messageList');
-            if (!data || data.length === 0) {
-                list.innerHTML = '<li class="buzon-empty">No hay conversaciones activas.</li>';
-                return;
-            }
-            list.innerHTML = '';
-            data.forEach(thread => {
-                const li = document.createElement('li');
-                li.className = 'message-item ' + (thread.unread > 0 ? 'unread' : '');
-                li.onclick = () => {
-                    const objetoSegment = thread.id_objeto ? '/' + thread.id_objeto : '/0';
-                    window.location.href = `/chat/${thread.destinatario}${objetoSegment}`;
-                };
-                const preview = thread.ultimo_asunto || thread.ultimo_mensaje || 'Sin mensajes aún';
-                li.innerHTML = `<div><strong>${thread.nombre}</strong><span>${thread.objeto_nombre} · ${preview.substring(0,120)}${preview.length > 120 ? '...' : ''}</span></div><span>${thread.ultima_fecha || ''}</span>`;
-                list.appendChild(li);
-            });
-        })
-        .catch(e => console.error('Error refrescando buzón', e));
+function closeMobileChat() {
+    document.getElementById('messengerShell').classList.remove('show-chat');
+    stopChatPolling();
 }
 
-document.addEventListener('DOMContentLoaded', refreshBuzon);
+function renderConversationList(data) {
+    const list = document.getElementById('messageList');
+    if (!Array.isArray(data) || data.length === 0) {
+        list.innerHTML = '<li class="buzon-empty">No hay conversaciones activas.</li>';
+        return;
+    }
+
+    list.innerHTML = '';
+    data.forEach(thread => {
+        const li = document.createElement('li');
+        li.className = 'conversation-item' + (thread.unread > 0 ? ' unread' : '');
+        if (thread.destinatario === activeContactId && (thread.id_objeto || '0') === activeObjectId) {
+            li.classList.add('active');
+        }
+        li.dataset.contactId = thread.destinatario;
+        li.dataset.objectId = '0';
+        li.dataset.objectName = thread.objeto_nombre || '';
+        li.dataset.objectImage = thread.objeto_imagen || '';
+
+        const prefix = thread.sent ? 'Tú: ' : '';
+        const preview = prefix + (thread.ultimo_mensaje || thread.ultimo_asunto || 'Sin mensajes aún');
+        const unreadHTML = thread.unread > 0 ? `<span class="unread-badge">${thread.unread}</span>` : '';
+        const objectLabel = thread.id_objeto && thread.id_objeto !== '0' ? `<span class="thread-object">${escapeHtml(thread.objeto_nombre)}</span>` : '';
+
+        li.innerHTML = `
+            <div class="avatar-circle">${escapeHtml(getInitial(thread.nombre))}</div>
+            <div class="thread-main">
+                <div class="thread-top">
+                    <strong>${escapeHtml(thread.nombre)}</strong>
+                    <span class="thread-date">${escapeHtml(thread.ultima_fecha || '')}</span>
+                </div>
+                <div class="thread-bottom">
+                    <span class="thread-preview">${escapeHtml(preview.substring(0, 80))}${preview.length > 80 ? '...' : ''}</span>
+                    ${unreadHTML}
+                </div>
+                ${objectLabel}
+            </div>`;
+
+        li.onclick = () => openConversation(thread.destinatario, thread.nombre, li);
+        list.appendChild(li);
+    });
+}
+
+async function refreshBuzon() {
+    try {
+        const res = await fetch('/api/conversaciones', { credentials: 'same-origin' });
+        const ct = res.headers.get('content-type') || '';
+        if (!res.ok || ct.indexOf('application/json') === -1) {
+            console.error('Error en /api/conversaciones', res.status);
+            if (!conversationsCache.length) {
+                renderConversationList([]);
+            }
+            return;
+        }
+        const data = await res.json();
+        if (data && data.ok === false && !Array.isArray(data)) {
+            console.error('API conversaciones:', data.error);
+            return;
+        }
+        conversationsCache = Array.isArray(data) ? data : [];
+        renderConversationList(conversationsCache);
+        if (typeof updateUnreadCount === 'function') {
+            updateUnreadCount();
+        }
+    } catch (e) {
+        console.error('Error refrescando buzón', e);
+    }
+}
+
+let activeReplyId = null;
+let activeReplyAuthor = '';
+let activeReplyText = '';
+
+function renderReplyPreview() {
+    const preview = document.getElementById('replyPreview');
+    if (!preview) return;
+    if (activeReplyId && activeReplyText) {
+        preview.innerHTML = `
+            <div class="reply-preview-card">
+                <div class="reply-preview-header">
+                    <span>Respondiendo a ${escapeHtml(activeReplyAuthor)}</span>
+                    <button type="button" class="reply-cancel" onclick="clearReply()">Cerrar</button>
+                </div>
+                <p>${escapeHtml(activeReplyText)}</p>
+            </div>`;
+        preview.classList.remove('hidden');
+    } else {
+        preview.classList.add('hidden');
+        preview.innerHTML = '';
+    }
+}
+
+function setReply(messageId, author, text) {
+    activeReplyId = messageId;
+    activeReplyAuthor = author || 'mensaje';
+    activeReplyText = text || '';
+    renderReplyPreview();
+    document.getElementById('messageBody').focus();
+}
+
+function clearReply() {
+    activeReplyId = null;
+    activeReplyAuthor = '';
+    activeReplyText = '';
+    renderReplyPreview();
+}
+
+function renderMessages(mensajes, contactName) {
+    const container = document.getElementById('chatMessages');
+    if (!mensajes || mensajes.length === 0) {
+        container.innerHTML = `
+            <div class="chat-empty">
+                <p>No hay mensajes aún.</p>
+                <p>Escribe el primero para comenzar.</p>
+            </div>`;
+        return;
+    }
+
+    container.innerHTML = '';
+    mensajes.forEach(m => {
+        const isOutgoing = m.ID_REMITENTE === CURRENT_USER_ID;
+        const div = document.createElement('div');
+        div.className = 'chat-message ' + (isOutgoing ? 'outgoing' : 'incoming');
+
+        const meta = document.createElement('div');
+        meta.className = 'message-meta';
+        meta.innerHTML = `
+            <strong>${isOutgoing ? 'Tú' : escapeHtml(contactName)}</strong>
+            <span>${escapeHtml(m.FECHA || '')}</span>`;
+
+        const actions = document.createElement('div');
+        actions.className = 'message-actions';
+        const replyButton = document.createElement('button');
+        replyButton.type = 'button';
+        replyButton.className = 'reply-btn';
+        replyButton.textContent = 'Responder';
+        replyButton.addEventListener('click', () => setReply(m.ID_MENSAJE, isOutgoing ? 'Tú' : contactName, m.CUERPO || ''));
+        actions.appendChild(replyButton);
+
+        div.appendChild(meta);
+        div.appendChild(actions);
+
+        if (m.ID_OBJETO && m.OBJETO_NOMBRE) {
+            const reportCard = document.createElement('div');
+            reportCard.className = 'chat-report-card';
+            if (m.OBJETO_IMAGEN) {
+                const img = document.createElement('img');
+                img.className = 'chat-report-image';
+                img.src = m.OBJETO_IMAGEN;
+                img.alt = m.OBJETO_NOMBRE;
+                reportCard.appendChild(img);
+            }
+            const title = document.createElement('span');
+            title.className = 'chat-report-name';
+            title.textContent = m.OBJETO_NOMBRE;
+            reportCard.appendChild(title);
+            div.appendChild(reportCard);
+        }
+
+        if (m.ID_RESPUESTA && m.RESPUESTA_CUERPO) {
+            const replied = document.createElement('div');
+            replied.className = 'message-reply';
+            const repliedAuthor = m.RESPUESTA_REMITENTE === CURRENT_USER_ID ? 'Tú' : escapeHtml(contactName);
+            replied.innerHTML = `
+                <strong>${escapeHtml(repliedAuthor)}</strong>
+                <p>${escapeHtml(m.RESPUESTA_CUERPO)}</p>`;
+            div.appendChild(replied);
+        }
+
+        const body = document.createElement('p');
+        body.innerHTML = escapeHtml(m.CUERPO || '');
+        div.appendChild(body);
+
+        container.appendChild(div);
+    });
+    container.scrollTop = container.scrollHeight;
+}
+
+async function openConversation(contactId, contactName, listItem) {
+    activeContactId = contactId;
+    activeContactName = contactName;
+    clearReply();
+
+    document.querySelectorAll('.conversation-item').forEach(el => el.classList.remove('active'));
+    if (listItem) listItem.classList.add('active');
+
+    document.getElementById('chatPlaceholder').classList.add('hidden');
+    document.getElementById('chatActive').classList.remove('hidden');
+    document.getElementById('messengerShell').classList.add('show-chat');
+
+    document.getElementById('chatContactName').textContent = contactName;
+    document.getElementById('chatAvatar').textContent = getInitial(contactName);
+    document.getElementById('chatContactMeta').textContent = '@' + contactId;
+    activeObjectId = listItem?.dataset.objectId || '0';
+    const reportCard = document.getElementById('chatReportCard');
+    const reportImage = document.getElementById('chatReportImage');
+    const reportName = document.getElementById('chatReportName');
+
+    if (activeObjectId !== '0' && listItem?.dataset.objectName) {
+        reportName.textContent = listItem.dataset.objectName;
+        if (listItem?.dataset.objectImage) {
+            reportImage.src = listItem.dataset.objectImage;
+            reportImage.alt = listItem.dataset.objectName;
+            reportImage.style.display = 'inline-block';
+        } else {
+            reportImage.style.display = 'none';
+        }
+        reportCard.style.display = 'inline-flex';
+    } else {
+        reportCard.style.display = 'none';
+    }
+
+    try {
+        const res = await fetch(`/api/conversacion/${encodeURIComponent(contactId)}/${encodeURIComponent(activeObjectId)}`, { credentials: 'same-origin' });
+        const data = await res.json();
+        if (!data.ok) {
+            document.getElementById('chatMessages').innerHTML = `<div class="chat-empty"><p>${escapeHtml(data.error || 'No se pudo cargar la conversación')}</p></div>`;
+            return;
+        }
+        renderMessages(data.mensajes, contactName);
+        refreshBuzon();
+        startChatPolling();
+    } catch (e) {
+        console.error(e);
+        document.getElementById('chatMessages').innerHTML = '<div class="chat-empty"><p>Error al cargar mensajes</p></div>';
+    }
+}
 
 function sendMessage() {
     const to = document.getElementById('composeTo').value.trim();
@@ -105,44 +392,82 @@ function sendMessage() {
     fd.append('destinatario', to);
     fd.append('asunto', subject);
     fd.append('cuerpo', body);
-    for (let i=0;i<files.length;i++) fd.append('adjuntos', files[i]);
+    for (let i = 0; i < files.length; i++) fd.append('adjuntos', files[i]);
 
-    fetch('/api/mensajes/enviar', { method: 'POST', body: fd })
+    fetch('/api/mensajes/enviar', { method: 'POST', body: fd, credentials: 'same-origin' })
         .then(r => r.json())
         .then(resp => {
             if (resp.ok) {
-                alert('Mensaje enviado');
                 document.getElementById('composeTo').value = '';
                 document.getElementById('composeSubject').value = '';
                 document.getElementById('composeBody').value = '';
                 document.getElementById('composeFiles').value = '';
                 closeCompose();
-                refreshBuzon();
+                refreshBuzon().then(() => openConversation(to, to));
             } else {
                 alert('Error: ' + (resp.error || 'No enviado'));
             }
         })
-        .catch(e => { console.error(e); alert('Error enviando mensaje') });
+        .catch(e => { console.error(e); alert('Error enviando mensaje'); });
 }
 
-function viewMessage(id) {
-    fetch(`/api/mensajes/${id}`)
+function sendChatMessage() {
+    const body = document.getElementById('messageBody').value.trim();
+    if (!body || !activeContactId) {
+        alert('Escribe un mensaje.');
+        return;
+    }
+    const fd = new FormData();
+    fd.append('destinatario', activeContactId);
+    fd.append('cuerpo', body);
+    fd.append('asunto', 'Chat privado');
+    if (activeReplyId) {
+        fd.append('reply_to', activeReplyId);
+    }
+    if (activeObjectId && activeObjectId !== '0') {
+        fd.append('id_objeto', activeObjectId);
+    }
+
+    fetch('/api/mensajes/enviar', { method: 'POST', body: fd, credentials: 'same-origin' })
         .then(r => r.json())
         .then(resp => {
-            if (!resp.ok) return alert('No se pudo abrir el mensaje');
-            const m = resp.mensaje;
-            let text = `De: ${m.ID_REMITENTE}\nAsunto: ${m.ASUNTO || '(sin asunto)'}\nFecha: ${m.FECHA}\n\n${m.CUERPO}`;
-            if (resp.adjuntos && resp.adjuntos.length) {
-                text += '\n\nAdjuntos:\n';
-                resp.adjuntos.forEach(a => {
-                    text += `- ${a.NOMBRE_ORIGINAL} -> ${a.RUTA}\n`;
-                });
+            if (resp.ok) {
+                document.getElementById('messageBody').value = '';
+                clearReply();
+                return fetch(`/api/conversacion/${encodeURIComponent(activeContactId)}/${encodeURIComponent(activeObjectId)}`, { credentials: 'same-origin' });
             }
-            alert(text);
-            refreshBuzon();
+            alert('Error: ' + (resp.error || 'No se pudo enviar'));
         })
-        .catch(e => console.error(e));
+        .then(r => r && r.json())
+        .then(data => {
+            if (data && data.ok) {
+                renderMessages(data.mensajes, activeContactName);
+                refreshBuzon();
+            }
+        })
+        .catch(e => { console.error(e); alert('Error enviando mensaje'); });
 }
 
+document.getElementById('messageBody').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendChatMessage();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    renderConversationList(conversationsCache);
+    refreshBuzon();
+
+    const params = new URLSearchParams(window.location.search);
+    const openUser = params.get('u');
+    if (openUser) {
+        const thread = conversationsCache.find(t => t.destinatario === openUser);
+        const listItem = thread
+            ? { dataset: { objectId: thread.id_objeto || '0', objectName: thread.objeto_nombre || 'Chat general' } }
+            : null;
+        openConversation(openUser, thread ? thread.nombre : openUser, listItem);
+    }
+});
 </script>
 {% endblock %}

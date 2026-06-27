@@ -4,77 +4,17 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/menu.css') }}">
-<style>
-  .filter-date-container {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
+<link rel="stylesheet" href="{{ url_for('static', filename='css/mis_reportes.css') }}">
 
-  .filter-date-input {
-    flex: 1;
-    min-width: 150px;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-  }
-
-  .filter-reset-btn {
-    padding: 8px 16px;
-    background-color: #112250;
-    color: #E0C58F;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-  }
-
-  .filter-reset-btn:hover {
-    background-color: #0c1836;
-  }
-
-  .filter-download-btn {
-    padding: 8px 16px;
-    background-color: #E0C58F;
-    color: #112250;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-  }
-
-  .filter-download-btn:hover {
-    background-color: #c49f55;
-  }
-
-  .filter-download-btn:disabled {
-    background-color: #95a5a6;
-    cursor: not-allowed;
-  }
-
-  .filters-row {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .search-section {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-</style>
 {% endblock %}
 
 {% block content %}
 
-<div class="header">
-  <h1>Mis Reportes</h1>
-  <p style="color: #666; margin-top: 8px;">Consulta todos tus reportes de objetos perdidos y encontrados</p>
+<div class="dashboard-title" style="margin-bottom:18px;">
+  <div>
+    <h1>Mis Reportes</h1>
+    <p class="subtitle">Consulta todos tus reportes de objetos perdidos y encontrados</p>
+  </div>
 </div>
 
 <div class="search-section">
@@ -84,33 +24,34 @@
   </div>
 
   <div class="filters-row">
-    <select id="filtroTipo" class="filter-select">
-      <option value="">Todos los tipos</option>
-      <option value="perdido">Perdido</option>
-      <option value="encontrado">Encontrado</option>
-    </select>
+    <label class="filter-pill">
+      <i class="fas fa-tag"></i>
+      <select id="filtroTipo" class="filter-select">
+        <option value="">Tipos</option>
+        <option value="perdido">Perdido</option>
+        <option value="encontrado">Encontrado</option>
+      </select>
+    </label>
 
-    <select id="filtroCategoria" class="filter-select">
-      <option value="">Todas las categorías</option>
-      <option value="Documentos">Documentos</option>
-      <option value="Tecnología">Tecnología</option>
-      <option value="Accesorios">Accesorios</option>
-      <option value="Ropa">Ropa</option>
-      <option value="Llaves">Llaves</option>
-      <option value="Otros">Otros</option>
-    </select>
+    <label class="filter-pill">
+      <i class="fas fa-th-large"></i>
+      <select id="filtroCategoria" class="filter-select">
+        <option value="">Categorías</option>
+        <option value="Documentos">Documentos</option>
+        <option value="Tecnología">Tecnología</option>
+        <option value="Accesorios">Accesorios</option>
+        <option value="Ropa">Ropa</option>
+        <option value="Llaves">Llaves</option>
+        <option value="Otros">Otros</option>
+      </select>
+    </label>
 
-    <div class="filter-date-container">
-      <label for="filtroFechaInicio" style="font-size: 12px; color: #666;">Desde:</label>
-      <input type="date" id="filtroFechaInicio" class="filter-date-input">
-      
-      <label for="filtroFechaFin" style="font-size: 12px; color: #666;">Hasta:</label>
-      <input type="date" id="filtroFechaFin" class="filter-date-input">
-      
+    <div class="filter-tools">
+      <input type="date" id="filtroFechaInicio" class="filter-date-input" placeholder="Desde">
+      <input type="date" id="filtroFechaFin" class="filter-date-input" placeholder="Hasta">
       <button id="resetFiltros" class="filter-reset-btn">
         <i class="fas fa-redo"></i> Limpiar filtros
       </button>
-
       <button id="descargarPDF" class="filter-download-btn">
         <i class="fas fa-download"></i> Descargar PDF
       </button>
@@ -122,6 +63,7 @@
   <!-- tarjetas se insertan aquí -->
 </div>
 
+<script src="{{ url_for('static', filename='js/report-card.js') }}"></script>
 <script>
 const buscarInput = document.getElementById('buscarReportes');
 const filtroTipo = document.getElementById('filtroTipo');
@@ -135,11 +77,16 @@ let allReportes = [];
 
 async function cargarReportes(){
   try{
-    // Construir URL con parámetros de filtro
+    grid.innerHTML = '<div class="recent-placeholder">Cargando reportes...</div>';
+
     const params = new URLSearchParams();
     
     if(filtroCategoria.value) {
       params.append('categoria', filtroCategoria.value);
+    }
+    
+    if(filtroTipo.value) {
+      params.append('tipo', filtroTipo.value);
     }
     
     if(filtroFechaInicio.value) {
@@ -171,49 +118,29 @@ function renderizar(){
   const q = buscarInput.value.trim().toLowerCase();
   const tipo = filtroTipo.value;
 
-  const filtrados = allReportes.filter(r => {
+  let filtrados = allReportes.filter(r => {
     if (tipo && r.tipo !== tipo) return false;
     if (!q) return true;
     return (r.NOMBRE || r.nombre || '').toLowerCase().includes(q) || (r.COLOR || r.color || '').toLowerCase().includes(q);
   });
 
-  grid.innerHTML = '';
-  
+  filtrados = filtrados.sort((a,b) => {
+    const fechaA = new Date(a.FECHA || a.fecha || a.Fecha || 0).getTime();
+    const fechaB = new Date(b.FECHA || b.fecha || b.Fecha || 0).getTime();
+    return fechaB - fechaA;
+  });
+
   if (filtrados.length === 0){
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--sapphire);">No hay reportes que coincidan con los filtros seleccionados</div>';
+    renderReportCards(grid, [], { emptyMessage: 'No hay reportes que coincidan con los filtros seleccionados' });
     return;
   }
 
-  filtrados.forEach(r => {
-    const img = r.IMAGEN || r.imagen || null;
-    const tipoLabel = r.tipo === 'perdido' ? 'Perdido' : 'Encontrado';
-    const fecha = r.FECHA ? new Date(r.FECHA).toLocaleDateString('es-CO') : '';
-    const nombreCategoria = r.nombre_categoria || r.categoria || '';
-
-    const imgHtml = img ? `<img class="tarjeta-img" src="${img}" alt="Imagen">` : '';
-
-    const html = `
-      <div class="tarjeta-resultado">
-        ${imgHtml}
-        <div class="tarjeta-contenido">
-          <div>
-            <div class="tarjeta-titulo">${r.NOMBRE || r.nombre || 'Sin título'}</div>
-            <div style="display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap;">
-              <span class="tarjeta-categoria">${nombreCategoria}</span>
-              <small style="color:#888;font-size:11px;">${tipoLabel}</small>
-              <small style="color:#888;font-size:11px;">📅 ${fecha}</small>
-            </div>
-            ${r.COLOR ? `<small style="color:#999;margin-top:4px;">Color: ${r.COLOR}</small>` : ''}
-          </div>
-          <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;">
-            <a class="tarjeta-btn" href="/detalles/${r.ID_OBJETO}">Ver</a>
-            <button class="tarjeta-btn tarjeta-borrar" onclick="borrarReporte('${(r.id_reporte||r.ID_REPORTE||r.ID_REPORTE_ENC)}','${r.tipo}')" style="background:#e74c3c;border:none;color:#fff;padding:6px 8px;border-radius:4px;cursor:pointer;">Borrar</button>
-          </div>
-        </div>
-      </div>
-    `;
-
-    grid.insertAdjacentHTML('beforeend', html);
+  renderReportCards(grid, filtrados, {
+    showDeleteButton: true,
+    clickable: false,
+    onDelete: borrarReporte,
+    onCardClick: (href) => window.location.href = href,
+    userName: '{{ session.get("nombre")|e }}{{ " " if session.get("apellido") else "" }}{{ session.get("apellido")|e }}',
   });
 }
 
@@ -231,6 +158,18 @@ resetFiltros.addEventListener('click', () => {
   filtroFechaFin.value = '';
   cargarReportes();
 });
+
+function attachCardClicks() {
+  document.querySelectorAll('.tarjeta-resultado[data-href]').forEach(card => {
+    if (card.dataset.clickAttached) return;
+    card.addEventListener('click', (event) => {
+      if (event.target.closest('.tarjeta-borrar')) return;
+      const href = card.dataset.href;
+      if (href) window.location.href = href;
+    });
+    card.dataset.clickAttached = '1';
+  });
+}
 
 descargarPDF.addEventListener('click', async () => {
   if(allReportes.length === 0) {

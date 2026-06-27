@@ -73,7 +73,7 @@
                     <div class="input-group password-group">
                         <input type="password" name="contrasena" id="contrasena" placeholder="Contraseña" required>
                         <button type="button" class="password-toggle" aria-label="Mostrar contraseña">
-                            <i class="fa-regular fa-eye"></i>
+                            <i class="fa-solid fa-eye"></i>
                         </button>
                     </div>
 
@@ -86,7 +86,7 @@
                     <div class="input-group password-group">
                         <input type="password" name="contrasena_repetida" id="contrasena_repetida" placeholder="Repetir contraseña" required>
                         <button type="button" class="password-toggle" aria-label="Mostrar contraseña">
-                            <i class="fa-regular fa-eye"></i>
+                            <i class="fa-solid fa-eye"></i>
                         </button>
                     </div>
 
@@ -142,22 +142,17 @@ const mensaje = document.getElementById("mensaje")
 
 const passwordInput = document.getElementById("contrasena")
 const pass2Input = document.getElementById("contrasena_repetida")
-const generoInputs = document.getElementsByName("genero")
 
 function initPasswordToggles() {
     document.querySelectorAll(".password-toggle").forEach(button => {
         const wrapper = button.closest(".password-group")
         const input = wrapper ? wrapper.querySelector("input") : null
 
-        if (wrapper && input) wrapper.classList.toggle('closed', input.type === 'password')
-
         button.addEventListener("click", () => {
             if (!wrapper || !input) return
 
             const wasPassword = input.type === "password"
             input.type = wasPassword ? "text" : "password"
-
-            wrapper.classList.toggle('closed', input.type === 'password')
 
             const icon = button.querySelector("i")
             if (icon) {
@@ -213,6 +208,7 @@ formRegistro.addEventListener("submit", async (e) => {
 
     const pass = passwordInput.value
     const pass2 = pass2Input.value
+
     if(pass !== pass2){
         mensaje.innerText = "Las contraseñas no coinciden"
         mensaje.style.color = "#b23b3b"
@@ -246,8 +242,8 @@ formRegistro.addEventListener("submit", async (e) => {
         },800)
     }
 })
-
 </script>
 
 </body>
+</html>
 </html>
