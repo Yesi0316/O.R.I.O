@@ -156,12 +156,6 @@ def conectar_db():
 
 
 def ejecutar_sql(sql, descripcion=""):
-    """Ejecuta un comando SQL de forma segura.
-
-    Args:
-        sql (str): Comando SQL a ejecutar
-        descripcion (str): Descripción de la operación (para logs)
-    """
     conexion = conectar_db()
     if conexion:
         try:
@@ -171,8 +165,12 @@ def ejecutar_sql(sql, descripcion=""):
             cursor.close()
             if descripcion:
                 print(f"✓ {descripcion}")
+
         except Exception as e:
-            print(f"✗ Error en {descripcion}: {e}")
+            print(f"✗ Error en {descripcion}:")
+            print(e)
+            raise   # <-- Agrega esta línea
+
         finally:
             conexion.close()
 
@@ -231,7 +229,7 @@ TABLAS = {
         CREATE TABLE IF NOT EXISTS public."Usuarios"(
             "ID_USUARIO" TEXT PRIMARY KEY,
             "NOMBRE" TEXT,
-            "GENERO" VARCHAR(10) CHECK ("GENERO" IN ('masculino','femenino')) NOT NULL,
+            "GENERO" VARCHAR(10) CHECK ("GENERO" IN ('masculino','femenino', 'otro')) NOT NULL,
             "CONTRASENA" TEXT NOT NULL,
             "PREGUNTA_1" TEXT NOT NULL,
             "PREGUNTA_2" TEXT NOT NULL,
@@ -242,6 +240,7 @@ TABLAS = {
             "TEMA_PREFERENCIA" TEXT DEFAULT 'claro',
             "ID_ROL" INTEGER NOT NULL,
             "TELEFONO" TEXT, 
+            "FECHA_REGISTRO" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY ("ID_ROL") REFERENCES public."Roles" ("ID_ROL")
         );
     """,
@@ -267,6 +266,8 @@ TABLAS = {
             "ID_USUARIO" TEXT NOT NULL,
             "FICHA" INTEGER,
             "ID_CATEGORIA" TEXT NOT NULL,
+            "FECHA_REGISTRO" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            "STATUS" TEXT DEFAULT 'pendiente' CHECK ("STATUS" IN ('pendiente', 'encontrado', 'falso')),
             FOREIGN KEY ("ID_OBJETO") REFERENCES public."Objetos" ("ID_OBJETO")
         );
     """,
@@ -292,6 +293,8 @@ TABLAS = {
             "ID_USUARIO" TEXT NOT NULL,
             "FICHA" INTEGER,
             "ID_CATEGORIA" TEXT NOT NULL,
+            "FECHA_REGISTRO" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            "STATUS" TEXT DEFAULT 'pendiente' CHECK ("STATUS" IN ('pendiente', 'encontrado', 'falso')),
             FOREIGN KEY ("ID_OBJETO") REFERENCES public."Objetos" ("ID_OBJETO")
         );
     """,
@@ -388,7 +391,6 @@ CREATE TABLE IF NOT EXISTS public."Metodos_pago"
             );
         """,
     
-
 }
 
 

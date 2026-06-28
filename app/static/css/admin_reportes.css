@@ -1,62 +1,436 @@
-.filter-date-container {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
+/* ===========================
+   TÍTULOS
+=========================== */
 
-  .filter-date-input {
-    flex: 1;
-    min-width: 150px;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+.subtitle {
     font-size: 14px;
-  }
+    color: #666;
+    margin-top: 8px;
+}
 
-  .filter-reset-btn {
-    padding: 8px 16px;
-    background-color: #112250;
-    color: #E0C58F;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-  }
+/* ===========================
+   CONTENEDOR GENERAL
+=========================== */
 
-  .filter-reset-btn:hover {
-    background-color: #0c1836;
-  }
-
-  .filter-download-btn {
-    padding: 8px 16px;
-    background-color: #E0C58F;
-    color: #112250;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-  }
-
-  .filter-download-btn:hover {
-    background-color: #c49f55;
-  }
-
-  .filter-download-btn:disabled {
-    background-color: #95a5a6;
-    cursor: not-allowed;
-  }
-
-  .filters-row {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .search-section {
+.search-section {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-  }
+    align-items: center;
+    gap: 26px;
+    width: 100%;
+    margin-top: 25px;
+}
+
+/* ===========================
+   BUSCADOR
+=========================== */
+
+/* ===========================
+   SECCIÓN DE BÚSQUEDA
+=========================== */
+
+.search-section{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:22px;
+    width:100%;
+}
+
+.search-bar{
+    width:100%;
+    max-width:340px;
+    position:relative;
+}
+
+.search-bar input{
+    width:100%;
+    height:52px;
+    border:2px solid #ececec;
+    border-radius:25px;
+    background:#fff;
+    padding:0 20px 0 50px;
+    font-size:15px;
+    color:#112250;
+}
+
+.search-bar i{
+    position:absolute;
+    left:20px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#999;
+    font-size:14px;
+}
+
+/* ===========================
+   FILTROS
+=========================== */
+
+.filters-row{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:18px;
+    width:100%;
+}
+
+.filter-select,
+.filter-date-input{
+    height:52px;
+    padding:0 20px;
+    border:2px solid #e8e8e8;
+    border-radius:20px;
+    background:#fff;
+    color:#112250;
+    font-size:14px;
+    outline:none;
+}
+
+.filter-select{
+    min-width:210px;
+}
+
+.filter-date-container{
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
+    align-items:center;
+}
+
+.filter-date-container label{
+    display:none;
+}
+
+/* BOTONES FILTROS */
+
+.filter-reset-btn,
+.filter-download-btn{
+    border-radius:999px;
+    border:none;
+    font-size:13px;
+    padding:12px 18px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    cursor:pointer;
+    transition:all .25s ease;
+}
+
+.filter-reset-btn{
+    background:#fff;
+    color:#112250;
+    border:2px solid #ececec;
+}
+
+.filter-reset-btn:hover{
+    background:#f8f4eb;
+}
+
+.filter-download-btn{
+    background:#E0C58F;
+    color:#112250;
+}
+
+.filter-download-btn:hover{
+    background:#d4b56f;
+}
+
+.filter-download-btn:disabled{
+    background:#95a5a6;
+    cursor:not-allowed;
+}
+
+/* ===========================
+   GRID TARJETAS
+=========================== */
+
+.grid-resultados{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(520px,1fr));
+    gap:24px;
+    margin-top:25px;
+    width:100%;
+}
+
+/* ===========================
+   TARJETA
+=========================== */
+
+.tarjeta-resultado{
+    background:#fff;
+    border-radius:26px;
+    overflow:hidden;
+    border:1px solid #ececec;
+    box-shadow:0 6px 18px rgba(0,0,0,.06);
+}
+
+.tarjeta-img{
+    width:100%;
+    height:220px;
+    object-fit:cover;
+    display:block;
+}
+
+.tarjeta-contenido{
+    padding:20px;
+}
+
+.tarjeta-titulo{
+    font-size:26px;
+    font-weight:700;
+    color:#112250;
+    margin-bottom:10px;
+}
+
+.tarjeta-meta{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    flex-wrap:wrap;
+    margin-bottom:12px;
+}
+
+.tarjeta-categoria{
+    background:#f4f4f4;
+    border-radius:999px;
+    padding:6px 14px;
+    font-size:13px;
+    color:#112250;
+}
+
+.tarjeta-meta small{
+    color:#888;
+    font-size:11px;
+}
+
+/* COLOR */
+
+.tarjeta-contenido > div:first-child > small{
+    display:block;
+    margin-top:4px;
+    color:#999 !important;
+}
+
+/* ===========================
+   BOTONES DE LA TARJETA
+=========================== */
+
+.tarjeta-acciones{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:18px;
+}
+
+.tarjeta-btn,
+.tarjeta-borrar,
+.marcar-falso,
+.marcar-encontrado{
+    border:none;
+    border-radius:999px !important;
+    padding:10px 18px !important;
+    font-size:13px;
+    font-weight:500;
+    cursor:pointer;
+    text-decoration:none;
+    transition:.2s;
+}
+
+.tarjeta-btn{
+    background:#112250;
+    color:#fff;
+}
+
+.tarjeta-borrar{
+    background:#e74c3c;
+    color:#fff;
+}
+
+.marcar-falso{
+    background:#3498db;
+    color:#fff;
+}
+
+.marcar-encontrado{
+    background:#27ae60;
+    color:#fff;
+}
+
+.tarjeta-btn:hover,
+.tarjeta-borrar:hover,
+.marcar-falso:hover,
+.marcar-encontrado:hover{
+    transform:translateY(-2px);
+}
+
+/* ==========================
+   CONTENEDOR PRINCIPAL
+========================== */
+
+.header,
+.search-section,
+.grid-resultados{
+    width:100%;
+    max-width:1400px;
+    margin:0 auto;
+}
+
+/* ==========================
+   DESKTOP GRANDES
+========================== */
+
+@media (min-width:1400px){
+
+    .grid-resultados{
+        grid-template-columns:repeat(2, minmax(500px, 1fr));
+    }
+
+    .search-bar{
+        max-width:420px;
+    }
+}
+
+/* ==========================
+   LAPTOPS
+========================== */
+
+@media (max-width:1200px){
+
+    .grid-resultados{
+        grid-template-columns:1fr;
+    }
+
+    .tarjeta-titulo{
+        font-size:24px;
+    }
+}
+
+/* ==========================
+   TABLETS
+========================== */
+
+@media (max-width:768px){
+
+    .search-bar{
+        max-width:100%;
+    }
+
+    .filters-row{
+        flex-direction:column;
+        gap:15px;
+    }
+
+    .filter-select,
+    .filter-date-input,
+    .filter-reset-btn,
+    .filter-download-btn{
+        width:100%;
+        max-width:420px;
+    }
+
+    .filter-date-container{
+        width:100%;
+        flex-direction:column;
+        align-items:center;
+    }
+
+    .grid-resultados{
+        grid-template-columns:1fr;
+        gap:20px;
+    }
+
+    .tarjeta-img{
+        height:220px;
+    }
+
+    .tarjeta-contenido{
+        padding:18px;
+    }
+
+    .tarjeta-titulo{
+        font-size:22px;
+    }
+
+    .tarjeta-acciones{
+        justify-content:center;
+    }
+}
+
+/* ==========================
+   MÓVILES
+========================== */
+
+@media (max-width:576px){
+
+    .header h1{
+        font-size:32px;
+    }
+
+    .subtitle{
+        font-size:13px;
+    }
+
+    .search-bar input{
+        height:50px;
+        font-size:14px;
+    }
+
+    .filter-select,
+    .filter-date-input{
+        height:50px;
+        width:100%;
+    }
+
+    .filter-reset-btn,
+    .filter-download-btn{
+        width:100%;
+        justify-content:center;
+    }
+
+    .grid-resultados{
+        grid-template-columns:1fr;
+    }
+
+    .tarjeta-resultado{
+        border-radius:22px;
+    }
+
+    .tarjeta-img{
+        height:180px;
+    }
+
+    .tarjeta-contenido{
+        padding:16px;
+    }
+
+    .tarjeta-titulo{
+        font-size:20px;
+        margin-bottom:8px;
+    }
+
+    .tarjeta-meta{
+        gap:6px;
+    }
+
+    .tarjeta-categoria{
+        font-size:12px;
+        padding:5px 12px;
+    }
+
+    .tarjeta-acciones{
+        justify-content:center;
+        gap:8px;
+    }
+
+    .tarjeta-btn,
+    .tarjeta-borrar,
+    .marcar-falso,
+    .marcar-encontrado{
+        padding:9px 16px !important;
+        font-size:12px;
+    }
+}

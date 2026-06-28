@@ -1,11 +1,9 @@
-"""
-Rutas del usuario
-"""
-
 # Librerías
 import os
+import re
 import uuid
-from datetime import datetime
+import random
+from datetime import datetime, timedelta
 
 from flask import (
     render_template,
@@ -17,15 +15,17 @@ from flask import (
     current_app,
     send_from_directory,
 )
+from werkzeug.utils import secure_filename
 
 # Componentes internos
 from .database import conectar_db
-from .decorators import login_required, guest_required, admin_required
+from .decorators import login_required, guest_required
 
 # Si tienes utilidades
 from psycopg2.extras import RealDictCursor
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
+print (generate_password_hash("123456"))  # Esto es solo para mostrar cómo se ve una contraseña encriptada
 
 def init_user_routes(app):
     """
@@ -242,6 +242,7 @@ def init_user_routes(app):
             session["id_usuario"] = id_usuario
             session["nombre"] = nombre
             session["genero"] = genero
+            session["telefono"] = telefono
 
             return jsonify({"ok": True, "mensaje": "Usuario creado correctamente"})
 
@@ -365,48 +366,6 @@ def init_user_routes(app):
             return jsonify({"datos": [], "mensaje": "No se encontraron resultados"})
         return jsonify({"ok": True, "datos": objetos})
     
-    # --------------------------------
-    # RUTA PARA EL HTML DE USUARIOS
-    # --------------------------------
-
-    @app.route("/usuarios")
-    @admin_required
-    def usuarios():
-        return render_template("usuarios.html", active="usuarios")
-
-
-    #------------------------------
-    # CONSULTAR USUARIOS
-    # -----------------------------
-    @app.route("/api/usuarios", methods=["GET"])
-    @admin_required
-    def obtener_usuarios():
-        try:
-            conexion = conectar_db()
-            if conexion is None:
-                return jsonify({"mensaje": "Error de conexión a la base de datos"}), 500
-
-            cursor = conexion.cursor(cursor_factory=RealDictCursor)
-            cursor.execute(
-            """
-                SELECT u."ID_USUARIO", u."NOMBRE", u."GENERO", u."ID_ROL", r."NOMBRE" as "ROL_NOMBRE"
-                FROM public."Usuarios" u
-                LEFT JOIN public."Roles" r ON u."ID_ROL" = r."ID_ROL"
-                ORDER BY u."ID_USUARIO" DESC;   
-            """,  
-            )
-            usuarios = cursor.fetchall()
-
-            cursor.close()
-            conexion.close()
-
-            return jsonify(usuarios), 200
-
-        except Exception as e:
-            return (
-                jsonify({"mensaje": "Error al obtener los usuarios", "error": str(e)}),
-                500,
-            )
 
     # -------------------------------------
     # RUTA INICIO DE SESIÓN
@@ -482,79 +441,6 @@ def init_user_routes(app):
             # esto imprime el error completo
             traceback.print_exc()
             return jsonify({"ok": False, "mensaje": "Error en el servidor"}), 500
-    
-
-    # -------------------------------------
-    # RUTA ADMIN INICIO
-    # -------------------------------------
-
-    @app.route("/admin_inicio")
-    @admin_required
-    def admin_inicio():
-        if session.get("id_rol") != 2:  # Verificar si el rol es admin si no lo devuelve al menu
-            return redirect("/menu")
-        return render_template("admin.html", active="panel")
-
-    
-    
-    @app.route("/api/admin_estadisticas")
-    @admin_required
-    def api_estadisticas_admin():
-        """Devuelve las estadísticas del dashboard"""
-        try:
-            db = conectar_db()
-            cursor = db.cursor(cursor_factory=RealDictCursor)
-
-            cursor.execute('SELECT COUNT(*) as total FROM "Reportes_encontrados"')
-            encontrados = cursor.fetchone()["total"]
-
-            cursor.execute('SELECT COUNT(*) as total FROM "Reportes_perdidos"')
-            perdidos = cursor.fetchone()["total"]
-
-            reportes_totales = encontrados + perdidos
-
-            cursor.execute("""
-                SELECT COUNT(DISTINCT rp."ID_OBJETO") as recuperados
-                FROM "Reportes_perdidos" rp
-                INNER JOIN "Reportes_encontrados" re ON rp."ID_OBJETO" = re."ID_OBJETO"
-            """)
-            recuperados = cursor.fetchone()["recuperados"]
-
-            cursor.execute('SELECT COUNT(*) as usuarios FROM "Usuarios"')
-            usuarios = cursor.fetchone()["usuarios"]
-
-            cursor.close()
-            db.close()
-
-            return jsonify(
-                {
-                    "reportes_totales": reportes_totales,
-                    "recuperados": recuperados,
-                    "reportes_falsos": 0,
-                    "usuarios": usuarios,
-                }
-            )
-        except Exception as e:
-            print(f"Error en estadísticas: {e}")
-            return (
-                jsonify(
-                    {
-                        "reportes_totales": 0,
-                        "recuperados": 0,
-                        "reportes_falsos": 0,
-                        "usuarios": 0,
-                    }
-                ),
-                500,
-            )
-
-    # -------------------------------------
-    # RUTA CERRAR SESION
-    # -------------------------------------
-    @app.route("/logout")
-    def logout():
-        session.clear()
-        return redirect("/inicio")
 
     # -------------------------------------
     # RUTA MENU
@@ -565,50 +451,6 @@ def init_user_routes(app):
         return render_template("menu.html", active="panel")
 
 
-    # -------------------------------------
-    # FORMULARIO UNICO DE REPORTE
-    # -------------------------------------
-    @app.route("/formulario_reporte")
-    @login_required
-    def formulario_reporte():
-
-        db = conectar_db()
-        cursor = db.cursor(cursor_factory=RealDictCursor)
-
-        # Categorias
-        cursor.execute('SELECT "ID_CATEGORIA" FROM "Categorias"')
-        categorias = cursor.fetchall()
-
-        if not categorias:
-            categorias_default = [
-                "Documentos",
-                "Tecnología",
-                "Accesorios",
-                "Ropa",
-                "Llaves",
-                "Otros",
-            ]
-
-            for cat in categorias_default:
-                cursor.execute(
-                    'INSERT INTO "Categorias" ("ID_CATEGORIA") VALUES (%s) ON CONFLICT DO NOTHING',
-                    (cat,),
-                )
-
-            db.commit()
-
-            cursor.execute('SELECT "ID_CATEGORIA" FROM "Categorias"')
-            categorias = cursor.fetchall()
-
-        cursor.close()
-        db.close()
-
-        return render_template(
-            "form_reporte.html",
-            categorias=categorias,
-            active="panel",
-            hide_fab=True,
-        )
     
     # -------------------------------------
     # ENVIAR REPORTE YA SEA PERDIDO O ENCONTRADO
@@ -1042,11 +884,6 @@ def init_user_routes(app):
         session.pop("recuperar_id", None)
 
         return jsonify({"ok": True})
-
-    @app.route("/perfil")
-    @login_required
-    def perfil():
-        return render_template("perfil.html", active="perfil")
 
     @app.route("/datos_perfil", methods=["GET"])
     @login_required
@@ -1777,14 +1614,6 @@ def init_user_routes(app):
                 pass
             return jsonify({'ok': False, 'error': str(e)}), 500
 
-    @app.route("/configuracion")
-    @login_required
-    def configuracion():
-        # Redirigir según el rol del usuario
-        if session.get("id_rol") == 2:  # Admin
-            return redirect(url_for("admin_configuracion"))
-        else:  # Usuario normal
-            return redirect(url_for("configuracion_user"))
 
     @app.route("/api/configuracion", methods=["GET"])
     @login_required
@@ -2234,120 +2063,7 @@ def init_user_routes(app):
     @login_required
     def reporte_problem():
         return render_template("reporte_problemas.html")
-    # ---------------------------------------------
-    # RUTA PARA QUE EL ADMIN GESTIONE LOS USUARIOS
-    #-----------------------------------------------
 
-    @app.route("/gestionar_usuarios", methods=["GET"])
-    @admin_required
-    def gestionar_usuarios():
-        return redirect("/usuarios")
-    
-    # ---------------------------------------------
-    # RUTA PARA HACER UN ADMIN
-    #-----------------------------------------------
-    
-    @app.route("/api/cambiar_rol_admin", methods=["POST"])
-    @admin_required
-    def cambiar_rol_admin():
-        try:
-            data = request.json
-            id_usuario = data.get("id_usuario")
-            
-            if not id_usuario:
-                return jsonify({"ok": False, "mensaje": "El ID del usuario es requerido"}), 400
-            
-            conexion = conectar_db()
-            cursor = conexion.cursor(cursor_factory=RealDictCursor)
-            
-            if not id_usuario:
-                cursor.close()
-                conexion.close()
-                return jsonify({"ok": False, "mensaje": "se requiere el id del usuario"}), 500
-            
-            # Actualizar el rol a Administrador (ID_ROL = 2)
-            cursor.execute(
-                'UPDATE public."Usuarios" SET "ID_ROL" = 2 WHERE "ID_USUARIO" = %s',
-                (id_usuario,)
-            )
-            conexion.commit()
-            cursor.close()
-            conexion.close()
-            
-            return jsonify({
-                "ok": True, 
-                "mensaje": f"Usuario '{id_usuario}' ahora es Administrador"
-            }), 200
-            
-        except Exception as e:
-            return jsonify({"ok": False, "mensaje": f"Error: {str(e)}"}), 500
-        
-    # ---------------------------------------------
-    # RUTA PARA QUITAR UN ADMIN
-    #-----------------------------------------------
-    
-    @app.route("/api/cambiar_rol_usuario", methods=["POST"])
-    @admin_required
-    def cambiar_rol_usuario():
-        try:
-            data = request.json
-            id_usuario = data.get("id_usuario")
-            
-            if not id_usuario:
-                return jsonify({"ok": False, "mensaje": "El ID del usuario es requerido"}), 400
-            
-            conexion = conectar_db()
-            cursor = conexion.cursor(cursor_factory=RealDictCursor)
-            
-            if not id_usuario:
-                cursor.close()
-                conexion.close()
-                return jsonify({"ok": False, "mensaje": "se requiere el id del usuario"}), 500
-            
-            # Actualizar el rol a Usuario (ID_ROL = 1)
-            cursor.execute(
-                'UPDATE public."Usuarios" SET "ID_ROL" = 1 WHERE "ID_USUARIO" = %s',
-                (id_usuario,)
-            )
-            conexion.commit()
-            cursor.close()
-            conexion.close()
-            
-            return jsonify({
-                "ok": True, 
-                "mensaje": f"Usuario '{id_usuario}' ahora es Usuario"
-            }), 200
-            
-        except Exception as e:
-            return jsonify({"ok": False, "mensaje": f"Error: {str(e)}"}), 500
-    
-    # -------------------------------------
-    # RUTA PARA QUE EL USUARIO CONFIGURE SU PERFIL
-    # -------------------------------------
-    
-    @app.route("/configuracion_user")
-    @login_required
-    def configuracion_user():
-        return render_template("configuracion_user.html", active="configuracion")
-    
-    # -------------------------------------
-    # ADMIN CONFIGURACIÓN
-    # -------------------------------------
-
-    @app.route("/admin_configuracion")
-    @admin_required
-    def admin_configuracion():
-        return render_template("configuracion_admin.html", active="configuracion")
-    
-    # --------------------------------------------
-    # RUTA PARA QUE EL ADMIN VEA LOS REPORTES 
-    #---------------------------------------------
-
-    @app.route("/admin_reportes")
-    @admin_required
-    def admin_reportes():
-        return render_template("admin_reportes.html")
-    
     #-----------------------------------------
     # RUTA PARA EL BUZON
     #-----------------------------------------
@@ -2441,7 +2157,7 @@ def init_user_routes(app):
                 '''
                 UPDATE public."Mensajes" SET "LEIDO"=TRUE
                 WHERE "ID_DESTINATARIO"=%s AND "ID_REMITENTE"=%s
-                  AND COALESCE("ID_OBJETO", '') = %s AND "LEIDO"=FALSE
+                AND COALESCE("ID_OBJETO", '') = %s AND "LEIDO"=FALSE
                 ''',
                 (id_usuario, contacto_id, id_objeto),
             )
@@ -2939,504 +2655,81 @@ def init_user_routes(app):
         except Exception as e:
             print(f"Error marcando notificación: {e}")
             return jsonify({'ok': False, 'error': str(e)}), 500
-    
-    #-----------------------------------------
-    # RUTA PARA QUE EL ADMIN BORRE REPORTES
-    #-----------------------------------------
 
-    @app.route('/api/admin_borrar_reporte', methods=['POST'])
+     # -------------------------------------
+    # FORMULARIO UNICO DE REPORTE
+    # -------------------------------------
+    @app.route("/formulario_reporte")
     @login_required
-    @admin_required
-    def api_admin_borrar_reporte():
+    def formulario_reporte():
 
-        try:
-            payload = request.get_json() or {}
-            id_reporte = payload.get('id_reporte')
-            tipo = payload.get('tipo')
+        db = conectar_db()
+        cursor = db.cursor(cursor_factory=RealDictCursor)
 
-            if not id_reporte or tipo not in ('perdido', 'encontrado'):
-                return jsonify({'ok': False, 'error': 'Parámetros inválidos'}), 400
+        # Categorias
+        cursor.execute('SELECT "ID_CATEGORIA" FROM "Categorias"')
+        categorias = cursor.fetchall()
 
-            id_usuario = session.get('id_usuario')
-            if not id_usuario:
-                return jsonify({'ok': False, 'error': 'No autenticado'}), 401
+        if not categorias:
+            categorias_default = [
+                "Documentos",
+                "Tecnología",
+                "Accesorios",
+                "Ropa",
+                "Llaves",
+                "Otros",
+            ]
 
-            db = conectar_db()
-            cursor = db.cursor()
-
-            if tipo == 'perdido':
+            for cat in categorias_default:
                 cursor.execute(
-                    'SELECT * FROM "Reportes_perdidos" WHERE "ID_REPORTE" = %s',
-                    (id_reporte,)
+                    'INSERT INTO "Categorias" ("ID_CATEGORIA") VALUES (%s) ON CONFLICT DO NOTHING',
+                    (cat,),
                 )
 
-                row = cursor.fetchone()
-                if not row:
-                    cursor.close()
-                    db.close()
-                    return jsonify({'ok': False, 'error': 'Reporte no encontrado'}), 404
-
-                cursor.execute('DELETE FROM "Reportes_perdidos" WHERE "ID_REPORTE" = %s', (id_reporte,))
-
-            else:  # encontrado
-                cursor.execute('SELECT "ID_USUARIO" FROM "Reportes_encontrados" WHERE "ID_REPORTE_ENC" = %s', (id_reporte,))
-                row = cursor.fetchone()
-                if not row:
-                    cursor.close()
-                    db.close()
-                    return jsonify({'ok': False, 'error': 'Reporte no encontrado'}), 404
-
-                cursor.execute('DELETE FROM "Reportes_encontrados" WHERE "ID_REPORTE_ENC" = %s', (id_reporte,))
-
             db.commit()
-            afectadas = cursor.rowcount if hasattr(cursor, 'rowcount') else None
-            cursor.close()
-            db.close()
 
-            return jsonify({'ok': True, 'deleted': bool(afectadas)}), 200
+            cursor.execute('SELECT "ID_CATEGORIA" FROM "Categorias"')
+            categorias = cursor.fetchall()
 
-        except Exception as e:
-            try:
-                cursor.close()
-                db.close()
-            except:
-                pass
-            return jsonify({'ok': False, 'error': str(e)}), 500
-        
+        cursor.close()
+        db.close()
 
-    #-----------------------------------------
-    # RUTA PARA QUE EL ADMIN VEA LOS REPORTES
-    #-----------------------------------------
-
-    @app.route("/api/admin_reportes", methods=["GET"])
-    @login_required
-    @admin_required
-    def api_admin_reportes():
-
-        try:
-            id_usuario = session["id_usuario"]
-            categoria = request.args.get("categoria", "").strip() or None
-            fecha_inicio = request.args.get("fecha_inicio", "").strip() or None
-            fecha_fin = request.args.get("fecha_fin", "").strip() or None
-            
-            db = conectar_db()
-            cursor = db.cursor(cursor_factory=RealDictCursor)
-
-            params_p = [id_usuario]
-            
-            if categoria:
-                params_p.append(categoria)
-            
-            if fecha_inicio:
-                params_p.append(fecha_inicio)
-            
-            if fecha_fin:
-                params_p.append(fecha_fin)
-            
-            params_e = [id_usuario]
-            
-            if categoria:
-                params_e.append(categoria)
-            
-            if fecha_inicio:
-                params_e.append(fecha_inicio)
-            
-            if fecha_fin:
-                params_e.append(fecha_fin)
-            
-
-            
-            query = f"""
-                SELECT r."ID_REPORTE" as id_reporte, 'perdido' as tipo, o."ID_OBJETO", o."NOMBRE", o."COLOR", o."IMAGEN", r."FECHA", r."OBSERVACIONES", o."ID_CATEGORIA" as categoria, c."NOMBRE" as nombre_categoria
-                FROM "Reportes_perdidos" r
-                JOIN "Objetos" o ON r."ID_OBJETO" = o."ID_OBJETO"
-                LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
-                UNION ALL
-                SELECT r."ID_REPORTE_ENC" as id_reporte, 'encontrado' as tipo, o."ID_OBJETO", o."NOMBRE", o."COLOR", o."IMAGEN", r."FECHA", r."OBSERVACIONES", o."ID_CATEGORIA" as categoria, c."NOMBRE" as nombre_categoria
-                FROM "Reportes_encontrados" r
-                JOIN "Objetos" o ON r."ID_OBJETO" = o."ID_OBJETO"
-                LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
-                ORDER BY "FECHA" DESC
-            """
-
-            cursor.execute(query)
-            reportes = cursor.fetchall()
-            cursor.close()
-            db.close()
-
-            return jsonify({"ok": True, "datos": reportes})
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
-            return jsonify({"ok": False, "error": str(e)}), 500
+        return render_template(
+            "form_reporte.html",
+            categorias=categorias,
+            active="panel",
+            hide_fab=True,
+        )
     
-    #----------------------------------------------
-    # RUTA PARA QUE EL ADMIN DESCARGUE LOS REPORTES
-    #----------------------------------------------
-    @app.route('/api/admin_descargar_reportes', methods=['POST'])
-    @admin_required
-    def api_admin_descargar_reportes():
-        try:
-            id_usuario = session["id_usuario"]
-            payload = request.get_json() or {}
-            
-            categoria = (payload.get("categoria") or "").strip() or None
-            fecha_inicio = (payload.get("fecha_inicio") or "").strip() or None
-            fecha_fin = (payload.get("fecha_fin") or "").strip() or None
+    # -------------------------------------
+    # RUTA CERRAR SESION
+    # -------------------------------------
+    @app.route("/logout")
+    def logout():
+        session.clear()
+        return redirect("/inicio")
 
-            tipo = (payload.get("tipo") or "").strip() or None
-            busqueda = (payload.get("busqueda") or "").strip() or None
-                        
-            db = conectar_db()
-            cursor = db.cursor(cursor_factory=RealDictCursor)
 
-            # Construir condiciones para PERDIDOS
-            params_p = [id_usuario]
-            
-            if categoria:
-                params_p.append(categoria)
+    # -------------------------------------
+    # RUTA CONFIGURACION
+    # -------------------------------------
 
-            if busqueda:
-                params_p.extend([f"%{busqueda}%", f"%{busqueda}%"])
 
-            if fecha_inicio:
-                params_p.append(fecha_inicio)
-            
-            if fecha_fin:
-                params_p.append(fecha_fin)
-            params_e = [id_usuario]
-            
-            if categoria:
-                params_e.append(categoria)
-            
-            if fecha_inicio:
-                params_e.append(fecha_inicio)
-            
-            if fecha_fin:
-                params_e.append(fecha_fin)
-            
-            
-            query = f"""
-                SELECT r."ID_REPORTE" as id_reporte, 'perdido' as tipo, o."ID_OBJETO", o."NOMBRE", o."COLOR", o."IMAGEN", r."FECHA", r."OBSERVACIONES", o."ID_CATEGORIA" as categoria, c."NOMBRE" as nombre_categoria
-                FROM "Reportes_perdidos" r
-                JOIN "Objetos" o ON r."ID_OBJETO" = o."ID_OBJETO"
-                LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
-                UNION ALL
-                SELECT r."ID_REPORTE_ENC" as id_reporte, 'encontrado' as tipo, o."ID_OBJETO", o."NOMBRE", o."COLOR", o."IMAGEN", r."FECHA", r."OBSERVACIONES", o."ID_CATEGORIA" as categoria, c."NOMBRE" as nombre_categoria
-                FROM "Reportes_encontrados" r
-                JOIN "Objetos" o ON r."ID_OBJETO" = o."ID_OBJETO"
-                LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
-                ORDER BY "FECHA" DESC
-            """
-
-            cursor.execute(query)
-            reportes = cursor.fetchall()
-            cursor.close()
-            db.close()
-
-            # Generar HTML para el PDF
-            filas_tabla = ""
-            for idx, r in enumerate(reportes, 1):
-                fecha = r.get('FECHA')
-                if isinstance(fecha, datetime):
-                    fecha_str = fecha.strftime('%d/%m/%Y')
-                else:
-                    fecha_str = str(fecha) if fecha else 'N/A'
-                
-                tipoLabel = 'Perdido' if r['tipo'] == 'perdido' else 'Encontrado'
-                
-                filas_tabla += f"""
-                <tr>
-                    <td>{idx}</td>
-                    <td>{r.get('NOMBRE', 'N/A')}</td>
-                    <td>{r.get('COLOR', 'N/A')}</td>
-                    <td>{r.get('nombre_categoria', 'N/A')}</td>
-                    <td>{tipoLabel}</td>
-                    <td>{fecha_str}</td>
-                    <td>{(r.get('OBSERVACIONES') or '')[:100]}</td>
-                </tr>
-                """
-
-            html_content = f"""
-            <!DOCTYPE html>
-            <html lang="es">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Reporte de Objetos</title>
-                <style>
-                    * {{
-                        margin: 0;
-                        padding: 0;
-                        box-sizing: border-box;
-                    }}
-                    
-                    body {{
-                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                        color: #333;
-                        background: white;
-                        padding: 20px;
-                    }}
-                    
-                    .header {{
-                        text-align: center;
-                        margin-bottom: 30px;
-                        border-bottom: 3px solid #3498db;
-                        padding-bottom: 15px;
-                    }}
-                    
-                    .header h1 {{
-                        color: #2c3e50;
-                        font-size: 28px;
-                        margin-bottom: 5px;
-                    }}
-                    
-                    .header p {{
-                        color: #7f8c8d;
-                        font-size: 12px;
-                    }}
-                    
-                    .info-filtros {{
-                        background: #ecf0f1;
-                        padding: 15px;
-                        border-radius: 5px;
-                        margin-bottom: 20px;
-                        font-size: 12px;
-                    }}
-                    
-                    .info-filtros p {{
-                        margin: 5px 0;
-                        color: #34495e;
-                    }}
-                    
-                    table {{
-                        width: 100%;
-                        border-collapse: collapse;
-                        margin-top: 20px;
-                    }}
-                    
-                    thead {{
-                        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-                        color: white;
-                    }}
-                    
-                    th {{
-                        padding: 15px;
-                        text-align: left;
-                        font-weight: 600;
-                        font-size: 12px;
-                        text-transform: uppercase;
-                        letter-spacing: 0.5px;
-                        border: 1px solid #3498db;
-                    }}
-                    
-                    td {{
-                        padding: 12px 15px;
-                        border: 1px solid #ecf0f1;
-                        font-size: 11px;
-                    }}
-                    
-                    tbody tr:nth-child(even) {{
-                        background: #f8f9fa;
-                    }}
-                    
-                    tbody tr:hover {{
-                        background: #ecf0f1;
-                    }}
-                    
-                    .tipo-perdido {{
-                        background: #ff6b6b;
-                        color: white;
-                        padding: 4px 8px;
-                        border-radius: 3px;
-                        font-weight: 500;
-                    }}
-                    
-                    .tipo-encontrado {{
-                        background: #51cf66;
-                        color: white;
-                        padding: 4px 8px;
-                        border-radius: 3px;
-                        font-weight: 500;
-                    }}
-                    
-                    .footer {{
-                        text-align: center;
-                        margin-top: 30px;
-                        padding-top: 15px;
-                        border-top: 1px solid #ecf0f1;
-                        color: #7f8c8d;
-                        font-size: 10px;
-                    }}
-                    
-                    .total-registros {{
-                        background: #e8f4f8;
-                        padding: 10px;
-                        border-left: 4px solid #3498db;
-                        margin-top: 20px;
-                        font-weight: 600;
-                        color: #2c3e50;
-                    }}
-                </style>
-            </head>
-            <body>
-                <div class="header">
-                    <h1>Reporte de Objetos</h1>
-                    <p>Generado el: {datetime.now().strftime('%d de %B de %Y a las %H:%M')}</p>
-                </div>
-                
-                <div class="info-filtros">
-                    <p><strong>Filtros aplicados:</strong></p>
-                    <p>• Categoría: {categoria or 'Todas'}</p>
-                    <p>• Fecha desde: {fecha_inicio or 'Sin límite'}</p>
-                    <p>• Fecha hasta: {fecha_fin or 'Sin límite'}</p>
-                </div>
-                
-                <table>
-                    <thead>
-                        <tr>
-                            <th width="5%">#</th>
-                            <th width="15%">Nombre</th>
-                            <th width="12%">Color</th>
-                            <th width="15%">Categoría</th>
-                            <th width="12%">Tipo</th>
-                            <th width="12%">Fecha</th>
-                            <th width="29%">Observaciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filas_tabla if filas_tabla else '<tr><td colspan="7" style="text-align:center; padding: 20px;">No hay registros para mostrar</td></tr>'}
-                    </tbody>
-                </table>
-                
-                <div class="total-registros">
-                    Total de registros: {len(reportes)}
-                </div>
-                
-                <div class="footer">
-                    <p>© O.R.I.O - Sistema de Reporte de Objetos Perdidos y Encontrados</p>
-                    <p>Este documento contiene información confidencial de tu cuenta</p>
-                </div>
-            </body>
-            </html>
-            """
-
-            # Generar PDF
-            try:
-                from weasyprint import HTML, CSS
-                from weasyprint.text.fonts import FontConfiguration
-            except Exception as e:
-                return jsonify({"ok": False, "error": "WeasyPrint no disponible: " + str(e)}), 500
-
-            html = HTML(string=html_content, base_url='.')
-            pdf_bytes = html.write_pdf()
-            
-            # Enviar como descarga
-            fecha_generacion = datetime.now().strftime('%Y%m%d_%H%M%S')
-            filename = f"reportes_{fecha_generacion}.pdf"
-            
-            return send_file(
-                BytesIO(pdf_bytes),
-                mimetype='application/pdf',
-                as_attachment=True,
-                download_name=filename
-            )
-            
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
-            return jsonify({"ok": False, "error": str(e)}), 500
+    @app.route("/configuracion")
+    @login_required
+    def configuracion():
+        # Redirigir según el rol del usuario
+        if session.get("id_rol") == 2:  # Admin
+            return render_template ("configuracion_admin.html", active="configuracion")
+        else:  # Usuario normal
+            return render_template("configuracion_user.html", active="configuracion")
         
-    #-----------------------------------------
-    # RUTA PARA ELIMINAR USUARIOS (ADMIN)
-    #-----------------------------------------
-    @app.route('/api/admin_borrar_usuario', methods=['POST'])
-    @admin_required
-    def borrar_usuarios():
-        db = None
-        cursor = None
-        try:
-            payload = request.get_json() or {}
-            id_usuario_borrar = payload.get('id_usuario')
 
-            if not id_usuario_borrar:
-                return jsonify({'ok': False, 'error': 'ID de usuario requerido'}), 400
-            
-            if id_usuario_borrar == session.get("id_usuario"):
-                return jsonify({'ok': False, 'error': 'No puedes eliminar tu propio usuario desde esta vista'}), 400
-
-            db = conectar_db()
-            if db is None:
-                return jsonify({'ok': False, 'error': 'Error de conexión a la base de datos'}), 500
-
-            cursor = db.cursor()
-
-            cursor.execute('SELECT * FROM "Usuarios" WHERE "ID_USUARIO" = %s', (id_usuario_borrar,))
-            row = cursor.fetchone()
-            if not row:
-                cursor.close()
-                db.close()
-                return jsonify({'ok': False, 'error': 'Usuario no encontrado'}), 404
-
-            cursor.execute('DELETE FROM "Usuarios" WHERE "ID_USUARIO" = %s', (id_usuario_borrar,))
-            db.commit()
-            afectadas = cursor.rowcount if hasattr(cursor, 'rowcount') else None
-            cursor.close()
-            db.close()
-
-            return jsonify({'ok': True, 'deleted': bool(afectadas)}), 200
-
-        except Exception as e:
-            if db:
-                db.rollback()
-            try:
-                cursor.close()
-                db.close()
-            except:
-                pass
-            return jsonify({'ok': False, 'error': str(e)}), 500
-
-
-    # -------------------------------------
-    # RUTA ADMIN PERFIL
-    #--------------------------------------
-
-    @app.route("/admin_perfil")
-    @admin_required
-    def admin_perfil():
-        return render_template("admin_perfil.html", active="perfil")
-    # -------------------------------------
-    # Buscar usuarios para admin
-    # -------------------------------------
-
-    @app.route("/api/buscar_usuarios", methods=["GET"])
-    @admin_required
-    def usuarios_buscar():
-        try:
-            query = request.args.get("query", "").strip()
-            if not query:
-                return jsonify({"ok": False, "error": "Consulta vacía"}), 400
-
-            db = conectar_db()
-            cursor = db.cursor(cursor_factory=RealDictCursor)
-
-            like_query = f"%{query}%"
-            cursor.execute("""
-                SELECT "ID_USUARIO", "NOMBRE", "APELLIDOS", "EMAIL", "GENERO", r."NAME_ROL"
-                FROM "Usuarios" u
-                JOIN "Roles" r ON u."ID_ROL" = r."ID_ROL"
-                WHERE u."NOMBRE" ILIKE %s OR u."APELLIDOS" ILIKE %s OR u."EMAIL" ILIKE %s
-                ORDER BY u."ID_USUARIO" DESC
-                LIMIT 20
-            """, (like_query, like_query, like_query))
-
-            usuarios = cursor.fetchall()
-            cursor.close()
-            db.close()
-
-            return jsonify({"ok": True, "datos": usuarios})
-        except Exception as e:
-            import traceback
-            traceback.print_exc()
-            return jsonify({"ok": False, "error": str(e)}), 500
-        
+    @app.route("/perfil")
+    @login_required
+    def perfil():
+        # Redirigir según el rol del usuario
+        if session.get("id_rol") == 2:  # Admin
+            return render_template ("admin_perfil.html", active="perfil")
+        else:  # Usuario normal
+            return render_template("perfil.html", active="perfil")

@@ -51,6 +51,11 @@
                     <div class="input-group">
                         <input type="text" name="nombre" placeholder="Nombre visible" required>
                     </div>
+
+                    <div class="input-group">
+                        <label for="telefono">Número de teléfono</label>
+                        <input type="tel" name="telefono" id="telefono" placeholder="Ej: +34123456789" required>
+                    </div>
                     
                     <div class="input-group">
                         <label>Género</label>
@@ -58,13 +63,18 @@
                         <div class="genero-opciones">
 
                             <label class="genero-btn">
-                                <input type="radio" name="genero" value="masculino" required>
+                                <input type="radio" name="genero" value="masculino" >
                                 <span>Masculino</span>
                             </label>
 
                             <label class="genero-btn">
                                 <input type="radio" name="genero" value="femenino">
                                 <span>Femenino</span>
+                            </label>
+
+                            <label class="genero-btn">
+                                <input type="radio" name="genero" value="otro">
+                                <span>Otro</span>
                             </label>
 
                         </div>
@@ -110,11 +120,6 @@
                         <input type="text" name="respuesta2" placeholder="Respuesta 2" required>
                     </div>
 
-                    </div>
-
-                    <div class="telefono">
-                        <label for="telefono">Número de teléfono</label>
-                        <input type="tel" name="telefono" id="telefono" placeholder="Ej: +34123456789" required>
                     </div>
 
                     <button type="submit">Crear Cuenta</button>

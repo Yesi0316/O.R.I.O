@@ -134,19 +134,22 @@ function renderizar(){
         <div class="tarjeta-contenido">
           <div>
             <div class="tarjeta-titulo">${r.NOMBRE || r.nombre || 'Sin título'}</div>
-            <div style="display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap;">
+            <div class="tarjeta-meta">
               <span class="tarjeta-categoria">${nombreCategoria}</span>
-              <small style="color:#888;font-size:11px;">${tipoLabel}</small>
-              <small style="color:#888;font-size:11px;"> ${fecha}</small>
+              <small> ${tipoLabel}</small>
+              <small> ${fecha}</small>
             </div>
             ${r.COLOR ? `<small style="color:#999;margin-top:4px;">Color: ${r.COLOR}</small>` : ''}
           </div>
           <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;">
+            <div class="tarjeta-acciones">
             <a class="tarjeta-btn" href="/detalles/${r.ID_OBJETO}">Ver</a>
             <button class="tarjeta-btn tarjeta-borrar" onclick="borrarReporte('${(r.id_reporte||r.ID_REPORTE||r.ID_REPORTE_ENC)}','${r.tipo}')" style="background:#e74c3c;border:none;color:#fff;padding:6px 8px;border-radius:4px;cursor:pointer;">Borrar</button>
+            <button class= "tarjeta-btn marcar-falso" onclick="marcarFalso('${(r.id_reporte||r.ID_REPORTE||r.ID_REPORTE_ENC)}','${r.tipo}')" style="background:#3498db;border:none;color:#fff;padding:6px 8px;border-radius:4px;cursor:pointer;">falso</button>
+            <button class= "tarjeta-btn marcar-encontrado" onclick="marcarEncontrado('${(r.id_reporte||r.ID_REPORTE||r.ID_REPORTE_ENC)}','${r.tipo}')" style="background:#27ae60;border:none;color:#fff;padding:6px 8px;border-radius:4px;cursor:pointer;">encontrado</button>
           </div>
         </div>
-      </div>
+      </div> 
     `;
 
     grid.insertAdjacentHTML('beforeend', html);
@@ -242,6 +245,60 @@ async function borrarReporte(id, tipo){
   }catch(e){
     console.error(e);
     alert('Error al borrar el reporte');
+  }
+}
+
+async function marcarFalso(id, tipo){
+  try{
+    const res = await fetch('/api/admin_marcar_falso', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({id_reporte: id, tipo: tipo})
+    });
+    const data = await res.json();
+    if(!data.ok){
+      alert(data.error || 'No se pudo marcar el reporte como falso');
+      return;
+    }
+    // actualizar el estado del reporte en el array local y re-renderizar
+    allReportes = allReportes.map(r => {
+      const rid = r.id_reporte || r.ID_REPORTE || r.ID_REPORTE_ENC || r.id;
+      if(String(rid) === String(id)){
+        return {...r, tipo: 'falso'};
+      }
+      return r;
+    });
+    renderizar();
+  }catch(e){
+    console.error(e);
+    alert('Error al marcar el reporte como falso');
+  }
+}
+
+async function marcarEncontrado(id, tipo){
+  try{
+    const res = await fetch('/api/admin_marcar_encontrado', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({id_reporte: id, tipo: tipo})
+    });
+    const data = await res.json();
+    if(!data.ok){
+      alert(data.error || 'No se pudo marcar el reporte como encontrado');
+      return;
+    }
+    // actualizar el estado del reporte en el array local y re-renderizar
+    allReportes = allReportes.map(r => {
+      const rid = r.id_reporte || r.ID_REPORTE || r.ID_REPORTE_ENC || r.id;
+      if(String(rid) === String(id)){
+        return {...r, tipo: 'encontrado'};
+      }
+      return r;
+    });
+    renderizar();
+  }catch(e){
+    console.error(e);
+    alert('Error al marcar el reporte como encontrado');
   }
 }
 </script>
