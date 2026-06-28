@@ -1,364 +1,517 @@
-{% extends "admin_base.html" %}
+{% extends "base.html" %}
 
 {% block title %}Perfil | O.R.I.O{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_perfil.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/perfil.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
 {% endblock %}
 
 {% block content %}
 
-<h1 class="title">Mi Perfil</h1>
-<p class="subtitle">
-Sube tu foto de perfil. Un retrato en primer plano es ideal.
-</p>
-
-<div class="photo-card">
-    
-    <img src="https://via.placeholder.com/200" 
-        class="profile-preview" 
-        id="preview">
-
-    <br>
-
-    <input type="file" id="fileInput" hidden accept="image/*">
-
-    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-        <i class="fas fa-upload"></i> Subir foto de perfil
-    </button>
-
-    <p class="min-info">* Mínimo 200 × 200px</p>
-
-</div>
-
-<div class="form-card">
-    <h3 class="section-title">Datos de usuario</h3>
-
-    <div class="row">
-        <div class="field">
-            <label>Nombre</label>
-            <input type="text" id="nombre" placeholder="Tu nombre" disabled>
-        </div>
-
-        <div class="field">
-            <label>Apellido</label>
-            <input type="text" id="apellido" placeholder="Tu apellido" disabled>
+<section class="perfil-page">
+    <div class="perfil-header">
+        <div>
+            <h1 class="title">Mi Perfil</h1>
+            <p class="subtitle">Gestiona tu información personal y seguridad</p>
         </div>
     </div>
 
-    <div class="row">
-        <div class="field">
-            <label>Género</label>
-            <br>
-
-            <select id="genero" disabled class="select-field"  >
-                <option value="">Seleccionar</option>
-                <option value="masculino">Masculino</option>
-                <option value="femenino">Femenino</option>
-            </select>
+    <section class="top-card">
+        <div class="photo-area">
+            <div class="photo-frame">
+                <img id="profilePhoto" src="https://via.placeholder.com/260" alt="Foto de perfil">
+                <button type="button" class="photo-button" onclick="openEditModal('photo')" aria-label="Cambiar foto">
+                    <i class="fas fa-camera"></i>
+                </button>
+            </div>
         </div>
 
-    <div class="field">
-            <label>Correo</label>
-            <input type="email" id="correo" placeholder="Tu correo" disabled>
+        <div class="profile-summary">
+            <h2 id="profileName">Perfil de usuario</h2>
+            <p class="member-info" id="memberSince" style="display:none;"></p>
+            <div class="badges" id="ratingRow" style="display:none;">
+                <div class="badge">
+                    <span class="badge-title">Calificación</span>
+                    <strong id="ratingValue">—</strong>
+                </div>
+                <div class="badge">
+                    <span class="badge-title">Reportes</span>
+                    <strong id="reportsCount">—</strong>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="info-card">
+        <div class="card-header">
+            <h3>Datos de usuario</h3>
+        </div>
+        <div class="info-list">
+            <div class="info-row" onclick="openEditModal('name')">
+                <div class="info-left">
+                    <span class="info-icon"><i class="fas fa-user"></i></span>
+                    <div>
+                        <p class="info-title">Nombre completo</p>
+                        <p class="info-value" id="fullName">—</p>
+                    </div>
+                </div>
+                <span class="info-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="info-row" onclick="openEditModal('email')">
+                <div class="info-left">
+                    <span class="info-icon"><i class="fas fa-envelope"></i></span>
+                    <div>
+                        <p class="info-title">Correo electrónico</p>
+                        <p class="info-value" id="email">—</p>
+                    </div>
+                </div>
+                <span class="info-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="info-row" onclick="openEditModal('phone')">
+                <div class="info-left">
+                    <span class="info-icon"><i class="fas fa-phone"></i></span>
+                    <div>
+                        <p class="info-title">Teléfono</p>
+                        <p class="info-value" id="phone">—</p>
+                    </div>
+                </div>
+                <span class="info-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="info-row" onclick="openEditModal('location')">
+                <div class="info-left">
+                    <span class="info-icon"><i class="fas fa-map-marker-alt"></i></span>
+                    <div>
+                        <p class="info-title">Ubicación</p>
+                        <p class="info-value" id="location">—</p>
+                    </div>
+                </div>
+                <span class="info-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+        </div>
+    </section>
+
+    <section class="settings-card">
+        <div class="card-header">
+            <h3>Ajustes y seguridad</h3>
+        </div>
+        <div class="settings-list">
+            <a href="/configuracion" class="settings-row">
+                <div class="settings-left">
+                    <span class="settings-icon"><i class="fas fa-cog"></i></span>
+                    <div>
+                        <p class="settings-title">Configuración y seguridad</p>
+                        <p class="settings-subtitle">Personaliza tu experiencia en la app y la seguridad de tu cuenta</p>
+                    </div>
+                </div>
+                <span class="settings-arrow"><i class="fas fa-chevron-right"></i></span>
+            </a>
+
+            <a href="/logout" class="settings-row logout-row">
+                <div class="settings-left">
+                    <span class="settings-icon"><i class="fas fa-sign-out-alt"></i></span>
+                    <div>
+                        <p class="settings-title">Cerrar sesión</p>
+                        <p class="settings-subtitle">Salir de tu cuenta</p>
+                    </div>
+                </div>
+                <span class="settings-arrow"><i class="fas fa-chevron-right"></i></span>
+            </a>
+        </div>
+    </section>
+</section>
+
+<div class="modal-backdrop" id="editModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-header">
+            <div>
+                <p class="modal-eyebrow">Editar</p>
+                <h3 id="modalTitle">Editar</h3>
+            </div>
+            <button type="button" class="modal-close" onclick="closeModal()" aria-label="Cerrar modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body" id="modalBody"></div>
+        <div class="modal-footer">
+            <button type="button" class="btn-secondary" id="modalCancel" onclick="closeModal()">Cancelar</button>
+            <button type="button" class="btn-primary" id="modalSave" onclick="saveModalChanges()">Guardar cambios</button>
         </div>
     </div>
-
-    <div class="row">
-        <div class="field-telefono">
-            <label>Teléfono</label>
-            <input type="text" id="telefono" placeholder="Tu teléfono" disabled>
-        </div>
 </div>
 
-<div class="buttons-container">
-    <button class="save-btn" id="guardarBtn">
-        <i class="fas fa-pen"></i> Editar perfil
-    </button>
-
-    <button class="cancel-btn" id="cancelBtn" style="display:none;">
-        <i class="fas fa-times"></i> Cancelar
-    </button>
-</div>
+<div class="toast" id="toastMessage" aria-live="polite"></div>
 
 <script>
-const fileInput = document.getElementById("fileInput");
-const preview = document.getElementById("preview");
-const guardarBtn = document.getElementById("guardarBtn");
-const cancelBtn = document.getElementById("cancelBtn");
+const profilePhoto = document.getElementById('profilePhoto');
+const profileName = document.getElementById('profileName');
+const memberSinceText = document.getElementById('memberSince');
+const ratingRow = document.getElementById('ratingRow');
+const ratingValue = document.getElementById('ratingValue');
+const reportsCount = document.getElementById('reportsCount');
+const fullName = document.getElementById('fullName');
+const email = document.getElementById('email');
+const phone = document.getElementById('phone');
+const locationField = document.getElementById('location');
+const editModal = document.getElementById('editModal');
+const modalTitle = document.getElementById('modalTitle');
+const modalBody = document.getElementById('modalBody');
+const toastMessage = document.getElementById('toastMessage');
 
-// objeto para conservar los valores originales y detectar cambios
-let originalData = { nombre: '', apellido: '', telefono: '', correo: '', genero: '' };
+let profileData = {
+    NOMBRE: '',
+    APELLIDO: '',
+    TELEFONO: '',
+    CORREO: '',
+    FOTO_PERFIL: '',
+    UBICACION: ''
+};
+let currentModalType = null;
+let selectedPhotoFile = null;
 
-// Cargar datos del perfil cuando carga la página
-document.addEventListener('DOMContentLoaded', function() {
-    cargarDatos();
-});
+const photoInput = document.createElement('input');
+photoInput.type = 'file';
+photoInput.accept = 'image/*';
+photoInput.style.display = 'none';
+photoInput.addEventListener('change', handlePhotoFileChange);
+document.body.appendChild(photoInput);
 
-// Cargar datos del perfil
-async function cargarDatos() {
+function formatDate(fecha) {
+    if (!fecha) return '';
+    const date = new Date(fecha);
+    if (isNaN(date)) return fecha;
+    return date.toLocaleDateString('es-CO', { year: 'numeric', month: 'long' });
+}
+
+function showToast(message, type = 'success') {
+    toastMessage.textContent = message;
+    toastMessage.className = `toast ${type}`;
+    toastMessage.style.opacity = '1';
+    setTimeout(() => {
+        toastMessage.style.opacity = '0';
+    }, 2800);
+}
+
+function setModalError(message) {
+    const modalError = document.getElementById('modalError');
+    if (modalError) modalError.textContent = message;
+}
+
+function clearModalError() {
+    setModalError('');
+}
+
+function openEditModal(type) {
+    currentModalType = type;
+    selectedPhotoFile = null;
+    modalBody.innerHTML = '';
+    document.body.classList.add('modal-open');
+    editModal.classList.add('active');
+    editModal.setAttribute('aria-hidden', 'false');
+
+    if (type === 'photo') {
+        modalTitle.textContent = 'Cambiar foto de perfil';
+        modalBody.innerHTML = `
+            <div class="photo-preview-modal">
+                <img id="modalPhotoPreview" src="${profileData.FOTO_PERFIL || 'https://via.placeholder.com/260'}" alt="Vista previa" />
+            </div>
+            <p class="modal-description">Selecciona una imagen para actualizar tu perfil.</p>
+            <button type="button" class="btn-primary btn-block" id="photoSelectBtn">Seleccionar imagen</button>
+            <div class="modal-error" id="modalError"></div>
+        `;
+        document.getElementById('photoSelectBtn').addEventListener('click', () => photoInput.click());
+    } else if (type === 'name') {
+        modalTitle.textContent = 'Editar nombre completo';
+        modalBody.innerHTML = `
+            <div class="form-group">
+                <label for="modalFirstName">Nombre</label>
+                <input id="modalFirstName" type="text" value="${profileData.NOMBRE}" placeholder="Nombre" />
+            </div>
+            <div class="form-group">
+                <label for="modalLastName">Apellido</label>
+                <input id="modalLastName" type="text" value="${profileData.APELLIDO}" placeholder="Apellido" />
+            </div>
+            <div class="modal-error" id="modalError"></div>
+        `;
+    } else if (type === 'email') {
+        modalTitle.textContent = 'Editar correo electrónico';
+        modalBody.innerHTML = `
+            <div class="form-group">
+                <label for="modalEmail">Correo electrónico</label>
+                <input id="modalEmail" type="email" value="${profileData.CORREO}" placeholder="correo@ejemplo.com" />
+            </div>
+            <div class="modal-error" id="modalError"></div>
+        `;
+    } else if (type === 'phone') {
+        modalTitle.textContent = 'Editar teléfono';
+        modalBody.innerHTML = `
+            <div class="form-group">
+                <label for="modalPhone">Teléfono</label>
+                <input id="modalPhone" type="text" value="${profileData.TELEFONO}" placeholder="+57 300 123 4567" />
+            </div>
+            <div class="modal-error" id="modalError"></div>
+        `;
+    } else if (type === 'location') {
+        modalTitle.textContent = 'Editar ubicación';
+        modalBody.innerHTML = `
+            <div class="form-group">
+                <label for="modalLocation">Ubicación</label>
+                <input id="modalLocation" type="text" value="${profileData.UBICACION}" placeholder="Ciudad, País" />
+            </div>
+            <div class="modal-info">La ubicación se guarda localmente en tu navegador.</div>
+            <div class="modal-error" id="modalError"></div>
+        `;
+    } else if (type === 'password') {
+        modalTitle.textContent = 'Cambiar contraseña';
+        modalBody.innerHTML = `
+            <div class="form-group">
+                <label for="modalCurrentPassword">Contraseña actual</label>
+                <input id="modalCurrentPassword" type="password" placeholder="Contraseña actual" />
+            </div>
+            <div class="form-group">
+                <label for="modalNewPassword">Nueva contraseña</label>
+                <input id="modalNewPassword" type="password" placeholder="Nueva contraseña" />
+            </div>
+            <div class="form-group">
+                <label for="modalConfirmPassword">Confirmar contraseña</label>
+                <input id="modalConfirmPassword" type="password" placeholder="Confirmar nueva contraseña" />
+            </div>
+            <div class="modal-error" id="modalError"></div>
+        `;
+    }
+}
+
+function closeModal() {
+    editModal.classList.remove('active');
+    editModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+    currentModalType = null;
+    selectedPhotoFile = null;
+}
+
+function handlePhotoFileChange(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+        setModalError('Por favor selecciona una imagen.');
+        return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+        setModalError('La imagen debe pesar menos de 5 MB.');
+        return;
+    }
+    selectedPhotoFile = file;
+    const previewImage = document.getElementById('modalPhotoPreview');
+    if (previewImage) previewImage.src = URL.createObjectURL(file);
+    clearModalError();
+}
+
+async function saveModalChanges() {
+    clearModalError();
+    if (!currentModalType) return;
+
+    if (currentModalType === 'photo') {
+        if (!selectedPhotoFile) {
+            setModalError('Selecciona una imagen antes de guardar.');
+            return;
+        }
+        await uploadProfilePhoto(selectedPhotoFile);
+        return;
+    }
+
+    if (currentModalType === 'password') {
+        const currentPass = document.getElementById('modalCurrentPassword').value.trim();
+        const newPass = document.getElementById('modalNewPassword').value.trim();
+        const confirmPass = document.getElementById('modalConfirmPassword').value.trim();
+        if (!currentPass || !newPass || !confirmPass) {
+            setModalError('Todos los campos son requeridos.');
+            return;
+        }
+        if (newPass.length < 6) {
+            setModalError('La nueva contraseña debe tener al menos 6 caracteres.');
+            return;
+        }
+        if (newPass !== confirmPass) {
+            setModalError('Las contraseñas no coinciden.');
+            return;
+        }
+        await changePassword(currentPass, newPass, confirmPass);
+        return;
+    }
+
+    const updatedData = { ...profileData };
+    if (currentModalType === 'name') {
+        const firstName = document.getElementById('modalFirstName').value.trim();
+        const lastName = document.getElementById('modalLastName').value.trim();
+        if (!firstName) {
+            setModalError('El nombre es requerido.');
+            return;
+        }
+        updatedData.NOMBRE = firstName;
+        updatedData.APELLIDO = lastName;
+    } else if (currentModalType === 'email') {
+        const value = document.getElementById('modalEmail').value.trim();
+        if (!value || !value.includes('@')) {
+            setModalError('Ingresa un correo válido.');
+            return;
+        }
+        updatedData.CORREO = value;
+    } else if (currentModalType === 'phone') {
+        const value = document.getElementById('modalPhone').value.trim();
+        updatedData.TELEFONO = value;
+    } else if (currentModalType === 'location') {
+        const value = document.getElementById('modalLocation').value.trim();
+        updatedData.UBICACION = value;
+        saveLocation(value);
+        renderProfile(updatedData);
+        closeModal();
+        showToast('Ubicación guardada localmente.');
+        return;
+    }
+
+    await saveProfile(updatedData);
+}
+
+function saveLocation(value) {
+    try {
+        localStorage.setItem('orio_ubicacion', value);
+    } catch (error) {
+        console.warn('No se pudo guardar la ubicación en localStorage:', error);
+    }
+}
+
+function loadLocation() {
+    try {
+        return localStorage.getItem('orio_ubicacion') || '';
+    } catch (error) {
+        console.warn('No se pudo leer la ubicación de localStorage:', error);
+        return '';
+    }
+}
+
+async function uploadProfilePhoto(file) {
+    try {
+        const formData = new FormData();
+        formData.append('foto', file);
+        const res = await fetch('/subir_foto_perfil', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (!data.ok) {
+            setModalError(data.error || 'No se pudo actualizar la foto.');
+            return;
+        }
+        profilePhoto.src = URL.createObjectURL(file);
+        showToast('Foto de perfil actualizada.');
+        closeModal();
+    } catch (error) {
+        setModalError('Error al subir la foto.');
+        console.error(error);
+    }
+}
+
+async function changePassword(currentPass, newPass, confirmPass) {
+    try {
+        const res = await fetch('/api/cambiar_contrasena', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contrasena_actual: currentPass,
+                contrasena_nueva: newPass,
+                contrasena_confirmar: confirmPass
+            })
+        });
+        const data = await res.json();
+        if (!data.ok) {
+            setModalError(data.error || 'No se pudo cambiar la contraseña.');
+            return;
+        }
+        showToast(data.mensaje || 'Contraseña actualizada.');
+        closeModal();
+    } catch (error) {
+        setModalError('Error al cambiar la contraseña.');
+        console.error(error);
+    }
+}
+
+async function saveProfile(data) {
+    try {
+        const formData = new FormData();
+        formData.append('nombre', data.NOMBRE || '');
+        formData.append('apellido', data.APELLIDO || '');
+        formData.append('telefono', data.TELEFONO || '');
+        formData.append('correo', data.CORREO || '');
+        formData.append('genero', data.GENERO || '');
+
+        const res = await fetch('/guardar_perfil', { method: 'POST', body: formData });
+        const response = await res.json();
+        if (!response.ok) {
+            setModalError(response.error || 'No se pudo guardar el perfil.');
+            return;
+        }
+        profileData = { ...data, UBICACION: profileData.UBICACION };
+        renderProfile(profileData);
+        showToast('Perfil actualizado.');
+        closeModal();
+    } catch (error) {
+        setModalError('Error al guardar el perfil.');
+        console.error(error);
+    }
+}
+
+function renderProfile(data) {
+    const nombreCompleto = [data.NOMBRE, data.APELLIDO].filter(Boolean).join(' ') || 'Perfil de usuario';
+    profileName.textContent = nombreCompleto;
+    fullName.textContent = nombreCompleto;
+    email.textContent = data.CORREO || 'No disponible';
+    phone.textContent = data.TELEFONO || 'No disponible';
+    locationField.textContent = data.UBICACION || 'No disponible';
+    profilePhoto.src = data.FOTO_PERFIL || 'https://via.placeholder.com/260';
+
+    const miembroDesde = data.MIEMBRO_DESDE || data.FECHA_REGISTRO || data.FECHA || '';
+    if (miembroDesde) {
+        memberSinceText.textContent = `Miembro desde ${formatDate(miembroDesde)}`;
+        memberSinceText.style.display = 'block';
+    } else {
+        memberSinceText.style.display = 'none';
+    }
+
+    const calificacion = data.CALIFICACION || data.RATING || data.PUNTUACION || '';
+    const reportes = data.REPORTES || data.REPORTES_TOTALES || data.NUM_REPORTES || '';
+    if (calificacion || reportes) {
+        ratingRow.style.display = 'flex';
+        ratingValue.textContent = calificacion || '—';
+        reportsCount.textContent = reportes || '—';
+    } else {
+        ratingRow.style.display = 'none';
+    }
+}
+
+async function loadProfile() {
     try {
         const res = await fetch('/datos_perfil');
         const data = await res.json();
-        
-        if (data.ok && data.datos) {
-            document.getElementById('nombre').value = data.datos.NOMBRE || '';
-            document.getElementById('apellido').value = data.datos.APELLIDO || '';
-            document.getElementById('telefono').value = data.datos.TELEFONO || '';
-            document.getElementById('correo').value = data.datos.CORREO || '';
-            document.getElementById('genero').value = data.datos.GENERO || '';
-
-            preview.src = (data.datos.FOTO_PERFIL && data.datos.FOTO_PERFIL !== 'https://via.placeholder.com/200') 
-                ? data.datos.FOTO_PERFIL 
-                : 'https://via.placeholder.com/200';
-        } else {
-            console.error('Error al cargar datos:', data.error);
-        }
-    } catch (error) {
-        console.error('Error cargando datos:', error);
-        alert('Error al cargar los datos del perfil');
-    }
-}
-
-// Subir foto de perfil
-fileInput.addEventListener("change", async function(){
-    const file = this.files[0];
-    if(file){
-        const maxSize = 5 * 1024 * 1024;
-        if (file.size > maxSize) {
-            alert('La foto es muy grande. Máximo 5MB');
+        if (!data.ok || !data.datos) {
+            console.error('No se pudo cargar el perfil');
             return;
         }
-
-        const reader = new FileReader();
-        reader.onload = function(e){
-            preview.src = e.target.result;
-            preview.classList.add("animate");
-            setTimeout(()=> preview.classList.remove("animate"), 400);
+        profileData = {
+            NOMBRE: data.datos.NOMBRE || '',
+            APELLIDO: data.datos.APELLIDO || '',
+            TELEFONO: data.datos.TELEFONO || '',
+            CORREO: data.datos.CORREO || '',
+            FOTO_PERFIL: data.datos.FOTO_PERFIL || 'https://via.placeholder.com/260',
+            UBICACION: data.datos.UBICACION || loadLocation(),
+            GENERO: data.datos.GENERO || ''
+        };
+        if (!profileData.UBICACION) {
+            profileData.UBICACION = loadLocation();
         }
-        reader.readAsDataURL(file);
-
-        const formData = new FormData();
-        formData.append('foto', file);
-
-        try {
-            const res = await fetch('/subir_foto_perfil', { method:'POST', body: formData });
-            const data = await res.json();
-            if (!data.ok) {
-                alert('Error al subir la foto: ' + (data.error || 'Error desconocido'));
-                cargarDatos();
-            } else {
-                alert('Foto de perfil actualizada correctamente');
-            }
-        } catch (error) {
-            console.error('Error subiendo foto:', error);
-            alert('Error al subir la foto');
-        }
+        renderProfile(profileData);
+    } catch (error) {
+        console.error('Error cargando perfil:', error);
     }
-});
-
-// Guardar cambios / Editar perfil
-guardarBtn.addEventListener('click', async function() {
-
-    if (guardarBtn.classList.contains('editing')) {
-
-        const nombre = document.getElementById('nombre').value.trim();
-        if (!nombre) { alert('Por favor ingresa tu nombre'); return; }
-
-        const apellido = document.getElementById('apellido').value.trim();
-        const telefono = document.getElementById('telefono').value.trim();
-        const correo = document.getElementById('correo').value.trim();
-        const genero = document.getElementById('genero').value;
-
-        const formData = new FormData();
-        formData.append('nombre', nombre);
-        formData.append('apellido', apellido);
-        formData.append('telefono', telefono);
-        formData.append('correo', correo);
-        formData.append('genero', genero);
-
-        try {
-            const res = await fetch('/guardar_perfil', { method:'POST', body: formData });
-            const data = await res.json();
-
-            if (data.ok) {
-                alert('¡Perfil actualizado correctamente!');
-                originalData = { nombre, apellido, telefono, correo, genero };
-                deshabilitarEdicion();
-            } else {
-                alert('Error: ' + (data.error || 'Error desconocido'));
-            }
-
-        } catch (error) {
-            console.error('Error guardando:', error);
-            alert('Error al guardar los cambios');
-        }
-
-    } else {
-        habilitarEdicion();
-    }
-
-});
-
-// Habilitar campos para edición
-function habilitarEdicion() {
-
-    ['nombre','apellido','telefono','correo','genero']
-    .forEach(id => document.getElementById(id).disabled = false);
-
-    originalData = {
-        nombre: document.getElementById('nombre').value,
-        apellido: document.getElementById('apellido').value,
-        telefono: document.getElementById('telefono').value,
-        correo: document.getElementById('correo').value,
-        genero: document.getElementById('genero').value
-    };
-
-    guardarBtn.innerHTML = '<i class="fas fa-floppy-disk"></i> Guardar cambios';
-    guardarBtn.classList.add('editing');
-    guardarBtn.disabled = true;
-
-    cancelBtn.style.display = 'inline-block';
-
-    monitorCambios();
 }
 
-// Deshabilitar campos
-function deshabilitarEdicion() {
-
-    ['nombre','apellido','telefono','correo','genero']
-    .forEach(id => document.getElementById(id).disabled = true);
-
-    guardarBtn.innerHTML = '<i class="fas fa-pen"></i> Editar perfil';
-    guardarBtn.classList.remove('editing');
-    guardarBtn.disabled = false;
-
-    cancelBtn.style.display = 'none';
-
-    removeChangeListeners();
-}
-
-// Verifica cambios
-function verificarCambios() {
-
-    const changed = ['nombre','apellido','telefono','correo','genero']
-    .some(id => document.getElementById(id).value !== originalData[id]);
-
-    guardarBtn.disabled = !changed;
-
-}
-
-let changeListeners = [];
-
-function monitorCambios() {
-
-    ['nombre','apellido','telefono','correo','genero']
-    .forEach(id => {
-
-        const el = document.getElementById(id);
-
-        const listener = () => verificarCambios();
-
-        el.addEventListener('input', listener);
-
-        changeListeners.push({el,listener});
-
-    });
-
-}
-
-function removeChangeListeners() {
-
-    changeListeners.forEach(({el,listener}) => el.removeEventListener('input', listener));
-
-    changeListeners = [];
-
-}
-
-// Cancelar edición
-cancelBtn.addEventListener('click', function(){
-
-    if (['nombre','apellido','telefono','correo','genero']
-    .some(id => document.getElementById(id).value !== originalData[id])) {
-
-        if (!confirm('¿Seguro que desea salir de las ediciones del perfil? Los cambios se descartarán.')) return;
-
-    }
-
-    ['nombre','apellido','telefono','correo','genero']
-    .forEach(id => {
-
-        document.getElementById(id).value = originalData[id];
-
-    });
-
-    deshabilitarEdicion();
-
-});
-
-// Modo de visualización
-function aplicarModo(modo) {
-
-    document.body.classList.remove('modo-oscuro','modo-alto-contraste');
-
-    if (modo==='oscuro') document.body.classList.add('modo-oscuro');
-
-    else if (modo==='alto-contraste') document.body.classList.add('modo-alto-contraste');
-
-}
-
-const selectorModo = document.getElementById('selectorModo');
-
-if (selectorModo) {
-
-    selectorModo.addEventListener('change', async function() {
-
-        const modo = this.value;
-
-        aplicarModo(modo);
-
-        try {
-
-            await fetch('/api/tema/actualizar', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ tema: modo })
-            });
-
-        } catch (e) {
-
-            console.error('Error al guardar tema:', e);
-
-        }
-
-    });
-
-}
-
-document.addEventListener('DOMContentLoaded', async function() {
-
-    try {
-
-        const response = await fetch('/api/tema/obtener');
-
-        const data = await response.json();
-
-        const modo = data.ok ? data.tema : 'claro';
-
-        aplicarModo(modo);
-
-        if (selectorModo) selectorModo.value = modo;
-
-    } catch (e) {
-
-        console.error('Error cargando tema:', e);
-
-        aplicarModo('claro');
-
-    }
-
-});
+document.addEventListener('DOMContentLoaded', loadProfile);
 </script>
 
 {% endblock %}

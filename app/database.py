@@ -241,6 +241,7 @@ TABLAS = {
             "BLOQUEADO_HASTA" TIMESTAMP,
             "TEMA_PREFERENCIA" TEXT DEFAULT 'claro',
             "ID_ROL" INTEGER NOT NULL,
+            "TELEFONO" TEXT, 
             FOREIGN KEY ("ID_ROL") REFERENCES public."Roles" ("ID_ROL")
         );
     """,

@@ -542,6 +542,10 @@ margin-left:250px;
 min-height:100vh;
 }
 
+body.logout-modal-open{
+overflow:hidden;
+}
+
 .sidebar.collapsed ~ .main{
 margin-left:85px;
 }
@@ -674,13 +678,26 @@ background:rgba(0,0,0,0.04);
 
 /* FONDO DEL MODAL */
 .modal{
-display:none;
-position:absolute;
+position:fixed;
 inset:0;
+display:flex;
 justify-content:center;
 align-items:center;
-z-index:999;
-background:transparent;
+z-index:1800;
+padding:20px;
+opacity:0;
+visibility:hidden;
+pointer-events:none;
+background:rgba(10,15,30,.72);
+backdrop-filter:blur(6px);
+-webkit-backdrop-filter:blur(6px);
+transition:opacity .28s ease, visibility .28s ease;
+}
+
+.modal.active{
+opacity:1;
+visibility:visible;
+pointer-events:auto;
 }
 
 /* CAJA PRINCIPAL */
@@ -703,7 +720,14 @@ box-shadow:
 0 0 15px rgba(212,176,106,0.25);
 
 text-align:center;
-animation:modalShow .30s ease;
+opacity:0;
+transform:translateY(16px) scale(.97);
+transition:opacity .28s ease, transform .28s ease;
+}
+
+.modal.active .modal-content{
+opacity:1;
+transform:translateY(0) scale(1);
 }
 
 /* TITULO */
@@ -744,6 +768,7 @@ border-radius:12px;
 font-weight:bold;
 cursor:pointer;
 transition:.25s;
+font-family:'Libre Baskerville',serif;
 }
 
 .btn-danger:hover{
@@ -759,10 +784,17 @@ padding:13px 20px;
 border-radius:12px;
 cursor:pointer;
 transition:.25s;
+font-family:'Libre Baskerville',serif;
 }
 
 .btn-cancel:hover{
 background:rgba(255,255,255,0.08);
+}
+
+.btn-danger:focus-visible,
+.btn-cancel:focus-visible{
+outline:3px solid rgba(224,197,143,.65);
+outline-offset:2px;
 }
 
 /* =========================================================

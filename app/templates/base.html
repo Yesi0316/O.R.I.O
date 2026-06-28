@@ -101,23 +101,23 @@ window.addEventListener('DOMContentLoaded', async function() {
     {% block content %}{% endblock %}
 
     <!-- MODAL -->
-    <div id="cerrarModal" class="modal">
-        <div class="modal-content">
+    <div id="cerrarModal" class="modal" aria-hidden="true">
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="logoutModalTitle" aria-describedby="logoutModalDescription">
 
-            <h2>Cerrar sesión</h2>
+            <h2 id="logoutModalTitle">¿Cerrar sesión?</h2>
 
-            <p>
-                ¿Estás seguro de que deseas cerrar sesión?
+            <p id="logoutModalDescription">
+                ¿Estás seguro de que deseas cerrar tu sesión? Tendrás que volver a iniciar sesión para acceder nuevamente.
             </p>
 
             <div class="modal-buttons">
 
-                <button class="btn-danger" onclick="confirmcerrar()">
-                    Sí, cerrar sesión
+                <button id="logoutCancelBtn" class="btn-cancel" onclick="cerrarModal()">
+                    Cancelar
                 </button>
 
-                <button class="btn-cancel" onclick="cerrarModal()">
-                    Cancelar
+                <button class="btn-danger" onclick="confirmcerrar()">
+                    Cerrar sesión
                 </button>
 
             </div>
@@ -175,17 +175,47 @@ function toggleFabMenu(){
 }
 
 function abrirModal(event) {
-    event.preventDefault();
-    document.getElementById("cerrarModal").style.display = "flex";
+    if (event) event.preventDefault();
+    const modal = document.getElementById("cerrarModal");
+    const cancelBtn = document.getElementById("logoutCancelBtn");
+    if (!modal) return;
+
+    modal.classList.add("active");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("logout-modal-open");
+
+    if (cancelBtn) cancelBtn.focus();
 }
 
 function cerrarModal() {
-    document.getElementById("cerrarModal").style.display = "none";
+    const modal = document.getElementById("cerrarModal");
+    if (!modal) return;
+
+    modal.classList.remove("active");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("logout-modal-open");
 }
 
 function confirmcerrar() {
     window.location.href = "/logout";
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    const modal = document.getElementById("cerrarModal");
+    if (!modal) return;
+
+    modal.addEventListener("click", function (event) {
+        if (event.target === modal) {
+            cerrarModal();
+        }
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && modal.classList.contains("active")) {
+            cerrarModal();
+        }
+    });
+});
 
 </script>
 

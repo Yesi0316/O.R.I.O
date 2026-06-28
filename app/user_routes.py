@@ -1,82 +1,36 @@
+"""
+Rutas del usuario
+"""
+
+# Librerías
 import os
-import random
-import traceback
 import uuid
-import re
-from datetime import datetime, timedelta
-from functools import wraps
-from io import BytesIO
+from datetime import datetime
 
 from flask import (
-    request,
-    jsonify,
     render_template,
-    session,
+    request,
     redirect,
     url_for,
+    session,
+    jsonify,
+    current_app,
     send_from_directory,
-    send_file,
 )
-from werkzeug.security import generate_password_hash, check_password_hash
-from werkzeug.utils import secure_filename
-from app.correo import enviar_factura
 
+# Componentes internos
 from .database import conectar_db
+from .decorators import login_required, guest_required, admin_required
+
+# Si tienes utilidades
 from psycopg2.extras import RealDictCursor
-
-# -----------------------------
-# DECORADOR LOGIN REQUIRED
-# -----------------------------
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if "id_usuario" not in session:
-            if request.path.startswith("/api/"):
-                return jsonify({"ok": False, "error": "No autenticado"}), 401
-            return redirect("/inicio")
-        return f(*args, **kwargs)
-
-    return decorated_function
-
-# -----------------------------
-# DECORADOR ADMIN REQUIRED
-# -----------------------------
-
-def admin_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-
-        if "id_usuario" not in session:
-            return redirect("/inicio")
-
-        if session.get("id_rol") != 2:
-            return redirect("/menu")
-
-        return f(*args, **kwargs)
-
-    return decorated_function
+from werkzeug.security import check_password_hash
 
 
-
-
-# -----------------------------
-# DECORADOR GUEST REQUIRED
-# -----------------------------
-def guest_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if "id_usuario" in session:
-            if session.get("id_rol") == 2:
-                return redirect(url_for("admin_inicio"))
-            return redirect(url_for("menu"))
-        return f(*args, **kwargs)
-
-    return decorated_function
-
-
-"""RUTAS DE LA PAGINA"""
-
-def init_routes(app):
+def init_user_routes(app):
+    """
+    Registra todas las rutas del usuario.
+    """
     # -----------------------------
     # RUTA DETALLES DE OBJETO
     # -----------------------------
@@ -348,8 +302,8 @@ def init_routes(app):
         if tipo == "perdido":
             query = f'''
                 SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", 
-                       o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
-                       o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA", 'perdido' AS tipo, r."ID_REPORTE" AS id_reporte
+                o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
+                o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA", 'perdido' AS tipo, r."ID_REPORTE" AS id_reporte
                 FROM "Objetos" o
                 JOIN "Reportes_perdidos" r ON o."ID_OBJETO" = r."ID_OBJETO"
                 LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
@@ -361,8 +315,8 @@ def init_routes(app):
         elif tipo == "encontrado":
             query = f'''
                 SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", 
-                       o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
-                       o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA", 'encontrado' AS tipo, r."ID_REPORTE_ENC" AS id_reporte
+                o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
+                o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA", 'encontrado' AS tipo, r."ID_REPORTE_ENC" AS id_reporte
                 FROM "Objetos" o
                 JOIN "Reportes_encontrados" r ON o."ID_OBJETO" = r."ID_OBJETO"
                 LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
@@ -375,16 +329,16 @@ def init_routes(app):
             params_union = params + params
             query = f'''
                 SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", 
-                       o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
-                       o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA", 'perdido' AS tipo, r."ID_REPORTE" AS id_reporte
+                o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
+                o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA", 'perdido' AS tipo, r."ID_REPORTE" AS id_reporte
                 FROM "Objetos" o
                 JOIN "Reportes_perdidos" r ON o."ID_OBJETO" = r."ID_OBJETO"
                 LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
                 WHERE {where}
                 UNION ALL
                 SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", 
-                       o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
-                       o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA", 'encontrado' AS tipo, r."ID_REPORTE_ENC" AS id_reporte
+                o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
+                o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA", 'encontrado' AS tipo, r."ID_REPORTE_ENC" AS id_reporte
                 FROM "Objetos" o
                 JOIN "Reportes_encontrados" r ON o."ID_OBJETO" = r."ID_OBJETO"
                 LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
@@ -2412,9 +2366,9 @@ def init_routes(app):
         cursor.execute(
             '''
             SELECT m."ID_MENSAJE", m."ID_REMITENTE", m."ID_DESTINATARIO", m."ID_OBJETO", m."ASUNTO", m."CUERPO", m."FECHA", m."LEIDO",
-                   o."NOMBRE" as OBJETO_NOMBRE, o."IMAGEN" as OBJETO_IMAGEN,
-                   pr."NOMBRE" as REMITENTE_NOMBRE,
-                   pd."NOMBRE" as DESTINATARIO_NOMBRE
+            o."NOMBRE" as OBJETO_NOMBRE, o."IMAGEN" as OBJETO_IMAGEN,
+            pr."NOMBRE" as REMITENTE_NOMBRE,
+            pd."NOMBRE" as DESTINATARIO_NOMBRE
             FROM public."Mensajes" m
             LEFT JOIN public."Objetos" o ON m."ID_OBJETO" = o."ID_OBJETO"
             LEFT JOIN public."Perfiles" pr ON m."ID_REMITENTE" = pr."ID_USUARIO"
@@ -3451,7 +3405,6 @@ def init_routes(app):
     @admin_required
     def admin_perfil():
         return render_template("admin_perfil.html", active="perfil")
-    
     # -------------------------------------
     # Buscar usuarios para admin
     # -------------------------------------

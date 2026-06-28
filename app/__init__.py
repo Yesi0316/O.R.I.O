@@ -15,8 +15,11 @@ from flask_cors import CORS #importar la librería de CORS
 from dotenv import load_dotenv
 
 # importar componentes internos del paquete
-from .routes import init_routes
+from .user_routes import init_user_routes
+from .admin_routes import init_admin_routes
+from .decorators import login_required, admin_required
 from .database import crear_tablas, inicializar_datos_default, aplicar_migraciones
+
 
 
 def create_app():
@@ -52,7 +55,8 @@ def create_app():
     os.makedirs(app.config["STATIC_IMG_FOLDER"], exist_ok=True)
 
     # registrar todas las rutas del sistema
-    init_routes(app)
+    init_user_routes(app)
+    init_admin_routes(app)
 
     # inicializar estructura de base de datos y datos por defecto
     # se usa el contexto de aplicacion porque algunas extensiones lo requieren
