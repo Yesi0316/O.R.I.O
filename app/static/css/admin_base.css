@@ -4,7 +4,7 @@
 :root{
 --sapphire:#3C507D; /* Azul zafiro usado en degradados y elementos */
 --royal:#112250;    /* Azul oscuro principal del diseño */
---gold:#E0C58F;     /* Dorado utilizado para destacar botones y estados activos */
+--gold:#E0C58F;     /* Azul grisáceo suave para acentos secundarios */
 --cream:#F5F0E9;    /* Color crema usado para fondos claros */
 }
 
@@ -42,6 +42,7 @@ flex-direction:column; /* Elementos organizados verticalmente */
 align-items:center;
 position:relative;
 box-shadow:5px 0 25px rgba(0,0,0,.3); /* Sombra lateral */
+border-right:2px solid rgba(255,255,255,.18);
 }
 
 /* Sidebar cuando está colapsado */
@@ -53,6 +54,17 @@ width:85px;
     font-size:18px;
     color: var(--cream);
     transition: .3s ease;
+}
+
+.menu a:hover{
+    background: rgba(255,255,255,0.95);
+    color: var(--royal);
+    box-shadow: 0 8px 20px rgba(0,0,0,.14);
+}
+
+.menu a:hover i,
+.menu a:hover span{
+    color: var(--royal);
 }
 
 /* ICONO ACTIVO */
@@ -85,7 +97,7 @@ align-items:center;
 justify-content:center;
 color:white;
 font-size:24px;
-border:2px solid var(--gold); /* Borde dorado */
+border:2px solid rgba(255,255,255,.16); /* Borde suave */
 margin-bottom:40px;
 cursor:pointer;
 transition:.35s;
@@ -494,9 +506,15 @@ opacity:.9;
 
 /* Efecto hover */
 .menu a:hover{
-background:rgba(224,197,143,.15);
+background:rgba(255,255,255,.16);
+color:#ffffff;
 transform:translateX(4px);
 opacity:1;
+}
+
+.menu a:hover i,
+.menu a:hover span {
+color:#ffffff !important;
 }
 
 /* =========================================================
@@ -504,11 +522,16 @@ opacity:1;
    Indica la página actual del menú
    ========================================================= */
 .menu a.active{
-background:linear-gradient(135deg,var(--gold),#f2d9a6);
+background:linear-gradient(135deg,#ffffff,#e9eef8);
 color:var(--royal);
-font-weight:600;
-box-shadow:0 10px 25px rgba(0,0,0,.2);
+font-weight:700;
+box-shadow:0 8px 18px rgba(17,34,80,.12);
 opacity:1;
+}
+
+.menu a.active i,
+.menu a.active span {
+color:var(--royal) !important;
 }
 
 /* Oculta texto del menú cuando el sidebar está colapsado */
@@ -523,7 +546,7 @@ display:none;
 position:absolute;
 top:20px;
 right:-15px;
-background:var(--gold);
+background:#dfe7f4;
 width:32px;
 height:32px;
 border-radius:50%;
@@ -532,7 +555,7 @@ align-items:center;
 justify-content:center;
 cursor:pointer;
 color:var(--royal);
-box-shadow:0 5px 15px rgba(0,0,0,.25);
+box-shadow:0 5px 15px rgba(0,0,0,.18);
 transition:.25s;
 }
 
@@ -569,7 +592,7 @@ right:40px;
 width:70px;
 height:70px;
 border-radius:50%;
-background:linear-gradient(135deg,var(--gold),#f2d9a6);
+background:linear-gradient(135deg,#4b628c,#2d4b74);
 color:white;
 display:flex;
 align-items:center;
@@ -577,7 +600,7 @@ justify-content:center;
 font-size:36px;
 font-weight:bold;
 cursor:pointer;
-box-shadow:0 15px 30px rgba(0,0,0,.25);
+box-shadow:0 12px 28px rgba(17,34,80,.18);
 transition:transform 0.3s ease, box-shadow 0.3s ease;
 text-decoration:none;
 z-index:20;
@@ -610,7 +633,7 @@ transform:translateX(-50%);
 width:95%;
 height:70px;
 
-border-radius:22px;
+border-radius:42px;
 
 flex-direction:row;
 justify-content:space-around;
@@ -618,7 +641,11 @@ align-items:center;
 
 padding:0 10px;
 
-background:rgba(17,34,80,.75);
+background:linear-gradient(
+    180deg,
+    rgba(60,80,125,.95),
+    rgba(17,34,80,.95)
+);
 backdrop-filter:blur(18px);
 
 z-index:9999;
@@ -635,23 +662,44 @@ display:none;
 }
 
 /* Menú horizontal */
+
 .menu{
-display:flex;
-width:100%;
-justify-content:space-around;
+    display:flex;
+    width:100%;
+    justify-content:space-between;
+    align-items:center;
+    gap:4px;
+    overflow:hidden;
 }
 
 /* Botones del menú en móvil */
 .menu a{
-flex-direction:column;
-gap:3px;
-margin:0;
-border-radius:14px;
-font-size:10px;
-padding:6px 12px;
-color:rgba(245,240,233,.65);
-transition:.3s ease;
-position:relative;
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:3px;
+
+    margin:0;
+    padding:6px 4px;
+
+    border-radius:14px;
+    font-size:10px;
+    text-align:center;
+    white-space:normal;
+    word-break:break-word;
+
+    color:rgba(255, 255, 255, 0.65);
+    transition:.3s ease;
+    position:relative;
+}
+
+.menu a span{
+    font-size:10px;
+    line-height:1.1;
+    max-width:55px;
 }
 
 /* Hover */
@@ -665,20 +713,10 @@ transform:translateY(-2px);
    ESTADO ACTIVO ESTILO APP
    ========================================================= */
 .menu a.active{
-color:#112250;
+    background:transparent !important;
+    box-shadow:none !important;
 }
 
-/* Indicador de página activa */
-.menu a.active::before{
-content:"";
-position:absolute;
-top:-6px;
-width:6px;
-height:6px;
-border-radius:50%;
-background:var(--gold);
-box-shadow:0 0 12px rgba(224,197,143,.9);
-}
 
 /* Animación del icono activo */
 .menu a i{
@@ -686,8 +724,24 @@ font-size:18px;
 transition:.3s ease;
 }
 
+/* ICONO ACTIVO */
 .menu a.active i{
-transform:scale(1.15);
+    color: var(--royal);
+    transform: scale(1.15);
+}
+
+/* Texto activo */
+.menu a.active span{
+    color:#E0C58F !important;
+    font-weight:600;
+}
+
+/* TODOS los iconos activos */
+.menu a.active i,
+.menu a.active .fas,
+.menu a.active .far,
+.menu a.active .fa-chart-line{
+    color:#112250 !important;
 }
 
 /* MAIN en móvil */

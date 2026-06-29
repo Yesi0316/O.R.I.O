@@ -54,7 +54,7 @@ height:100vh;
 z-index:1000;
 box-shadow:5px 0 25px rgba(0,0,0,.3);
 transition:all 0.3s ease;
-overflow:hidden;
+overflow:visible;
 }
 
 /* Sidebar cuando está colapsado */
@@ -504,7 +504,7 @@ display:none;
 .toggle{
 position:absolute;
 top:20px;
-right:-15px;
+right: -15px;
 background:var(--gold);
 width:32px;
 height:32px;

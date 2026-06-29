@@ -3,6 +3,54 @@
    ======================================== */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Libre+Baskerville:wght@400;700&display=swap');
 
+body.modo-alto-contraste .perfil-page,
+body.modo-alto-contraste .top-card,
+body.modo-alto-contraste .info-card,
+body.modo-alto-contraste .settings-card,
+body.modo-alto-contraste .info-row,
+body.modo-alto-contraste .settings-row,
+body.modo-alto-contraste .badge,
+body.modo-alto-contraste .photo-frame,
+body.modo-alto-contraste .modal-card,
+body.modo-alto-contraste .modal-header,
+body.modo-alto-contraste .modal-footer {
+    background: #000000 !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
+    border-radius: 20px !important;
+    box-shadow: none !important;
+}
+
+body.modo-alto-contraste .title,
+body.modo-alto-contraste .subtitle,
+body.modo-alto-contraste .profile-summary h2,
+body.modo-alto-contraste .member-info,
+body.modo-alto-contraste .badge-title,
+body.modo-alto-contraste .badge strong,
+body.modo-alto-contraste .card-header h3,
+body.modo-alto-contraste .info-title,
+body.modo-alto-contraste .info-value,
+body.modo-alto-contraste .settings-title,
+body.modo-alto-contraste .settings-subtitle,
+body.modo-alto-contraste .modal-header h3,
+body.modo-alto-contraste .modal-eyebrow {
+    color: #ffffff !important;
+}
+
+body.modo-alto-contraste .photo-button,
+body.modo-alto-contraste .modal-close {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #ffffff !important;
+}
+
+body.modo-alto-contraste .info-icon,
+body.modo-alto-contraste .settings-icon {
+    background: #111111 !important;
+    color: #ffffff !important;
+    border: 1px solid #ffffff !important;
+}
+
 .perfil-page {
     max-width: 980px;
     margin: 0 auto;
@@ -55,25 +103,28 @@
     justify-content: center;
 }
 
-.photo-frame {
+.photo-frame{
     position: relative;
-    width: 260px;
-    height: 260px;
-    border-radius: 50%;
-    padding: 6px;
-    background: linear-gradient(135deg, rgba(218, 171, 64, 0.18), rgba(255, 240, 205, 0.3));
-    display: grid;
-    place-items: center;
+    width:260px;
+    height:260px;
+
+    border-radius:50%;
+    overflow:hidden;
+
+    display:block;
+
+    border:6px solid #dbc37e;
+    background:#fff;
 }
 
-.photo-frame img {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 6px solid #dbc37e;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-    transition: transform 0.35s ease;
+.photo-frame img{
+    width:100%;
+    height:100%;
+    display:block;
+    object-fit:cover;
+    object-position:center;
+    border:none;
+    border-radius:50%;
 }
 
 .photo-frame img.animate {

@@ -466,7 +466,7 @@ function renderProfile(data) {
     locationField.textContent = data.UBICACION || 'No disponible';
     profilePhoto.src = data.FOTO_PERFIL || 'https://via.placeholder.com/260';
 
-    const miembroDesde = data.MIEMBRO_DESDE || data.FECHA_REGISTRO || data.FECHA || '';
+    const miembroDesde = data.MIEMBRO_DESDE || data.FECHA || data.FECHA || '';
     if (miembroDesde) {
         memberSinceText.textContent = `Miembro desde ${formatDate(miembroDesde)}`;
         memberSinceText.style.display = 'block';

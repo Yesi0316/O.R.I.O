@@ -16,6 +16,25 @@
  <link rel="stylesheet"
 href="{{ url_for('static', filename='css/modos.css') }}"> 
 
+<script>
+window.addEventListener('DOMContentLoaded', async function() {
+    try {
+        const response = await fetch('/api/tema/obtener');
+        const data = await response.json();
+
+        if (data.ok) {
+            const tema = data.tema;
+            document.body.classList.remove('modo-oscuro', 'modo-alto-contraste');
+            if (tema && tema !== 'claro') {
+                document.body.classList.add('modo-' + tema);
+            }
+        }
+    } catch (e) {
+        console.error('Error cargando tema:', e);
+    }
+});
+</script>
+
 {% block extra_css %}{% endblock %}
 
 </head>
@@ -55,6 +74,12 @@ href="{{ url_for('static', filename='css/modos.css') }}">
 
         </a>
 
+        <a href="/admin_buzon" class="nav-item {{ 'active' if active=='buzon' else '' }}" id="buzoneLink">
+            <i class="fas fa-envelope"></i>
+            <span>Buzón</span>
+            <span class="menu-badge" id="buzoneCounter"></span>
+        </a>
+
         <a href="/usuarios"
            class="{{ 'active' if active=='usuarios' else '' }}">
 
@@ -63,7 +88,7 @@ href="{{ url_for('static', filename='css/modos.css') }}">
 
         </a>
 
-        <a href="/perfil"
+        <a href="/admin/perfil"
            class="{{ 'active' if active=='perfil' else '' }}">
 
             <i class="fas fa-chart-line"></i>
@@ -71,19 +96,11 @@ href="{{ url_for('static', filename='css/modos.css') }}">
 
         </a>
 
-        <a href="/configuracion"
+        <a href="/admin/configuracion"
            class="{{ 'active' if active=='configuracion' else '' }}">
 
             <i class="fas fa-cog"></i>
             <span>Configuración</span>
-
-        </a>
-
-        <!-- LOGOUT -->
-        <a href="#" onclick="abrirModal(event)">
-
-            <i class="fas fa-right-from-bracket"></i>
-            <span>Cerrar sesión</span>
 
         </a>
 

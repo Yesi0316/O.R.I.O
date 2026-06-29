@@ -3,6 +3,7 @@ import os
 import re
 import uuid
 import random
+from io import BytesIO
 from datetime import datetime, timedelta
 
 from flask import (
@@ -243,6 +244,8 @@ def init_user_routes(app):
             session["nombre"] = nombre
             session["genero"] = genero
             session["telefono"] = telefono
+            
+            print("LLEGUÉ AL RETURN")
 
             return jsonify({"ok": True, "mensaje": "Usuario creado correctamente"})
 
@@ -2718,18 +2721,33 @@ def init_user_routes(app):
     @app.route("/configuracion")
     @login_required
     def configuracion():
-        # Redirigir según el rol del usuario
-        if session.get("id_rol") == 2:  # Admin
-            return render_template ("configuracion_admin.html", active="configuracion")
-        else:  # Usuario normal
-            return render_template("configuracion_user.html", active="configuracion")
-        
+        return render_template(
+            "configuracion_user.html",
+            active="configuracion"
+        )
+
+
+    @app.route("/admin/configuracion")
+    @login_required
+    def configuracion_admin():
+        if session.get("id_rol") != 2:
+            return redirect(url_for("configuracion"))
+
+        return render_template(
+            "configuracion_admin.html",
+            active="configuracion"
+        )
 
     @app.route("/perfil")
     @login_required
     def perfil():
-        # Redirigir según el rol del usuario
-        if session.get("id_rol") == 2:  # Admin
-            return render_template ("admin_perfil.html", active="perfil")
-        else:  # Usuario normal
-            return render_template("perfil.html", active="perfil")
+        return render_template("perfil.html", active="perfil")
+
+
+    @app.route("/admin/perfil")
+    @login_required
+    def admin_perfil():
+        if session.get("id_rol") != 2:
+            return redirect(url_for("perfil"))
+
+        return render_template("admin_perfil.html", active="perfil")

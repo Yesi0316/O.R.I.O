@@ -51,18 +51,11 @@
                     <div class="input-group">
                         <input type="text" name="nombre" placeholder="Nombre visible" required>
                     </div>
-
-                    <div class="input-group">
-                        <label for="telefono">Número de teléfono</label>
-                        <input type="tel" name="telefono" id="telefono" placeholder="Ej: +34123456789" required>
-                    </div>
                     
                     <div class="input-group">
                         <label>Género</label>
 
-                        <div class="genero-opciones">
-
-                            <label class="genero-btn">
+                        <label class="genero-btn">
                                 <input type="radio" name="genero" value="masculino" >
                                 <span>Masculino</span>
                             </label>
@@ -78,7 +71,6 @@
                             </label>
 
                         </div>
-                    </div>
                     
                     <div class="input-group password-group">
                         <input type="password" name="contrasena" id="contrasena" placeholder="Contraseña" required>
@@ -122,6 +114,11 @@
 
                     </div>
 
+                    <div class="input-group">
+                        <label for="telefono">Número de teléfono</label>
+                        <input type="tel" name="telefono" id="telefono" placeholder="Ej: +34123456789" required>
+                    </div>
+
                     <button type="submit">Crear Cuenta</button>
 
                     <div id="mensaje" class="mensaje"></div>
@@ -141,7 +138,40 @@
     © 2026 O.R.I.O — Todos los derechos reservados
 </footer>
 
+<!-- Modal de Políticas -->
+<div id="modal-politicas" class="modal-politicas">
+
+    <div class="modal-box">
+
+        <div class="modal-icon">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+
+        <h2>Política de Privacidad</h2>
+
+        <p>
+            En <strong>O.R.I.O.</strong> protegemos tu información personal.
+            Los datos proporcionados se utilizan únicamente para el registro,
+            la gestión de reportes de objetos perdidos y encontrados y la mejora
+            de la plataforma. Tu información será tratada de forma segura y
+            conforme a la normativa colombiana de protección de datos.
+        </p>
+
+        <label class="check-politicas">
+            <input type="checkbox" id="acepto-politicas">
+            He leído y acepto la Política de Privacidad.
+        </label>
+
+        <button type="button" id="btn-politicas">
+            Continuar
+        </button>
+
+    </div>
+
+</div>
+
 <script>
+
 const formRegistro = document.getElementById("form-registro")
 const mensaje = document.getElementById("mensaje")
 
@@ -236,19 +266,43 @@ formRegistro.addEventListener("submit", async (e) => {
         body:datos
     })
 
-    const data = await res.json()
+   const data = await res.json();
 
-    mensaje.innerText = data.mensaje
-    mensaje.style.color = data.ok ? "#1e7e4f" : "#b23b3b"
+    console.log(data);
 
-    if(data.ok){
-        setTimeout(() => {
-            window.location.href="/menu"
-        },800)
-    }
+mensaje.innerText = data.mensaje;
+mensaje.style.color = data.ok ? "#1e7e4f" : "#b23b3b";
+
+if(data.ok){
+    console.log("ABRIENDO MODAL");
+    document.getElementById("modal-politicas").style.display = "flex";
+}
 })
+
+const modalPoliticas = document.getElementById("modal-politicas");
+const checkPoliticas = document.getElementById("acepto-politicas");
+const btnPoliticas = document.getElementById("btn-politicas");
+
+
+checkPoliticas.addEventListener("change", () => {
+    btnPoliticas.classList.toggle(
+        "activo",
+        checkPoliticas.checked
+    );
+});
+
+btnPoliticas.addEventListener("click", () => {
+
+    if(!checkPoliticas.checked){
+        return;
+    }
+
+    window.location.href = "/menu";
+});
+
+
+
 </script>
 
 </body>
-</html>
 </html>

@@ -10,6 +10,7 @@ import os
 import uuid
 import random
 import re
+from io import BytesIO
 from datetime import datetime, timedelta
 
 from flask import (
@@ -80,9 +81,10 @@ def init_admin_routes(app):
 
             cursor.execute(
             f"""
-                SELECT u."ID_USUARIO", u."NOMBRE", u."GENERO", u."ID_ROL", r."NOMBRE" as "ROL_NOMBRE"
+                SELECT u."ID_USUARIO", u."NOMBRE", u."GENERO", u."ID_ROL", r."NOMBRE" as "ROL_NOMBRE", p."FOTO_PERFIL"
                 FROM public."Usuarios" u
                 LEFT JOIN public."Roles" r ON u."ID_ROL" = r."ID_ROL"
+                LEFT JOIN public."Perfiles" p ON u."ID_USUARIO" = p."ID_USUARIO"
                 {filtro}
                 ORDER BY u."ID_USUARIO" DESC;   
             """,  
@@ -197,10 +199,10 @@ def init_admin_routes(app):
 
             # Reportes encontrados
             cursor.execute("""
-                SELECT DATE("FECHA_REGISTRO") AS fecha, COUNT(*) AS total
+                SELECT DATE("FECHA") AS fecha, COUNT(*) AS total
                 FROM "Reportes_encontrados"
-                WHERE "FECHA_REGISTRO" >= CURRENT_DATE - INTERVAL '6 days'
-                GROUP BY DATE("FECHA_REGISTRO")
+                WHERE "FECHA" >= CURRENT_DATE - INTERVAL '6 days'
+                GROUP BY DATE("FECHA")
             """)
             encontrados = {
                 fila["fecha"]: fila["total"]
@@ -209,10 +211,10 @@ def init_admin_routes(app):
 
             # Reportes perdidos
             cursor.execute("""
-                SELECT DATE("FECHA_REGISTRO") AS fecha, COUNT(*) AS total
+                SELECT DATE("FECHA") AS fecha, COUNT(*) AS total
                 FROM "Reportes_perdidos"
-                WHERE "FECHA_REGISTRO" >= CURRENT_DATE - INTERVAL '6 days'
-                GROUP BY DATE("FECHA_REGISTRO")
+                WHERE "FECHA" >= CURRENT_DATE - INTERVAL '6 days'
+                GROUP BY DATE("FECHA")
             """)
             perdidos = {
                 fila["fecha"]: fila["total"]
@@ -349,7 +351,10 @@ def init_admin_routes(app):
     @app.route("/admin_reportes")
     @admin_required
     def admin_reportes():
-        return render_template("admin_reportes.html")
+        return render_template(
+        "admin_reportes.html",
+        active="reportes"
+    )
 
     #-----------------------------------------
     # RUTA PARA QUE EL ADMIN BORRE REPORTES
@@ -895,4 +900,292 @@ def init_admin_routes(app):
             except:
                 pass
             return jsonify({"ok": False, "error": str(e)}), 500
+
+    #--------------------------
+    #ADMIN BUZON
+    #---------------------------
+
+    def _format_fecha_mensaje_admin(raw_fecha):
+        if isinstance(raw_fecha, datetime):
+            try:
+                return raw_fecha.strftime("%d/%m/%Y %H:%M"), raw_fecha.timestamp()
+            except Exception:
+                return raw_fecha.isoformat(), 0
+        if raw_fecha:
+            return str(raw_fecha), 0
+        return "", 0
+
+    def _build_conversations_admin(cursor, id_usuario):
+        cursor.execute(
+            '''
+            SELECT m."ID_MENSAJE", m."ID_REMITENTE", m."ID_DESTINATARIO", m."ID_OBJETO", m."ASUNTO", m."CUERPO", m."FECHA", m."LEIDO",
+            o."NOMBRE" as OBJETO_NOMBRE, o."IMAGEN" as OBJETO_IMAGEN,
+            pr."NOMBRE" as REMITENTE_NOMBRE,
+            pd."NOMBRE" as DESTINATARIO_NOMBRE
+            FROM public."Mensajes" m
+            LEFT JOIN public."Objetos" o ON m."ID_OBJETO" = o."ID_OBJETO"
+            LEFT JOIN public."Perfiles" pr ON m."ID_REMITENTE" = pr."ID_USUARIO"
+            LEFT JOIN public."Perfiles" pd ON m."ID_DESTINATARIO" = pd."ID_USUARIO"
+            WHERE m."ID_REMITENTE" = %s OR m."ID_DESTINATARIO" = %s
+            ORDER BY m."FECHA" DESC
+            ''',
+            (id_usuario, id_usuario),
+        )
+        mensajes = cursor.fetchall()
+        threads = {}
+        for m in mensajes:
+            remitente = m.get("ID_REMITENTE")
+            destinatario = m.get("ID_DESTINATARIO")
+            other_user = destinatario if remitente == id_usuario else remitente
+            other_name = (
+                m.get("DESTINATARIO_NOMBRE")
+                if remitente == id_usuario
+                else m.get("REMITENTE_NOMBRE")
+            ) or other_user
+            fecha_str, fecha_ts = _format_fecha_mensaje_admin(m.get("FECHA"))
+            if other_user not in threads:
+                threads[other_user] = {
+                    "contacto_id": other_user,
+                    "destinatario": other_user,
+                    "nombre": other_name,
+                    "id_objeto": "0",
+                    "objeto_nombre": m.get("OBJETO_NOMBRE") or "Chat general",
+                    "objeto_imagen": m.get("OBJETO_IMAGEN") or None,
+                    "ultimo_mensaje": m.get("CUERPO") or "",
+                    "ultimo_asunto": m.get("ASUNTO") or "",
+                    "ultima_fecha": fecha_str,
+                    "ultima_fecha_ts": fecha_ts,
+                    "sent": remitente == id_usuario,
+                    "unread": 0,
+                }
+            elif fecha_ts > (threads[other_user].get("ultima_fecha_ts") or 0):
+                threads[other_user].update(
+                    {
+                        "objeto_nombre": m.get("OBJETO_NOMBRE") or "Chat general",
+                        "objeto_imagen": m.get("OBJETO_IMAGEN") or None,
+                        "ultimo_mensaje": m.get("CUERPO") or "",
+                        "ultimo_asunto": m.get("ASUNTO") or "",
+                        "ultima_fecha": fecha_str,
+                        "ultima_fecha_ts": fecha_ts,
+                        "sent": remitente == id_usuario,
+                    }
+                )
+            if destinatario == id_usuario and not m.get("LEIDO"):
+                threads[other_user]["unread"] += 1
+
+        thread_list = sorted(
+            threads.values(), key=lambda x: x.get("ultima_fecha_ts", 0), reverse=True
+        )
+        for t in thread_list:
+            t.pop("ultima_fecha_ts", None)
+        return thread_list
+
+    @app.route('/admin_buzon')
+    @admin_required
+    def admin_buzon():
+        id_usuario = session.get("id_usuario")
+        conversaciones = []
+        unread_count = 0
+
+        try:
+            db = conectar_db()
+            if not db:
+                raise RuntimeError("Sin conexión a la base de datos")
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+            conversaciones = _build_conversations_admin(cursor, id_usuario)
+            unread_count = sum(t.get("unread", 0) for t in conversaciones)
+            cursor.close()
+            db.close()
+        except Exception as e:
+            print(f"Error cargando buzón de administrador: {e}")
+
+        return render_template(
+            "admin_buzon.html",
+            active="buzon",
+            conversaciones=conversaciones,
+            unread_count=unread_count,
+            id_usuario=id_usuario,
+        )
+
+    def _serialize_mensaje_row_admin(m):
+        row = dict(m)
+        if isinstance(row.get("FECHA"), datetime):
+            row["FECHA"] = row["FECHA"].strftime("%d/%m/%Y %H:%M")
+        if row.get("LEIDO") is None:
+            row["LEIDO"] = False
+        return row
+
+    def _marcar_mensajes_leidos_admin(db, id_usuario, contacto_id, id_objeto=None):
+        cursor = db.cursor()
+        if id_objeto:
+            cursor.execute(
+                '''
+                UPDATE public."Mensajes" SET "LEIDO"=TRUE
+                WHERE "ID_DESTINATARIO"=%s AND "ID_REMITENTE"=%s
+                AND COALESCE("ID_OBJETO", '') = %s AND "LEIDO"=FALSE
+                ''',
+                (id_usuario, contacto_id, id_objeto),
+            )
+        else:
+            cursor.execute(
+                '''
+                UPDATE public."Mensajes" SET "LEIDO"=TRUE
+                WHERE "ID_DESTINATARIO"=%s AND "ID_REMITENTE"=%s AND "LEIDO"=FALSE
+                ''',
+                (id_usuario, contacto_id),
+            )
+        db.commit()
+        cursor.close()
+
+    @app.route('/api/admin/conversaciones', methods=['GET'])
+    @admin_required
+    def api_admin_conversaciones():
+        try:
+            id_usuario = session.get('id_usuario')
+            db = conectar_db()
+            if not db:
+                return jsonify({'ok': False, 'error': 'Sin conexión a la base de datos'}), 500
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+            thread_list = _build_conversations_admin(cursor, id_usuario)
+            cursor.close()
+            db.close()
+            return jsonify(thread_list)
+        except Exception as e:
+            print(f"Error listando conversaciones admin: {e}")
+            return jsonify({'ok': False, 'error': str(e)}), 500
+
+    @app.route('/api/admin/conversacion/<destinatario_id>/<id_objeto>', methods=['GET'])
+    @admin_required
+    def api_admin_conversacion(destinatario_id, id_objeto):
+        try:
+            id_usuario = session.get('id_usuario')
+            db = conectar_db()
+            if not db:
+                return jsonify({'ok': False, 'error': 'Sin conexión a la base de datos'}), 500
+            cursor = db.cursor(cursor_factory=RealDictCursor)
+            cursor.execute('SELECT "ID_USUARIO" FROM public."Usuarios" WHERE "ID_USUARIO"=%s', (destinatario_id,))
+            if not cursor.fetchone():
+                cursor.close()
+                db.close()
+                return jsonify({'ok': False, 'error': 'Contacto no encontrado'}), 404
+
+            if id_objeto in (None, 'None', 'null', '0', ''):
+                id_objeto = None
+
+            if id_objeto:
+                cursor.execute(
+                    '''
+                    SELECT m."ID_MENSAJE", m."ID_REMITENTE", m."ID_DESTINATARIO", m."ID_OBJETO", m."ID_RESPUESTA", m."ASUNTO", m."CUERPO", m."FECHA", m."LEIDO",
+                    pr."NOMBRE" as REMITENTE_NOMBRE, pd."NOMBRE" as DESTINATARIO_NOMBRE,
+                    o."NOMBRE" as OBJETO_NOMBRE, o."IMAGEN" as OBJETO_IMAGEN,
+                    rm."CUERPO" as RESPUESTA_CUERPO, rm."ID_REMITENTE" as RESPUESTA_REMITENTE
+                    FROM public."Mensajes" m
+                    LEFT JOIN public."Perfiles" pr ON m."ID_REMITENTE" = pr."ID_USUARIO"
+                    LEFT JOIN public."Perfiles" pd ON m."ID_DESTINATARIO" = pd."ID_USUARIO"
+                    LEFT JOIN public."Objetos" o ON m."ID_OBJETO" = o."ID_OBJETO"
+                    LEFT JOIN public."Mensajes" rm ON m."ID_RESPUESTA" = rm."ID_MENSAJE"
+                    WHERE ((m."ID_REMITENTE"=%s AND m."ID_DESTINATARIO"=%s)
+                    OR (m."ID_REMITENTE"=%s AND m."ID_DESTINATARIO"=%s))
+                    AND m."ID_OBJETO" = %s
+                    ORDER BY m."FECHA" ASC
+                    ''',
+                    (id_usuario, destinatario_id, destinatario_id, id_usuario, id_objeto),
+                )
+            else:
+                cursor.execute(
+                    '''
+                    SELECT m."ID_MENSAJE", m."ID_REMITENTE", m."ID_DESTINATARIO", m."ID_OBJETO", m."ID_RESPUESTA", m."ASUNTO", m."CUERPO", m."FECHA", m."LEIDO",
+                           pr."NOMBRE" as REMITENTE_NOMBRE, pd."NOMBRE" as DESTINATARIO_NOMBRE,
+                           o."NOMBRE" as OBJETO_NOMBRE, o."IMAGEN" as OBJETO_IMAGEN,
+                           rm."CUERPO" as RESPUESTA_CUERPO, rm."ID_REMITENTE" as RESPUESTA_REMITENTE
+                    FROM public."Mensajes" m
+                    LEFT JOIN public."Perfiles" pr ON m."ID_REMITENTE" = pr."ID_USUARIO"
+                    LEFT JOIN public."Perfiles" pd ON m."ID_DESTINATARIO" = pd."ID_USUARIO"
+                    LEFT JOIN public."Objetos" o ON m."ID_OBJETO" = o."ID_OBJETO"
+                    LEFT JOIN public."Mensajes" rm ON m."ID_RESPUESTA" = rm."ID_MENSAJE"
+                    WHERE (m."ID_REMITENTE"=%s AND m."ID_DESTINATARIO"=%s)
+                       OR (m."ID_REMITENTE"=%s AND m."ID_DESTINATARIO"=%s)
+                    ORDER BY m."FECHA" ASC
+                    ''',
+                    (id_usuario, destinatario_id, destinatario_id, id_usuario),
+                )
+            mensajes = [_serialize_mensaje_row_admin(m) for m in cursor.fetchall()]
+            _marcar_mensajes_leidos_admin(db, id_usuario, destinatario_id, id_objeto)
+            cursor.close()
+            db.close()
+            return jsonify({'ok': True, 'mensajes': mensajes})
+        except Exception as e:
+            print(f"Error obteniendo conversación admin: {e}")
+            return jsonify({'ok': False, 'error': str(e)}), 500
+
+    @app.route('/api/admin/mensajes/enviar', methods=['POST'])
+    @admin_required
+    def api_admin_enviar_mensaje():
+        try:
+            remitente = session.get('id_usuario')
+            destinatario = request.form.get('destinatario') or request.form.get('to')
+            id_objeto = request.form.get('id_objeto') or request.form.get('objeto')
+            reply_to = request.form.get('reply_to') or request.form.get('id_respuesta')
+            asunto = request.form.get('asunto') or request.form.get('subject')
+            cuerpo = request.form.get('cuerpo') or request.form.get('body')
+
+            if not destinatario or not cuerpo:
+                return jsonify({'ok': False, 'error': 'Faltan campos requeridos'}), 400
+
+            db = conectar_db()
+            cursor = db.cursor()
+
+            cursor.execute('SELECT 1 FROM public."Usuarios" WHERE "ID_USUARIO"=%s', (destinatario,))
+            if not cursor.fetchone():
+                cursor.close()
+                db.close()
+                return jsonify({'ok': False, 'error': 'Usuario destinatario no existe'}), 404
+
+            if id_objeto:
+                cursor.execute('SELECT 1 FROM public."Objetos" WHERE "ID_OBJETO"=%s', (id_objeto,))
+                if not cursor.fetchone():
+                    cursor.close()
+                    db.close()
+                    return jsonify({'ok': False, 'error': 'Objeto asociado no válido'}), 400
+
+            id_respuesta = None
+            if reply_to:
+                try:
+                    id_respuesta = int(reply_to)
+                except (ValueError, TypeError):
+                    id_respuesta = None
+                if id_respuesta:
+                    cursor.execute(
+                        'SELECT "ID_OBJETO", "ID_REMITENTE", "ID_DESTINATARIO" FROM public."Mensajes" WHERE "ID_MENSAJE"=%s',
+                        (id_respuesta,),
+                    )
+                    respuesta_row = cursor.fetchone()
+                    if not respuesta_row:
+                        cursor.close()
+                        db.close()
+                        return jsonify({'ok': False, 'error': 'Mensaje al que respondes no existe'}), 400
+                    if respuesta_row[1] not in (remitente, destinatario) or respuesta_row[2] not in (remitente, destinatario):
+                        cursor.close()
+                        db.close()
+                        return jsonify({'ok': False, 'error': 'No puedes responder a ese mensaje'}), 403
+                    if not id_objeto:
+                        id_objeto = respuesta_row[0]
+
+            cursor.execute(
+                'INSERT INTO public."Mensajes" ("ID_REMITENTE","ID_DESTINATARIO","ID_OBJETO","ID_RESPUESTA","ASUNTO","CUERPO") VALUES (%s,%s,%s,%s,%s,%s) RETURNING "ID_MENSAJE"',
+                (remitente, destinatario, id_objeto, id_respuesta, asunto, cuerpo),
+            )
+            id_mensaje = cursor.fetchone()[0]
+
+            cursor.execute(
+                'INSERT INTO public."Notificaciones" ("ID_USUARIO","TIPO","MENSAJE") VALUES (%s,%s,%s)',
+                (destinatario, 'mensaje', f"Nuevo mensaje de {remitente}: {asunto or '(sin asunto)'}"),
+            )
+            db.commit()
+            cursor.close()
+            db.close()
+            return jsonify({'ok': True, 'id_mensaje': id_mensaje})
+        except Exception as e:
+            print(f"Error enviando mensaje admin: {e}")
+            return jsonify({'ok': False, 'error': str(e)}), 500
     

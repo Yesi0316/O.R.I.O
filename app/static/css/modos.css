@@ -172,12 +172,6 @@ body.modo-oscuro b {
     color: #ffffff;
 }
 
-body.modo-oscuro .subtitle,
-body.modo-oscuro .min-info,
-body.modo-oscuro .config-label p {
-    color: #d1d5db !important;
-}
-
 /* MODO OSCURO - Modal */
 body.modo-oscuro .profile-modal-backdrop {
     background: rgba(0, 0, 0, 0.7) !important;
@@ -222,11 +216,6 @@ body.modo-oscuro .subtitle {
 }
 
 /* MODO OSCURO - Grid de tarjetas */
-body.modo-oscuro .grid-resultados {
-    /* Grid mantiene fondo heredado */
-    display: grid;
-}
-
 body.modo-oscuro .tarjeta-resultado {
     background: #2d3748 !important;
     border: 1px solid #3f4a5c !important;
@@ -298,32 +287,179 @@ body.modo-oscuro .toggle-switch.active {
     }
 }
 
+/* MODO OSCURO - Buzón y chat */
+body.modo-oscuro .messenger-shell {
+    background: #1f2430 !important;
+    border: 1px solid #3f4a5c !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+}
+
+body.modo-oscuro .messenger-sidebar,
+body.modo-oscuro .messenger-chat,
+body.modo-oscuro .sidebar-toolbar,
+body.modo-oscuro .chat-active-header,
+body.modo-oscuro .compose-panel,
+body.modo-oscuro .chat-messages,
+body.modo-oscuro .chat-placeholder,
+body.modo-oscuro .chat-empty {
+    background: #1f2430 !important;
+    color: #f5f7fa !important;
+}
+
+body.modo-oscuro .sidebar-toolbar,
+body.modo-oscuro .chat-active-header,
+body.modo-oscuro .compose-panel {
+    border-color: rgba(224, 197, 143, 0.22) !important;
+}
+
+body.modo-oscuro .conversation-item {
+    background: #2a3142 !important;
+    color: #f5f7fa !important;
+}
+
+body.modo-oscuro .conversation-item:hover {
+    background: rgba(224, 197, 143, 0.12) !important;
+}
+
+body.modo-oscuro .conversation-item.active {
+    background: rgba(224, 197, 143, 0.16) !important;
+    border-left-color: #E0C58F !important;
+}
+
+body.modo-oscuro .conversation-item.unread {
+    background: rgba(224, 197, 143, 0.2) !important;
+}
+
+body.modo-oscuro .thread-top strong,
+body.modo-oscuro .thread-preview,
+body.modo-oscuro .thread-date,
+body.modo-oscuro .thread-object,
+body.modo-oscuro .chat-object,
+body.modo-oscuro .chat-report-name {
+    color: #f5f7fa !important;
+}
+
+body.modo-oscuro .thread-date,
+body.modo-oscuro .thread-object,
+body.modo-oscuro .chat-object {
+    color: #bfc8d6 !important;
+}
+
+body.modo-oscuro .avatar-circle {
+    background: linear-gradient(135deg, #E0C58F, #d4b77b) !important;
+    color: #0f1419 !important;
+}
+
+body.modo-oscuro .chat-message.incoming {
+    background: #2d3748 !important;
+    color: #f5f7fa !important;
+}
+
+body.modo-oscuro .chat-message.outgoing {
+    background: linear-gradient(135deg, #E0C58F, #d4b77b) !important;
+    color: #0f1419 !important;
+}
+
+body.modo-oscuro .message-meta span,
+body.modo-oscuro .message-reply strong {
+    color: #c7d0dd !important;
+}
+
+body.modo-oscuro .message-reply {
+    background: rgba(17, 34, 80, 0.22) !important;
+    border-left-color: #E0C58F !important;
+    color: #f5f7fa !important;
+}
+
+body.modo-oscuro .reply-btn {
+    border-color: rgba(224, 197, 143, 0.4) !important;
+    color: #E0C58F !important;
+}
+
+body.modo-oscuro .reply-btn:hover {
+    background: rgba(224, 197, 143, 0.12) !important;
+}
+
+body.modo-oscuro .reply-preview-card {
+    background: #2d3748 !important;
+    border-color: rgba(224, 197, 143, 0.35) !important;
+    color: #f5f7fa !important;
+}
+
+body.modo-oscuro .reply-cancel {
+    color: #f5f7fa !important;
+}
+
+body.modo-oscuro .buzon-empty,
+body.modo-oscuro .new-message-panel,
+body.modo-oscuro .chat-report-card,
+body.modo-oscuro .form-row input,
+body.modo-oscuro .form-row textarea {
+    background: #2a3142 !important;
+    color: #f5f7fa !important;
+    border-color: #3f4a5c !important;
+}
+
+body.modo-oscuro .form-row label {
+    color: #E0C58F !important;
+}
+
+body.modo-oscuro .form-row input:focus,
+body.modo-oscuro .form-row textarea:focus {
+    border-color: #E0C58F !important;
+    box-shadow: 0 0 0 3px rgba(224, 197, 143, 0.15) !important;
+}
+
+body.modo-oscuro .btn-outline,
+body.modo-oscuro .buzon-actions button,
+body.modo-oscuro .buzon-actions .btn {
+    background: linear-gradient(135deg, #E0C58F, #d4b77b) !important;
+    color: #0f1419 !important;
+    box-shadow: 0 4px 15px rgba(224, 197, 143, 0.2) !important;
+}
+
+body.modo-oscuro .btn-outline:hover,
+body.modo-oscuro .buzon-actions button:hover,
+body.modo-oscuro .buzon-actions .btn:hover {
+    box-shadow: 0 6px 20px rgba(224, 197, 143, 0.3) !important;
+}
+
+body.modo-oscuro .buzon-actions button.secondary {
+    background: #2d3748 !important;
+    color: #E0C58F !important;
+}
+
+body.modo-oscuro .btn-back-mobile {
+    background: #2d3748 !important;
+    color: #E0C58F !important;
+}
 
 /* MODO DE ALTO CONTRASTE */
 html body.modo-alto-contraste {
-    /* colores base para que las demás reglas heredadas puedan usar variables */
+    --royal-blue: #ffffff;
+    --royal: #ffffff;
+    --sapphire: #dce9ff;
+    --gold: #ffe066;
+    --cream: #000000;
 
-    --royal-blue:#FFF;
-    --royal:#FFF;
-    --sapphire:#FFF;
-    --gold:#FFF;
-    --cream: #000;
-    
-
-    color: #FFF;
-    background: #000;
+    color: #ffffff;
+    background: #000000;
 }
+
 html body.modo-alto-contraste a,
 html body.modo-alto-contraste .btn,
 html body.modo-alto-contraste .save-btn,
 html body.modo-alto-contraste .btn-form,
 html body.modo-alto-contraste .tarjeta-btn,
 html body.modo-alto-contraste .btn-config,
-html body.modo-alto-contraste .fab-btn {
-    background: #000 !important;
-    color: #FFF !important;
-    border-color: #FFF !important;
-    border: 1px solid #FFF !important;
+html body.modo-alto-contraste .fab-btn,
+html body.modo-alto-contraste .btn-outline,
+html body.modo-alto-contraste .buzon-actions button,
+html body.modo-alto-contraste .buzon-actions .btn {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #ffffff !important;
+    box-shadow: none !important;
 }
 
 html body.modo-alto-contraste .sidebar,
@@ -332,56 +468,146 @@ html body.modo-alto-contraste .card,
 html body.modo-alto-contraste .form-card,
 html body.modo-alto-contraste .photo-card,
 html body.modo-alto-contraste .activity-box,
-html body.modo-alto-contraste .config-section {
-    background: #000 !important;
-    color: #FFF !important;
-    border-color: #FFF !important;
-
+html body.modo-alto-contraste .config-section,
+html body.modo-alto-contraste .messenger-shell,
+html body.modo-alto-contraste .messenger-sidebar,
+html body.modo-alto-contraste .messenger-chat,
+html body.modo-alto-contraste .sidebar-toolbar,
+html body.modo-alto-contraste .chat-active-header,
+html body.modo-alto-contraste .compose-panel,
+html body.modo-alto-contraste .chat-messages,
+html body.modo-alto-contraste .chat-placeholder,
+html body.modo-alto-contraste .chat-empty {
+    background: #000000 !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
 }
 
 html body.modo-alto-contraste input,
 html body.modo-alto-contraste select,
-html body.modo-alto-contraste textarea {
-    background: #000 !important;
-    color: #FFF !important;
-    border: 1px solid #FFF !important;
+html body.modo-alto-contraste textarea,
+html body.modo-alto-contraste .search-bar input,
+html body.modo-alto-contraste .filter-select,
+html body.modo-alto-contraste .filter-date-input {
+    background: #000000 !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
 }
 
 html body.modo-alto-contraste input::placeholder,
 html body.modo-alto-contraste textarea::placeholder {
-    color: #CCC !important;
+    color: #dce9ff !important;
 }
 
 html body.modo-alto-contraste .toggle {
-    background: #FFF !important;
-    color: #000 !important;
-    border: white 1px solid !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #ffffff !important;
 }
 
-
-html body.modo-alto-contraste .tarjeta-resultado {
-    background: #FFF !important;
-    border: 2px solid #000 !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+html body.modo-alto-contraste .menu a,
+html body.modo-alto-contraste .conversation-item{
+    color:#FFF !important;
+    background:#000 !important;
+    border:2px solid #FFF !important;
 }
 
-html body.modo-alto-contraste .tarjeta-resultado:hover {
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4) !important;
+/* Iconos normales */
+html body.modo-alto-contraste .menu a i,
+html body.modo-alto-contraste .menu a img,
+html body.modo-alto-contraste .conversation-item i{
+    color:#FFF !important;
+    filter:brightness(0) invert(1);
 }
 
-html body.modo-alto-contraste .tarjeta-titulo {
-    color: #000 !important;
+/* Hover y activo */
+html body.modo-alto-contraste .menu a:hover,
+html body.modo-alto-contraste .menu a.active,
+html body.modo-alto-contraste .conversation-item:hover,
+html body.modo-alto-contraste .conversation-item.active{
+    background:#FFF !important;
+    color:#000 !important;
 }
 
+/* Texto hover y activo */
+html body.modo-alto-contraste .menu a:hover span,
+html body.modo-alto-contraste .menu a.active span,
+html body.modo-alto-contraste .conversation-item:hover span,
+html body.modo-alto-contraste .conversation-item.active span{
+    color:#000 !important;
+}
+
+/* Iconos hover y activo */
+html body.modo-alto-contraste .menu a:hover i,
+html body.modo-alto-contraste .menu a.active i,
+html body.modo-alto-contraste .menu a:hover img,
+html body.modo-alto-contraste .menu a.active img,
+html body.modo-alto-contraste .conversation-item:hover i,
+html body.modo-alto-contraste .conversation-item.active i{
+    color:#000 !important;
+    filter:none;
+}
+
+html body.modo-alto-contraste .tarjeta-resultado,
+html body.modo-alto-contraste .reply-preview-card,
+html body.modo-alto-contraste .chat-report-card,
+html body.modo-alto-contraste .new-message-panel,
+html body.modo-alto-contraste .buzon-empty {
+    background: #000000 !important;
+    border: 2px solid #ffffff !important;
+    border-radius: 18px !important;
+    box-shadow: none !important;
+}
+
+html body.modo-alto-contraste .tarjeta-titulo,
 html body.modo-alto-contraste .tarjeta-categoria,
-html body.modo-alto-contraste .tarjeta-color {
-    color: #000 !important;
+html body.modo-alto-contraste .tarjeta-color,
+html body.modo-alto-contraste .thread-top strong,
+html body.modo-alto-contraste .thread-preview,
+html body.modo-alto-contraste .thread-date,
+html body.modo-alto-contraste .thread-object,
+html body.modo-alto-contraste .chat-object,
+html body.modo-alto-contraste .chat-report-name,
+html body.modo-alto-contraste .message-meta span,
+html body.modo-alto-contraste .message-reply strong,
+html body.modo-alto-contraste .form-row label,
+html body.modo-alto-contraste .settings-title,
+html body.modo-alto-contraste .settings-subtitle {
+    color: #ffffff !important;
 }
 
-html body.modo-alto-contraste .search-bar input {
-    background: #000 !important;
-    color: #FFF !important;
-    border: 1px solid #FFF !important;
+html body.modo-alto-contraste h1,
+html body.modo-alto-contraste h2,
+html body.modo-alto-contraste h3,
+html body.modo-alto-contraste .topbar h2,
+html body.modo-alto-contraste .title h2,
+html body.modo-alto-contraste .title h3{
+    color:#FFF !important;
+}
+
+html body.modo-alto-contraste .avatar-circle,
+html body.modo-alto-contraste .chat-message.outgoing {
+    background: #ffffff !important;
+    color: #000000 !important;
+}
+
+html body.modo-alto-contraste .chat-message.incoming,
+html body.modo-alto-contraste .message-reply {
+    background: #111111 !important;
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+}
+
+html body.modo-alto-contraste .reply-btn,
+html body.modo-alto-contraste .btn-back-mobile {
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+}
+
+html body.modo-alto-contraste .profile-modal {
+    background: #000000 !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
 }
 
 html body.modo-alto-contraste .search-bar input:focus {
@@ -431,27 +657,29 @@ body.modo-alto-contraste .menu a.active {
     box-shadow: 0 10px 25px rgba(224, 197, 143, 0.2) !important;
 }
 
- .modo-alto-contraste .subtitle{
-    color: #CCC !important;
+.modo-alto-contraste .subtitle,
+.modo-alto-contraste .min-info,
+.modo-alto-contraste .config-label p,
+.modo-alto-contraste small,
+.modo-alto-contraste p,
+.modo-alto-contraste label,
+.modo-alto-contraste .thread-date,
+.modo-alto-contraste .thread-preview,
+.modo-alto-contraste .message-meta,
+.modo-alto-contraste .chat-empty p,
+.modo-alto-contraste .chat-placeholder p{
+    color:#FFF !important;
 }
-
- .modo-alto-contraste .min-info{
-    color: #CCC !important;
- }
-
- .modo-alto-contraste .config-label p {
-    color: #CCC !important;
- }
 
   .modo-alto-contraste .fab{
     background: #FFF !important ;
     color: #000 !important;
 }
+
 html body.modo-alto-contraste .tarjeta-contenido{
-    background:  #000 !important;
-    color: #FFF !important;
-    border: 3px solid #FFF !important;
-    border-radius: 10%;
+    background:#000 !important;
+    color:#FFF !important;
+    border:none !important;
 }
 
 html   body.modo-alto-contraste  .tarjeta-titulo{
@@ -482,8 +710,7 @@ html body.modo-alto-contraste .fab-btn:hover{
 }
 
 html body.modo-alto-contraste .tarjeta-img{
-    border: 3px solid #FFF !important;
-    border-radius: 10%
+    border:none !important;
 }
 
 html body.modo-alto-contraste .save-btn{
@@ -509,4 +736,170 @@ html body.modo-alto-contraste .form-container{
 
 html body.modo-alto-contraste .toggle-switch {
     background: #b6c2cf !;
+}
+
+html body.modo-alto-contraste .search-bar i{
+    color:#FFF !important;
+}
+
+html body.modo-alto-contraste .search-bar input::placeholder{
+    color:#FFF !important;
+}
+
+html body.modo-alto-contraste .circle{
+    background:#FFF !important;
+    border:2px solid #FFF !important;
+}
+
+html body.modo-alto-contraste .circle img{
+    filter:none !important;
+}
+
+html body.modo-alto-contraste .notification{
+    color:#FFF !important;
+}
+
+html body.modo-alto-contraste .profile{
+    background:#FFF !important;
+    color:#000 !important;
+}
+
+html body.modo-alto-contraste .card{
+    background:#000 !important;
+    border:2px solid #FFF !important;
+}
+
+html body.modo-alto-contraste .circle{
+    background:#FFF !important;
+    border:2px solid #FFF;
+}
+
+html body.modo-alto-contraste .circle img{
+    filter:none !important;
+}
+
+html body.modo-alto-contraste .table-container{
+    background:#000 !important;
+    border:2px solid #FFF !important;
+}
+
+html body.modo-alto-contraste table{
+    color:#FFF !important;
+}
+
+html body.modo-alto-contraste th{
+    color:#FFF !important;
+    border-bottom:2px solid #FFF;
+}
+
+html body.modo-alto-contraste td{
+    color:#FFF !important;
+    border-bottom:1px solid #555;
+}
+
+html body.modo-alto-contraste h1,
+html body.modo-alto-contraste h2{
+    color:#FFF !important;
+}
+
+html body.modo-alto-contraste .admin-section{
+    background:#000 !important;
+    border:2px solid #FFF !important;
+}
+
+html body.modo-alto-contraste .form-asignar-admin input{
+    background:#000 !important;
+    color:#FFF !important;
+    border:2px solid #FFF !important;
+}
+
+html body.modo-alto-contraste .form-asignar-admin button{
+    background:#FFF !important;
+    color:#000 !important;
+    border:2px solid #FFF !important;
+}
+
+html body.modo-alto-contraste .tabla-usuarios{
+    background:#000 !important;
+    border:2px solid #FFF !important;
+    padding:0 !important;
+}
+
+html body.modo-alto-contraste .tabla-header{
+    background:#000 !important;
+    color:#FFF !important;
+    border-bottom:2px solid #FFF !important;
+    margin:0 !important;
+    border-radius:0 !important;
+}
+
+html body.modo-alto-contraste .usuario-item{
+    background:#000 !important;
+    border:1px solid #555 !important;
+    color:#FFF !important;
+}
+
+html body.modo-alto-contraste .usuario-item:hover{
+    background:#111 !important;
+}
+
+html body.modo-alto-contraste .nombre-usuario,
+html body.modo-alto-contraste .usuario,
+html body.modo-alto-contraste .col{
+    color:#FFF !important;
+}
+
+html body.modo-alto-contraste .badge-rol{
+    background:#FFF !important;
+    color:#000 !important;
+    border:2px solid #FFF !important;
+}
+
+html body.modo-alto-contraste .avatar{
+    background:#FFF !important;
+    color:#000 !important;
+    border:2px solid #FFF !important;
+}
+
+html body.modo-alto-contraste .btn-accion{
+    background:#FFF !important;
+    color:#000 !important;
+    border:2px solid #FFF !important;
+}
+
+html body.modo-alto-contraste .btn-accion:hover{
+    background:#000 !important;
+    color:#FFF !important;
+}
+
+html body.modo-alto-contraste .profile-picture,
+html body.modo-alto-contraste .photo-preview,
+html body.modo-alto-contraste .avatar-preview,
+html body.modo-alto-contraste .profile-avatar{
+    border-radius:50% !important;
+    overflow:hidden !important;
+    border:3px solid #FFF !important;
+}
+
+html body.modo-alto-contraste .profile-picture img,
+html body.modo-alto-contraste .photo-preview img,
+html body.modo-alto-contraste .avatar-preview img,
+html body.modo-alto-contraste .profile-avatar img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    border-radius:50% !important;
+}
+
+html body.modo-alto-contraste .photo-card,
+html body.modo-alto-contraste .form-card{
+    background:#000 !important;
+    border:2px solid #FFF !important;
+}
+
+html body.modo-alto-contraste .profile-info,
+html body.modo-alto-contraste .profile-name,
+html body.modo-alto-contraste .profile-role,
+html body.modo-alto-contraste .form-card label{
+    color:#FFF !important;
 }

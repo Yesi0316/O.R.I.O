@@ -9,6 +9,53 @@
     padding: 25px 20px 40px;
 }
 
+html body.modo-alto-contraste .perfil-page,
+html body.modo-alto-contraste .top-card,
+html body.modo-alto-contraste .info-card,
+html body.modo-alto-contraste .settings-card,
+html body.modo-alto-contraste .info-row,
+html body.modo-alto-contraste .settings-row,
+html body.modo-alto-contraste .badge,
+html body.modo-alto-contraste .photo-frame,
+html body.modo-alto-contraste .modal-card,
+html body.modo-alto-contraste .modal-header,
+html body.modo-alto-contraste .modal-footer {
+    background: #000000 !important;
+    color: #ffffff !important;
+    border: 2px solid #ffffff !important;
+    border-radius: 20px !important;
+}
+
+html body.modo-alto-contraste .title,
+html body.modo-alto-contraste .subtitle,
+html body.modo-alto-contraste .profile-summary h2,
+html body.modo-alto-contraste .member-info,
+html body.modo-alto-contraste .badge-title,
+html body.modo-alto-contraste .badge strong,
+html body.modo-alto-contraste .card-header h3,
+html body.modo-alto-contraste .info-title,
+html body.modo-alto-contraste .info-value,
+html body.modo-alto-contraste .settings-title,
+html body.modo-alto-contraste .settings-subtitle,
+html body.modo-alto-contraste .modal-header h3,
+html body.modo-alto-contraste .modal-eyebrow {
+    color: #ffffff !important;
+}
+
+html body.modo-alto-contraste .photo-button,
+html body.modo-alto-contraste .modal-close {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #ffffff !important;
+}
+
+html body.modo-alto-contraste .info-icon,
+html body.modo-alto-contraste .settings-icon {
+    background: #111111 !important;
+    color: #ffffff !important;
+    border: 1px solid #ffffff !important;
+}
+
 .perfil-header {
     display: flex;
     justify-content: space-between;
@@ -59,21 +106,33 @@
     position: relative;
     width: 260px;
     height: 260px;
+    flex: 0 0 260px;
+
     border-radius: 50%;
-    padding: 6px;
-    background: linear-gradient(135deg, rgba(218, 171, 64, 0.18), rgba(255, 240, 205, 0.3));
-    display: grid;
-    place-items: center;
+    overflow: hidden;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border: 6px solid #dbc37e;
+    background: #fff;
+
+    box-shadow: 0 20px 40px rgba(0,0,0,.08);
 }
 
 .photo-frame img {
     width: 100%;
     height: 100%;
-    border-radius: 50%;
+    display: block;
+
     object-fit: cover;
-    border: 6px solid #dbc37e;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-    transition: transform 0.35s ease;
+    object-position: center;
+
+    border-radius: 50%;
+    border: none;
+
+    transition: transform .35s ease;
 }
 
 .photo-frame img.animate {

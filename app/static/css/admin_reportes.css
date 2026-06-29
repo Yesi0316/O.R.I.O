@@ -129,12 +129,12 @@
 }
 
 .filter-download-btn{
-    background:#E0C58F;
-    color:#112250;
+    background:#4b628c;
+    color:#fff;
 }
 
 .filter-download-btn:hover{
-    background:#d4b56f;
+    background:#3d5276;
 }
 
 .filter-download-btn:disabled{
@@ -160,7 +160,7 @@
 
 .tarjeta-resultado{
     background:#fff;
-    border-radius:26px;
+    border-radius:20px;
     overflow:hidden;
     border:1px solid #ececec;
     box-shadow:0 6px 18px rgba(0,0,0,.06);
@@ -171,6 +171,7 @@
     height:220px;
     object-fit:cover;
     display:block;
+    border-radius:0;
 }
 
 .tarjeta-contenido{
@@ -280,135 +281,127 @@
 }
 
 /* ==========================
-   DESKTOP GRANDES
+   MÓVILES
 ========================== */
+@media (max-width:576px){
 
-@media (min-width:1400px){
-
-    .grid-resultados{
-        grid-template-columns:repeat(2, minmax(500px, 1fr));
+    html,
+    body,
+    .main{
+        overflow-x:hidden;
     }
 
+    .main{
+        padding-bottom:120px;
+    }
+
+    .header h1{
+        font-size:34px;
+        text-align:center;
+        margin-bottom:12px;
+    }
+
+    .subtitle{
+        font-size:14px;
+        text-align:center;
+        line-height:1.5;
+        margin-bottom:25px;
+    }
+
+    /* CONTENEDOR GENERAL */
+    .search-section{
+        width:100%;
+        gap:18px;
+        padding:0;
+    }
+
+    /* BUSCADOR */
     .search-bar{
-        max-width:420px;
-    }
-}
-
-/* ==========================
-   LAPTOPS
-========================== */
-
-@media (max-width:1200px){
-
-    .grid-resultados{
-        grid-template-columns:1fr;
-    }
-
-    .tarjeta-titulo{
-        font-size:24px;
-    }
-}
-
-/* ==========================
-   TABLETS
-========================== */
-
-@media (max-width:768px){
-
-    .search-bar{
+        width:100%;
         max-width:100%;
     }
 
-    .filters-row{
-        flex-direction:column;
-        gap:15px;
+    .search-bar input{
+        width:100%;
+        height:58px;
+        border-radius:24px;
+        font-size:15px;
+        padding:0 20px 0 50px;
     }
 
+    /* FILTROS */
+    .filters-row{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:16px;
+        width:100%;
+        align-items:stretch;
+    }
+
+    /* TODOS LOS CAMPOS */
     .filter-select,
     .filter-date-input,
     .filter-reset-btn,
     .filter-download-btn{
         width:100%;
-        max-width:420px;
+        min-width:0;
+        height:58px;
+        border-radius:24px;
+        box-sizing:border-box;
     }
 
-    .filter-date-container{
-        width:100%;
-        flex-direction:column;
-        align-items:center;
-    }
-
-    .grid-resultados{
-        grid-template-columns:1fr;
-        gap:20px;
-    }
-
-    .tarjeta-img{
-        height:220px;
-    }
-
-    .tarjeta-contenido{
-        padding:18px;
-    }
-
-    .tarjeta-titulo{
-        font-size:22px;
-    }
-
-    .tarjeta-acciones{
-        justify-content:center;
-    }
-}
-
-/* ==========================
-   MÓVILES
-========================== */
-
-@media (max-width:576px){
-
-    .header h1{
-        font-size:32px;
-    }
-
-    .subtitle{
-        font-size:13px;
-    }
-
-    .search-bar input{
-        height:50px;
+    .filter-select{
+        padding:0 18px;
         font-size:14px;
     }
 
-    .filter-select,
-    .filter-date-input{
-        height:50px;
-        width:100%;
+    /* FECHAS */
+    .filter-date-container{
+        display:contents;
     }
 
+    .filter-date-input{
+        padding:0 18px;
+        font-size:14px;
+        border:2px solid #e8e8e8;
+        background:#fff;
+        appearance:none;
+        -webkit-appearance:none;
+    }
+
+    /* BOTONES */
     .filter-reset-btn,
     .filter-download-btn{
-        width:100%;
         justify-content:center;
+        font-size:14px;
+        padding:0 12px;
     }
 
+    /* TARJETAS */
     .grid-resultados{
-        grid-template-columns:1fr;
+        width:100%;
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:16px;
+        margin-top:24px;
     }
 
     .tarjeta-resultado{
-        border-radius:22px;
+        width:100%;
+        border-radius:26px;
+        overflow:hidden;
     }
 
     .tarjeta-img{
-        height:180px;
+        height:170px;
     }
 
     .tarjeta-contenido{
-        padding:16px;
+        padding:14px;
     }
 
     .tarjeta-titulo{
-        font-size:20px;
+        font-size:18px;
         margin-bottom:8px;
     }
 
@@ -417,20 +410,25 @@
     }
 
     .tarjeta-categoria{
-        font-size:12px;
-        padding:5px 12px;
+        font-size:11px;
+        padding:5px 10px;
+    }
+
+    .tarjeta-meta small{
+        font-size:10px;
     }
 
     .tarjeta-acciones{
         justify-content:center;
         gap:8px;
+        flex-wrap:wrap;
     }
 
     .tarjeta-btn,
     .tarjeta-borrar,
     .marcar-falso,
     .marcar-encontrado{
-        padding:9px 16px !important;
-        font-size:12px;
+        padding:8px 14px !important;
+        font-size:11px;
     }
 }

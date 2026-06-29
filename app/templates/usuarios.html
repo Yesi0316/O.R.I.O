@@ -2,6 +2,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/usuarios.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 {% endblock %}
 
@@ -66,16 +67,21 @@ function cargarUsuarios() {
 
             usuarios.forEach(usuario => {
                 const inicial = usuario.NOMBRE ? usuario.NOMBRE.charAt(0).toUpperCase() : "?";
+                const fotoPerfil = usuario.FOTO_PERFIL || "";
+                const avatarHtml = fotoPerfil
+                    ? `<img class="avatar-img" src="${fotoPerfil}" alt="${usuario.NOMBRE || "Usuario"}">`
+                    : `<span class="avatar-inicial">${inicial}</span>`;
+
                 const usuarioElemento = document.createElement("div");
                 usuarioElemento.classList.add("usuario-item");
                 usuarioElemento.innerHTML = `
                 <div class="col nombre">
-                    <div class="avatar">${inicial}</div>
-                    <span>${usuario.NOMBRE || ""}</span>
+                    <div class="avatar">${avatarHtml}</div>
+                    <span class="nombre-usuario">${usuario.NOMBRE || ""}</span>
                 </div>
                 <div class="col usuario">${usuario.ID_USUARIO || ""}</div>
                 <div class="col genero">${usuario.GENERO || ""}</div>
-                <span class="badge-rol">${usuario.ROL_NOMBRE || "Sin rol"}</span>
+                <div class="col rol"><span class="badge-rol">${usuario.ROL_NOMBRE || "Sin rol"}</span></div>
                 <div class="col acciones">
                     <button
                         class="btn-accion btn-admin"

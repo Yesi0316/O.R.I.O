@@ -87,7 +87,7 @@
                 <div class="acciones">
                     <div class="acciones-secundarias">
                         <a href="javascript:history.back()" class="btn btn-volver">Volver</a>
-                        <a href="/reporte_problema" class="btn btn-reporte">Reportar</a>
+                        
                     </div>
                     {% if session.id_usuario and item.ID_USUARIO and session.id_usuario != item.ID_USUARIO %}
                         <a href="/chat/{{ item.ID_USUARIO }}/{{ item.ID_OBJETO }}" class="btn btn-chat">Contactar a la persona</a>

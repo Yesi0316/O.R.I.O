@@ -11,9 +11,13 @@
 <div class="dashboard-page">
 
 <div class="dashboard-top">
-    <button type="button" class="header-icon-btn" aria-label="Menú">
+    <button
+        type="button"
+        class="header-icon-btn"
+        onclick="window.location.href='/pasarela_pago'">
         <i class="fas fa-crown"></i>
     </button>
+
     <button type="button" class="notifications-btn" aria-label="Notificaciones">
         <span class="notification-dot"></span>
         <i class="fas fa-bell"></i>
@@ -29,6 +33,12 @@
         Bienvenido {{ session.get("nombre") }}
         {% endif %}
     </h1>
+
+    {% if session.get("id_rol") == 2 %}
+    <a href="/admin_inicio" class="admin-panel-btn">
+        <i class="fas fa-user-shield"></i> Ir al panel de administrador
+    </a>
+    {% endif %}
 </div>
 
 <div class="search-section">

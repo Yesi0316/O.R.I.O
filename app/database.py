@@ -240,7 +240,7 @@ TABLAS = {
             "TEMA_PREFERENCIA" TEXT DEFAULT 'claro',
             "ID_ROL" INTEGER NOT NULL,
             "TELEFONO" TEXT, 
-            "FECHA_REGISTRO" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            "FECHA" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY ("ID_ROL") REFERENCES public."Roles" ("ID_ROL")
         );
     """,
@@ -266,7 +266,7 @@ TABLAS = {
             "ID_USUARIO" TEXT NOT NULL,
             "FICHA" INTEGER,
             "ID_CATEGORIA" TEXT NOT NULL,
-            "FECHA_REGISTRO" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            "FECHA" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             "STATUS" TEXT DEFAULT 'pendiente' CHECK ("STATUS" IN ('pendiente', 'encontrado', 'falso')),
             FOREIGN KEY ("ID_OBJETO") REFERENCES public."Objetos" ("ID_OBJETO")
         );
@@ -293,7 +293,7 @@ TABLAS = {
             "ID_USUARIO" TEXT NOT NULL,
             "FICHA" INTEGER,
             "ID_CATEGORIA" TEXT NOT NULL,
-            "FECHA_REGISTRO" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            "FECHA" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             "STATUS" TEXT DEFAULT 'pendiente' CHECK ("STATUS" IN ('pendiente', 'encontrado', 'falso')),
             FOREIGN KEY ("ID_OBJETO") REFERENCES public."Objetos" ("ID_OBJETO")
         );
