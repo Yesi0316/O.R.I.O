@@ -3,6 +3,115 @@
    ======================================== */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Libre+Baskerville:wght@400;700&display=swap');
 
+body.modo-oscuro .perfil-page,
+body.modo-oscuro .top-card,
+body.modo-oscuro .info-card,
+body.modo-oscuro .settings-card,
+body.modo-oscuro .info-row,
+body.modo-oscuro .settings-row,
+body.modo-oscuro .badge,
+body.modo-oscuro .photo-frame,
+body.modo-oscuro .modal-card,
+body.modo-oscuro .modal-header,
+body.modo-oscuro .modal-footer {
+    background: #1a1f2e !important;
+    color: #e2e8f0 !important;
+    border: 1px solid #334155 !important;
+    border-radius: 20px !important;
+    box-shadow: none !important;
+}
+
+body.modo-oscuro .title,
+body.modo-oscuro .subtitle,
+body.modo-oscuro .profile-summary h2,
+body.modo-oscuro .member-info,
+body.modo-oscuro .badge-title,
+body.modo-oscuro .badge strong,
+body.modo-oscuro .card-header h3,
+body.modo-oscuro .info-title,
+body.modo-oscuro .info-value,
+body.modo-oscuro .settings-title,
+body.modo-oscuro .settings-subtitle,
+body.modo-oscuro .modal-header h3,
+body.modo-oscuro .modal-eyebrow {
+    color: #e2e8f0 !important;
+}
+
+body.modo-oscuro .photo-button,
+body.modo-oscuro .modal-close {
+    background: #e0c58f !important;
+    color: #0f1419 !important;
+    border: 1px solid #e0c58f !important;
+}
+
+body.modo-oscuro .info-icon,
+body.modo-oscuro .settings-icon {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #e0c58f !important;
+    border: 1px solid #334155 !important;
+}
+
+body.modo-oscuro .badge {
+    background: #15202f !important;
+    border-color: #334155 !important;
+}
+
+body.modo-oscuro .photo-frame {
+    background: #111827 !important;
+    border-color: #334155 !important;
+}
+
+body.modo-oscuro .info-row,
+body.modo-oscuro .settings-row {
+    background: #141f2d !important;
+    color: #e2e8f0 !important;
+    border-color: #334155 !important;
+}
+
+body.modo-oscuro .info-row:hover,
+body.modo-oscuro .settings-row:hover {
+    box-shadow: 0 12px 30px rgba(224, 197, 143, 0.12) !important;
+}
+
+body.modo-oscuro .form-group label,
+body.modo-oscuro .privacy-option strong,
+body.modo-oscuro .privacy-option p {
+    color: #cbd5e1 !important;
+}
+
+body.modo-oscuro .select-input,
+body.modo-oscuro .form-group input,
+body.modo-oscuro .privacy-option,
+body.modo-oscuro .password-rules,
+body.modo-oscuro .modal-close {
+    background: #111827 !important;
+    border-color: #334155 !important;
+    color: #e2e8f0 !important;
+}
+
+body.modo-oscuro .select-input option {
+    background: #111827 !important;
+    color: #e2e8f0 !important;
+}
+
+body.modo-oscuro .toggle-switch {
+    background: #334155 !important;
+    border-color: #475569 !important;
+}
+
+body.modo-oscuro .toggle-switch.active {
+    background: linear-gradient(135deg, #e0c58f, #d4b77b) !important;
+}
+
+body.modo-oscuro .toggle-switch::after {
+    background: #ffffff !important;
+}
+
+body.modo-oscuro .photo-button:hover,
+body.modo-oscuro .modal-close:hover {
+    transform: translateY(-1px) !important;
+}
+
 body.modo-alto-contraste .perfil-page,
 body.modo-alto-contraste .top-card,
 body.modo-alto-contraste .info-card,
@@ -233,6 +342,15 @@ body.modo-alto-contraste .settings-icon {
     gap: 14px;
 }
 
+.info-left {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.info-left > div {
+    min-width: 0;
+}
+
 .info-icon,
 .settings-icon {
     width: 46px;
@@ -261,10 +379,16 @@ body.modo-alto-contraste .settings-icon {
     line-height: 1.5;
 }
 
+.info-value {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
 .info-arrow,
 .settings-arrow {
     color: #8c9bb3;
     font-size: 14px;
+    flex-shrink: 0;
 }
 
 .logout-row {

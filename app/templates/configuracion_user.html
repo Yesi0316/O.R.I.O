@@ -30,9 +30,9 @@
                     </div>
                 </div>
                 <select id="selectTema" class="select-input">
-                    <option value="claro">Claro</option>
-                    <option value="oscuro">Oscuro</option>
-                    <option value="alto-contraste">Alto contraste</option>
+                    <option value="claro" {% if theme == 'claro' %}selected{% endif %}>Claro</option>
+                    <option value="oscuro" {% if theme == 'oscuro' %}selected{% endif %}>Oscuro</option>
+                    <option value="alto-contraste" {% if theme == 'alto-contraste' %}selected{% endif %}>Alto contraste</option>
                 </select>
             </div>
             <div class="settings-row disabled">
@@ -111,12 +111,12 @@
             <h3>Notificaciones</h3>
         </div>
         <div class="section-list">
-            <div class="settings-row disabled">
+            <div class="settings-row">
                 <div class="settings-left">
                     <span class="settings-icon"><i class="fas fa-bell"></i></span>
                     <div>
-                        <p class="settings-title">Notificaciones en la app</p>
-                        <p class="settings-subtitle">Esta opción está lista para el futuro</p>
+                        <p class="settings-title">Notificaciones flotantes en la app</p>
+                        <p class="settings-subtitle">Controla si deseas recibir notificaciones flotantes</p>
                     </div>
                 </div>
                 <div id="toggleNotif" class="toggle-switch active" onclick="toggleNotif()"></div>
@@ -216,9 +216,15 @@ async function cargarConfig() {
         if (dataTema.ok) {
             config.tema = dataTema.tema;
             document.getElementById('selectTema').value = config.tema;
+            document.documentElement.classList.remove('modo-oscuro', 'modo-alto-contraste');
             document.body.classList.remove('modo-oscuro', 'modo-alto-contraste');
-            if (config.tema === 'oscuro') document.body.classList.add('modo-oscuro');
-            else if (config.tema === 'alto-contraste') document.body.classList.add('modo-alto-contraste');
+            if (config.tema === 'oscuro') {
+                document.documentElement.classList.add('modo-oscuro');
+                document.body.classList.add('modo-oscuro');
+            } else if (config.tema === 'alto-contraste') {
+                document.documentElement.classList.add('modo-alto-contraste');
+                document.body.classList.add('modo-alto-contraste');
+            }
         }
         const res = await fetch('/api/configuracion');
         const data = await res.json();
@@ -237,9 +243,15 @@ async function cargarConfig() {
 
 document.getElementById('selectTema').addEventListener('change', async function () {
     config.tema = this.value;
+    document.documentElement.classList.remove('modo-oscuro', 'modo-alto-contraste');
     document.body.classList.remove('modo-oscuro', 'modo-alto-contraste');
-    if (config.tema === 'oscuro') document.body.classList.add('modo-oscuro');
-    else if (config.tema === 'alto-contraste') document.body.classList.add('modo-alto-contraste');
+    if (config.tema === 'oscuro') {
+        document.documentElement.classList.add('modo-oscuro');
+        document.body.classList.add('modo-oscuro');
+    } else if (config.tema === 'alto-contraste') {
+        document.documentElement.classList.add('modo-alto-contraste');
+        document.body.classList.add('modo-alto-contraste');
+    }
     try {
         await fetch('/api/tema/actualizar', {
             method: 'POST',

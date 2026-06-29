@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es"{% if theme and theme != 'claro' %} class="modo-{{ theme }}"{% endif %}>
 <head>
 
 <meta charset="UTF-8">
@@ -13,37 +13,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
-
-<script>
-(async function () {
-    try {
-        const response = await fetch('/api/tema/obtener');
-        const data = await response.json();
-
-        if (data.ok) {
-            document.documentElement.classList.remove(
-                'modo-oscuro',
-                'modo-alto-contraste'
-            );
-
-            document.body.classList.remove(
-                'modo-oscuro',
-                'modo-alto-contraste'
-            );
-
-            if (data.tema && data.tema !== 'claro') {
-                document.documentElement.classList.add('modo-' + data.tema);
-                document.body.classList.add('modo-' + data.tema);
-            }
-
-            sessionStorage.setItem('tema_actual', data.tema || 'claro');
-        }
-    } catch (e) {
-        console.error('Error cargando tema:', e);
-    }
-})();
-</script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/float-notifications.css') }}">
 
 <!-- CSS ESTATICOS -->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
@@ -56,7 +26,7 @@
 
 </head>
 
-<body>
+<body{% if theme and theme != 'claro' %} class="modo-{{ theme }}"{% endif %}>
 
 <div class="sidebar" id="sidebar">
 
@@ -109,6 +79,8 @@
 </div>
 
 <div class="main">
+
+    <div id="floatingNotificationsContainer" class="floating-notifications-container" aria-live="polite" aria-atomic="true"></div>
 
     {% block content %}{% endblock %}
 
@@ -253,6 +225,166 @@ document.addEventListener("DOMContentLoaded", function () {
 </div>
 
 <script>
+function getNotificationConfig() {
+    const cookieValue = document.cookie.split('; ').find((row) => row.startsWith('notificaciones='));
+    if (!cookieValue) return true;
+    return cookieValue.split('=')[1] !== 'false';
+}
+
+function escapeHtml(text) {
+    return String(text || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function formatNotificationTime(value) {
+    if (!value) return '';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+}
+
+function closeFloatingNotification(id) {
+    const toast = document.getElementById(id);
+    if (!toast) return;
+    toast.classList.add('is-exiting');
+    setTimeout(() => toast.remove(), 220);
+}
+
+function showFloatingNotification(payload) {
+    if (!getNotificationConfig()) return;
+
+    const container = document.getElementById('floatingNotificationsContainer');
+    if (!container) return;
+
+    const id = `floating-notif-${payload.id_mensaje || Date.now()}`;
+    const html = `
+        <article id="${id}" class="floating-notification" data-href="/chat/${encodeURIComponent(payload.id_remitente || '')}/${encodeURIComponent(payload.id_objeto || '')}">
+            <div class="floating-notification-media">
+                ${payload.objeto_imagen ? `<img src="${escapeHtml(payload.objeto_imagen)}" alt="${escapeHtml(payload.objeto_nombre || 'Reporte')}">` : `<span>${escapeHtml((payload.objeto_nombre || 'R').charAt(0).toUpperCase())}</span>`}
+            </div>
+            <div class="floating-notification-body">
+                <div class="floating-notification-top">
+                    <strong>${escapeHtml(payload.objeto_nombre || 'Reporte')}</strong>
+                    <span>${escapeHtml(formatNotificationTime(payload.fecha))}</span>
+                </div>
+                <div class="floating-notification-author">${escapeHtml(payload.remitente_nombre || 'Usuario')}</div>
+                <p>${escapeHtml(String(payload.cuerpo || '').replace(/\s+/g, ' ').trim().slice(0, 70))}</p>
+                <div class="floating-notification-progress"></div>
+            </div>
+            <button type="button" class="floating-notification-close" aria-label="Cerrar notificación" onclick="closeFloatingNotification('${id}')">×</button>
+        </article>
+    `;
+
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    const toast = wrapper.firstElementChild;
+    container.appendChild(toast);
+
+    toast.addEventListener('click', () => {
+        if (toast.dataset.href) window.location.href = toast.dataset.href;
+    });
+
+    let startX = 0;
+    let deltaX = 0;
+    toast.addEventListener('pointerdown', (event) => {
+        startX = event.clientX;
+        toast.style.transition = 'none';
+    });
+    toast.addEventListener('pointermove', (event) => {
+        if (startX === 0) return;
+        deltaX = event.clientX - startX;
+        toast.style.transform = `translateX(${deltaX}px)`;
+    });
+    toast.addEventListener('pointerup', () => {
+        toast.style.transition = '';
+        if (deltaX > 80 || deltaX < -80) {
+            closeFloatingNotification(id);
+        } else {
+            toast.style.transform = '';
+        }
+        startX = 0;
+        deltaX = 0;
+    });
+
+    setTimeout(() => closeFloatingNotification(id), 3000);
+}
+
+let floatingNotificationsPollingInterval = null;
+let floatingNotificationsLastId = 0;
+let floatingNotificationsInitialized = false;
+
+function stopFloatingNotificationsPolling() {
+    if (floatingNotificationsPollingInterval) {
+        clearInterval(floatingNotificationsPollingInterval);
+        floatingNotificationsPollingInterval = null;
+    }
+}
+
+function getNotificationMessageId(item) {
+    const parsed = Number(item && item.id_mensaje);
+    return Number.isFinite(parsed) ? parsed : 0;
+}
+
+async function pollFloatingNotifications() {
+    try {
+        const response = await fetch('/api/notificaciones', { credentials: 'same-origin' });
+        if (!response.ok) return;
+
+        const data = await response.json();
+        const items = Array.isArray(data) ? data : [];
+
+        if (!floatingNotificationsInitialized) {
+            const highestId = items.reduce((max, item) => {
+                const id = getNotificationMessageId(item);
+                return id > max ? id : max;
+            }, 0);
+            floatingNotificationsLastId = highestId;
+            floatingNotificationsInitialized = true;
+            if (typeof window.cargarNotificaciones === 'function') {
+                window.cargarNotificaciones();
+            }
+            updateUnreadCount();
+            return;
+        }
+
+        const newItems = items
+            .map((item) => ({ ...item, __id: getNotificationMessageId(item) }))
+            .filter((item) => item.__id > floatingNotificationsLastId)
+            .sort((a, b) => a.__id - b.__id);
+
+        if (newItems.length > 0) {
+            newItems.forEach((item) => {
+                if (getNotificationConfig()) {
+                    showFloatingNotification(item);
+                }
+            });
+
+            const latestId = newItems.reduce((max, item) => {
+                return item.__id > max ? item.__id : max;
+            }, floatingNotificationsLastId);
+            floatingNotificationsLastId = latestId;
+
+            if (typeof window.cargarNotificaciones === 'function') {
+                window.cargarNotificaciones();
+            }
+        }
+
+        updateUnreadCount();
+    } catch (error) {
+        console.error('Error consultando notificaciones flotantes:', error);
+    }
+}
+
+function startFloatingNotificationsPolling() {
+    if (floatingNotificationsPollingInterval) return;
+    pollFloatingNotifications();
+    floatingNotificationsPollingInterval = window.setInterval(pollFloatingNotifications, 2000);
+}
+
 // Cargar imagen de sidebar al iniciar
 document.addEventListener('DOMContentLoaded', async function(){
     try{
@@ -266,7 +398,11 @@ document.addEventListener('DOMContentLoaded', async function(){
     
     // Cargar contador de mensajes sin leer
     updateUnreadCount();
+    startFloatingNotificationsPolling();
 });
+
+window.addEventListener('beforeunload', stopFloatingNotificationsPolling);
+window.addEventListener('pagehide', stopFloatingNotificationsPolling);
 
 // Actualizar contador de mensajes sin leer
 async function updateUnreadCount() {

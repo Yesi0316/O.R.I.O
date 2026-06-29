@@ -211,10 +211,10 @@ def init_admin_routes(app):
 
             # Reportes perdidos 
             cursor.execute("""
-                SELECT DATE("FECHA_REGISTRO") AS fecha, COUNT(*) AS total
+                SELECT DATE("FECHA") AS fecha, COUNT(*) AS total
                 FROM "Reportes_perdidos"
-                WHERE "FECHA_REGISTRO" >= CURRENT_DATE - INTERVAL '6 days'
-                GROUP BY DATE("FECHA_REGISTRO")
+                WHERE "FECHA" >= CURRENT_DATE - INTERVAL '6 days'
+                GROUP BY DATE("FECHA")
             """)
             perdidos = {
                 fila["fecha"]: fila["total"]

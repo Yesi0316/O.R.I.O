@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es"{% if theme and theme != 'claro' %} class="modo-{{ theme }}"{% endif %}>
 <head>
 
 <meta charset="UTF-8">
@@ -15,40 +15,11 @@
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-
-<script>
-(async function () {
-    try {
-        const response = await fetch('/api/tema/obtener');
-        const data = await response.json();
-
-        if (data.ok) {
-            document.documentElement.classList.remove(
-                'modo-oscuro',
-                'modo-alto-contraste'
-            );
-
-            document.body.classList.remove(
-                'modo-oscuro',
-                'modo-alto-contraste'
-            );
-
-            if (data.tema && data.tema !== 'claro') {
-                document.documentElement.classList.add('modo-' + data.tema);
-                document.body.classList.add('modo-' + data.tema);
-            }
-        }
-    } catch (e) {
-        console.error(e);
-    }
-})();
-</script>
-
 {% block extra_css %}{% endblock %}
 
 </head>
 
-<body>
+<body{% if theme and theme != 'claro' %} class="modo-{{ theme }}"{% endif %}>
 
 <!-- SIDEBAR ADMIN -->
 

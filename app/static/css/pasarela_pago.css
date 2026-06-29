@@ -35,15 +35,25 @@ body{
 /* CONTENEDOR PRINCIPAL */
 /* Organiza las tarjetas en fila */
 /* ============================= */
+.main.main-top {
+    padding: 0;
+    min-height: 0;
+    margin: 0;
+    background: transparent;
+    border-radius: 0;
+}
+
 .contenedor{
-    display:flex;              /* Activa Flexbox */
-    justify-content:center;    /* Centra horizontalmente */
-    gap:20px;                  /* Espacio entre tarjetas */
-    padding: 80px;              /* Espacio exterior */
-    flex-wrap:wrap;            /* Permite salto a otra línea */
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-    border-radius: 2%;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    gap:20px;
+    flex-wrap:wrap;
+
+    padding:0 80px 80px;
+    margin:0;
+
+    width:100%;
 }
 
 /* ============================= */
@@ -51,15 +61,17 @@ body{
 /* Diseño tipo card */
 /* ============================= */
 .plan{
-    background:#ffffff;
-    width:300px;               /* Ancho fijo en desktop */
+    background:#fff;
+    width:300px;
     border-radius:10px;
-    overflow:hidden;           /* Oculta desbordes */
-    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+    overflow:hidden;
+    box-shadow:0 5px 15px rgba(0,0,0,.1);
     text-align:center;
-    align-items: center;
-    margin-top: 80px;
-    transition:0.3s;           /* Animación suave */
+    align-items:center;
+
+    margin-top:0;
+
+    transition:.3s;
 }
 
 /* EFECTO HOVER (Elevación) */
@@ -229,13 +241,13 @@ body{
 @media (max-width: 768px){
 
     .contenedor{
-        padding: 20px;   /* Reduce espacio exterior */
-        gap: 15px;       /* Reduce separación */
+        padding:0 20px 30px;
+        gap:15px;
     }
 
     .plan{
-        width: 100%;     /* Ocupa todo el ancho */
-        max-width: 380px;/* Límite visual agradable */
+        width:100%;
+        max-width:380px;
     }
 
     .contenido{
@@ -265,6 +277,6 @@ body{
 }
 
 .main{
-    padding: 20px 40px;
+    padding:20px 40px 40px;
 }
 

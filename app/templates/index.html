@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es"{% if theme and theme != 'claro' %} class="modo-{{ theme }}"{% endif %}>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,21 +8,9 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
 
-<script>
-(function(){
-    const tema = sessionStorage.getItem('tema_actual');
-    if (tema && tema !== 'claro') {
-        document.documentElement.classList.add('modo-' + tema);
-        document.addEventListener('DOMContentLoaded', function(){
-            document.body.classList.add('modo-' + tema);
-        });
-    }
-})();
-</script>
-
 </head>
 
-<body>
+<body{% if theme and theme != 'claro' %} class="modo-{{ theme }}"{% endif %}>
 
 <div class="card">
 

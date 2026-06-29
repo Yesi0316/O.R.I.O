@@ -1821,15 +1821,10 @@ def init_user_routes(app):
             cursor.close()
             db.close()
             
-            return jsonify({"ok": True, "mensaje": "Tema actualizado correctamente"})
-        except Exception as e:
-            return jsonify({"ok": False, "error": str(e)}), 500
-
-    @app.route("/api/estadisticas")
-    @login_required
-    def api_estadisticas():
-        """Devuelve las estadísticas del dashboard"""
-        try:
+            session['tema'] = tema
+            response = jsonify({"ok": True, "mensaje": "Tema actualizado correctamente"})
+            response.set_cookie('orio_tema', tema, max_age=60*60*24*365, samesite='Lax')
+            return response
             db = conectar_db()
             cursor = db.cursor(cursor_factory=RealDictCursor)
 
@@ -2644,8 +2639,49 @@ def init_user_routes(app):
             id_usuario = session.get('id_usuario')
             db = conectar_db()
             cursor = db.cursor(cursor_factory=RealDictCursor)
-            cursor.execute('SELECT "ID_NOTIF","TIPO","MENSAJE","LEIDO","FECHA" FROM public."Notificaciones" WHERE "ID_USUARIO"=%s ORDER BY "FECHA" DESC LIMIT 100', (id_usuario,))
-            notifs = cursor.fetchall()
+            cursor.execute(
+                '''
+                SELECT
+                    m."ID_MENSAJE" AS id_mensaje,
+                    m."ID_REMITENTE" AS id_remitente,
+                    m."ID_DESTINATARIO" AS id_destinatario,
+                    m."ID_OBJETO" AS id_objeto,
+                    m."CUERPO" AS cuerpo,
+                    m."FECHA" AS fecha,
+                    m."LEIDO" AS leido,
+                    o."NOMBRE" AS objeto_nombre,
+                    o."IMAGEN" AS objeto_imagen,
+                    pr."NOMBRE" AS remitente_nombre,
+                    pd."NOMBRE" AS destinatario_nombre
+                FROM public."Mensajes" m
+                LEFT JOIN public."Objetos" o ON m."ID_OBJETO" = o."ID_OBJETO"
+                LEFT JOIN public."Perfiles" pr ON m."ID_REMITENTE" = pr."ID_USUARIO"
+                LEFT JOIN public."Perfiles" pd ON m."ID_DESTINATARIO" = pd."ID_USUARIO"
+                WHERE m."ID_DESTINATARIO" = %s AND m."ID_OBJETO" IS NOT NULL
+                ORDER BY m."FECHA" DESC
+                LIMIT 100
+                ''',
+                (id_usuario,),
+            )
+            rows = cursor.fetchall()
+            notifs = []
+            for row in rows:
+                fecha_val = row.get('fecha')
+                if isinstance(fecha_val, datetime):
+                    fecha_val = fecha_val.strftime('%Y-%m-%d %H:%M:%S')
+                notifs.append({
+                    'id_mensaje': row.get('id_mensaje'),
+                    'id_remitente': row.get('id_remitente'),
+                    'id_destinatario': row.get('id_destinatario'),
+                    'id_objeto': row.get('id_objeto'),
+                    'cuerpo': row.get('cuerpo') or '',
+                    'fecha': fecha_val,
+                    'leido': bool(row.get('leido')),
+                    'objeto_nombre': row.get('objeto_nombre') or 'Reporte',
+                    'objeto_imagen': row.get('objeto_imagen'),
+                    'remitente_nombre': row.get('remitente_nombre') or row.get('id_remitente'),
+                    'destinatario_nombre': row.get('destinatario_nombre') or row.get('id_destinatario'),
+                })
             cursor.close()
             db.close()
             return jsonify(notifs)
@@ -2659,9 +2695,14 @@ def init_user_routes(app):
     def api_marcar_notificacion_leida(id_notif):
         try:
             id_usuario = session.get('id_usuario')
+            id_mensaje = request.form.get('id_mensaje') or request.json.get('id_mensaje') or id_notif
+            try:
+                id_mensaje = int(id_mensaje)
+            except (TypeError, ValueError):
+                id_mensaje = id_notif
             db = conectar_db()
             cursor = db.cursor()
-            cursor.execute('UPDATE public."Notificaciones" SET "LEIDO"=TRUE WHERE "ID_NOTIF"=%s AND "ID_USUARIO"=%s', (id_notif, id_usuario))
+            cursor.execute('UPDATE public."Mensajes" SET "LEIDO"=TRUE WHERE "ID_MENSAJE"=%s AND "ID_DESTINATARIO"=%s', (id_mensaje, id_usuario))
             db.commit()
             cursor.close()
             db.close()

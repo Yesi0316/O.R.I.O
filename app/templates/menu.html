@@ -18,10 +18,27 @@
         <i class="fas fa-crown"></i>
     </button>
 
-    <button type="button" class="notifications-btn" aria-label="Notificaciones">
-        <span class="notification-dot"></span>
+    <button type="button" class="notifications-btn" id="notificationsBtn" aria-label="Notificaciones" aria-expanded="false">
+        <span class="notification-dot" id="notificationsDot" hidden></span>
+        <span class="notification-badge" id="notificationsBadge" hidden>0</span>
         <i class="fas fa-bell"></i>
     </button>
+</div>
+
+<div class="notifications-panel-overlay" id="notificationsOverlay" hidden></div>
+<div class="notifications-panel" id="notificationsPanel" aria-hidden="true">
+    <div class="notifications-panel-header">
+        <div>
+            <h3>Mensajes de reportes</h3>
+            <p>Conversaciones recientes</p>
+        </div>
+        <button type="button" class="notifications-close" id="notificationsClose" aria-label="Cerrar panel">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="notifications-panel-list" id="notificationsList">
+        <div class="notifications-empty">Cargando mensajes...</div>
+    </div>
 </div>
 
 <div class="dashboard-title">
@@ -106,11 +123,165 @@ if (menu) menu.classList.toggle("active");
 document.addEventListener('DOMContentLoaded', () => {
     cargarReportesRecientes();
     actualizarSaludo();
+    inicializarNotificaciones();
     const refreshReports = document.getElementById('refreshReports');
     if (refreshReports) {
         refreshReports.addEventListener('click', cargarReportesRecientes);
     }
 });
+
+function inicializarNotificaciones() {
+    const notificationsBtn = document.getElementById('notificationsBtn');
+    const notificationsClose = document.getElementById('notificationsClose');
+    const notificationsOverlay = document.getElementById('notificationsOverlay');
+    const notificationsPanel = document.getElementById('notificationsPanel');
+
+    if (!notificationsBtn || !notificationsClose || !notificationsOverlay || !notificationsPanel) {
+        return;
+    }
+
+    notificationsBtn.addEventListener('click', () => {
+        notificationsPanel.classList.add('active');
+        notificationsOverlay.hidden = false;
+        notificationsPanel.removeAttribute('inert');
+        notificationsPanel.setAttribute('aria-hidden', 'false');
+        notificationsBtn.setAttribute('aria-expanded', 'true');
+        cargarNotificaciones();
+    });
+
+    notificationsClose.addEventListener('click', cerrarPanelNotificaciones);
+    notificationsOverlay.addEventListener('click', cerrarPanelNotificaciones);
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            cerrarPanelNotificaciones();
+        }
+    });
+
+    cargarNotificaciones();
+    window.setInterval(cargarNotificaciones, 10000);
+}
+
+function cerrarPanelNotificaciones() {
+    const notificationsBtn = document.getElementById('notificationsBtn');
+    const notificationsOverlay = document.getElementById('notificationsOverlay');
+    const notificationsPanel = document.getElementById('notificationsPanel');
+    if (!notificationsBtn || !notificationsOverlay || !notificationsPanel) return;
+
+    notificationsPanel.classList.remove('active');
+    notificationsOverlay.hidden = true;
+    notificationsPanel.setAttribute('aria-hidden', 'true');
+    notificationsPanel.setAttribute('inert', '');
+    notificationsBtn.setAttribute('aria-expanded', 'false');
+    notificationsBtn.focus();
+}
+
+function escapeHtml(text) {
+    return String(text || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function truncarTexto(texto, limite = 80) {
+    const limpio = String(texto || '').replace(/\s+/g, ' ').trim();
+    if (!limpio) return 'Sin mensajes aún';
+    return limpio.length > limite ? `${limpio.slice(0, limite)}…` : limpio;
+}
+
+function formatearHora(fecha) {
+    if (!fecha) return '';
+    const fechaObj = new Date(fecha);
+    if (Number.isNaN(fechaObj.getTime())) return '';
+    return fechaObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+}
+
+function actualizarContadorNotificaciones(cantidad) {
+    const dot = document.getElementById('notificationsDot');
+    const badge = document.getElementById('notificationsBadge');
+    const count = Number(cantidad || 0);
+
+    if (!dot || !badge) return;
+
+    if (count > 0) {
+        dot.hidden = false;
+        badge.hidden = false;
+        badge.textContent = count > 9 ? '9+' : count;
+    } else {
+        dot.hidden = true;
+        badge.hidden = true;
+        badge.textContent = '0';
+    }
+}
+
+async function cargarNotificaciones() {
+    const list = document.getElementById('notificationsList');
+    if (!list) return;
+
+    try {
+        const res = await fetch('/api/notificaciones', { credentials: 'same-origin' });
+        const data = await res.json();
+        const items = Array.isArray(data) ? data : (data.items || []);
+        const unreadItems = items.filter((item) => !item.leido);
+        const unreadConversations = new Set(unreadItems.map((item) => `${item.id_remitente || ''}-${item.id_objeto || ''}`));
+        actualizarContadorNotificaciones(unreadConversations.size);
+
+        if (!items.length) {
+            list.innerHTML = '<div class="notifications-empty">No hay mensajes de reportes todavía.</div>';
+            return;
+        }
+
+        list.innerHTML = items.map((item) => {
+            const preview = truncarTexto(item.cuerpo || 'Sin mensajes aún');
+            const hora = formatearHora(item.fecha);
+            const readClass = item.leido ? 'is-read' : 'is-unread';
+            const reportName = escapeHtml(item.objeto_nombre || 'Reporte');
+            const title = escapeHtml(item.remitente_nombre || 'Usuario');
+            const content = escapeHtml(preview);
+            const image = item.objeto_imagen ? `<img src="${escapeHtml(item.objeto_imagen)}" alt="${reportName}" class="notification-thumb">` : `<span class="notification-thumb notification-thumb-fallback">${escapeHtml((item.objeto_nombre || 'R').charAt(0).toUpperCase())}</span>`;
+            const href = `/chat/${encodeURIComponent(item.id_remitente || '')}/${encodeURIComponent(item.id_objeto || '')}`;
+            return `
+                <button type="button" class="notification-item ${readClass}" data-id-mensaje="${item.id_mensaje || ''}" data-href="${href}">
+                    <div class="notification-media">${image}</div>
+                    <div class="notification-content">
+                        <div class="notification-title-row">
+                            <strong>${reportName}</strong>
+                            <span class="notification-time">${hora}</span>
+                        </div>
+                        <span class="notification-author">${title}</span>
+                        <p>${content}</p>
+                    </div>
+                </button>
+            `;
+        }).join('');
+
+        list.querySelectorAll('.notification-item').forEach((button) => {
+            button.addEventListener('click', async () => {
+                const idMensaje = button.getAttribute('data-id-mensaje');
+                const href = button.getAttribute('data-href');
+                if (idMensaje) {
+                    try {
+                        await fetch(`/api/notificaciones/leer/${idMensaje}`, {
+                            method: 'POST',
+                            credentials: 'same-origin',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: `id_mensaje=${encodeURIComponent(idMensaje)}`
+                        });
+                    } catch (error) {
+                        console.error('Error marcando notificación:', error);
+                    }
+                }
+                if (href) {
+                    window.location.href = href;
+                }
+            });
+        });
+    } catch (error) {
+        console.error('Error cargando notificaciones:', error);
+        list.innerHTML = '<div class="notifications-empty">No se pudieron cargar los mensajes.</div>';
+    }
+}
 
 function actualizarSaludo() {
     const saludo = document.getElementById('dashboardGreeting');

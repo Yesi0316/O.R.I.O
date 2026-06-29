@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es"{% if theme and theme != 'claro' %} class="modo-{{ theme }}"{% endif %}>
 <head>
 <meta charset="UTF-8">
 <title>Recuperar Contraseña | O.R.I.O.</title>
@@ -8,21 +8,9 @@
 <link rel="stylesheet" href="../static/css/recuperar.css">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
 
-<script>
-(function(){
-    const tema = sessionStorage.getItem('tema_actual');
-    if (tema && tema !== 'claro') {
-        document.documentElement.classList.add('modo-' + tema);
-        document.addEventListener('DOMContentLoaded', function(){
-            document.body.classList.add('modo-' + tema);
-        });
-    }
-})();
-</script>
-
 </head>
 
-<body>
+<body{% if theme and theme != 'claro' %} class="modo-{{ theme }}"{% endif %}>
 
 <div class="stars">
     <div class="star" style="left:10%; animation-delay:0s;"></div>

@@ -89,6 +89,14 @@
     font-family: 'Libre Baskerville', serif;
 }
 
+.buzon-card.chat-panel {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 140px);
+    min-height: 0;
+    overflow: hidden;
+}
+
 .buzon-card h2,
 .new-message-panel h2 {
     font-family: 'Bodoni Moda', serif;
@@ -698,12 +706,12 @@
     border-radius: 0;
     padding: 16px;
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
     overflow-x: hidden;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
 }
 
 .chat-message {
@@ -711,7 +719,7 @@
     flex-direction: column;
     align-self: flex-start;
     max-width: 85%;
-    width: fit-content;
+    width: auto;
     min-width: 0;
     padding: 12px 16px;
     border-radius: 12px;
@@ -721,6 +729,8 @@
     animation: slideIn 0.3s ease;
     word-wrap: break-word;
     word-break: break-word;
+    overflow-wrap: anywhere;
+    box-sizing: border-box;
 }
 
 @keyframes slideIn {
@@ -1085,6 +1095,76 @@
     box-shadow: 0 6px 16px rgba(17,34,80,.3);
 }
 
+body.modo-oscuro .chat-panel {
+    background: #0f1727 !important;
+    color: #eff3f8 !important;
+}
+
+body.modo-oscuro .chat-header {
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+}
+
+body.modo-oscuro .chat-header h2 {
+    color: #f8fafc !important;
+}
+
+body.modo-oscuro .chat-report-card,
+body.modo-oscuro .chat-report-card-noimage {
+    background: rgba(255,255,255,0.05) !important;
+    border-color: rgba(255,255,255,0.08) !important;
+}
+
+body.modo-oscuro .chat-report-name {
+    color: #f5f7fb !important;
+}
+
+body.modo-oscuro .chat-message.incoming,
+body.modo-oscuro .chat-message.outgoing {
+    border-color: rgba(255,255,255,0.08) !important;
+}
+
+body.modo-oscuro .chat-message.incoming {
+    background: #1f2937 !important;
+    color: #f8fafc !important;
+}
+
+body.modo-oscuro .chat-message.outgoing {
+    background: #d4b56e !important;
+    color: #0f1419 !important;
+}
+
+body.modo-oscuro .message-meta strong,
+body.modo-oscuro .message-meta span {
+    color: #e2e8f0 !important;
+}
+
+body.modo-oscuro .reply-btn {
+    border-color: rgba(224, 197, 143, 0.4) !important;
+    color: #E0C58F !important;
+}
+
+body.modo-oscuro .compose-panel,
+body.modo-oscuro textarea {
+    background: #1b2434 !important;
+    color: #f5f7fa !important;
+    border-color: rgba(255,255,255,0.12) !important;
+}
+
+body.modo-oscuro textarea::placeholder {
+    color: rgba(229,233,240,0.65) !important;
+}
+
+body.modo-oscuro .btn.btn-volver {
+    background: rgba(255,255,255,0.12) !important;
+    color: #f5f7fa !important;
+    border-color: rgba(255,255,255,0.18) !important;
+}
+
+body.modo-oscuro .btn.btn-volver:hover {
+    background: rgba(224,197,143,0.18) !important;
+    color: #0f1419 !important;
+}
+
 .notification.error {
     background: #f8d7da;
     color: #721c24;
@@ -1129,4 +1209,226 @@
     font-size: 11px;
     font-weight: 700;
     margin-left: 6px;
+}
+
+/* ======= Fix responsive overflow only for user chat (.chat-panel) ======= */
+.chat-panel .chat-messages {
+    overflow-x: hidden; /* enforce no horizontal scroll inside chat */
+    box-sizing: border-box; /* include padding in width calculations */
+}
+
+.chat-panel .chat-message {
+    width: auto !important; /* avoid fit-content expanding beyond container */
+    max-width: 100% !important; /* ensure message never exceeds container */
+    box-sizing: border-box;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.chat-panel .chat-message p,
+.chat-panel .message-reply,
+.chat-panel .reply-preview-card {
+    max-width: 100%;
+    box-sizing: border-box;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.chat-panel .chat-message img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.chat-panel .message-meta .reply-btn {
+    margin-left: auto;
+    flex: 0 0 auto; /* don't let the reply button push wider */
+}
+
+.chat-panel .compose-panel textarea {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* end fixes for .chat-panel */
+
+/* ======= Mini-chat inside report details (detalle-card) - robust, scoped fixes ======= */
+/* Strictly scoped to descendants of .detalle-card to avoid affecting admin or other views. */
+
+/* Ensure predictable box-sizing for all chat descendants */
+.detalle-card .chat-panel,
+.detalle-card .chat-panel * {
+    box-sizing: border-box;
+}
+
+/* Container safety: never allow horizontal overflow from the chat panel */
+.detalle-card .chat-panel {
+    overflow-x: hidden !important; /* requirement: no horizontal scroll */
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Apply min-width:0 to all relevant flex parents so children can shrink */
+.detalle-card,
+.detalle-card .detalle-info,
+.detalle-card .detalle-meta-list,
+.detalle-card .detalle-meta-item,
+.detalle-card .chat-panel,
+.detalle-card .chat-messages,
+.detalle-card .chat-contact-info,
+.detalle-card .message-meta,
+.detalle-card .compose-panel {
+    min-width: 0 !important;
+}
+
+/* Messages container: vertical scrolling only */
+.detalle-card .chat-messages {
+    overflow-x: hidden; /* ensure parent doesn't scroll horizontally */
+    overflow-y: auto;   /* only vertical scrolling for messages */
+}
+
+/* Message bubbles: allow shrink, prevent expansion beyond parent */
+.detalle-card .chat-message {
+    min-width: 0;           /* allow message bubble to shrink */
+    flex-shrink: 1;         /* enable shrinking in flex contexts */
+    width: auto !important; /* override fit-content if present */
+    max-width: 100%;
+    /* robust text wrapping for long words/URLs/JSON/emojis */
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    white-space: normal;    /* avoid nowrap hiding content */
+}
+
+/* Ensure inline text elements do not force expansion */
+.detalle-card .chat-message p,
+.detalle-card .chat-message span,
+.detalle-card .message-reply,
+.detalle-card .reply-preview-card,
+.detalle-card .chat-message a,
+.detalle-card .chat-message code,
+.detalle-card .chat-message pre {
+    max-width: 100%;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+/* Media inside messages must be constrained */
+.detalle-card .chat-message img,
+.detalle-card .chat-message video,
+.detalle-card .chat-message iframe,
+.detalle-card .chat-message embed,
+.detalle-card .chat-message object {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Links: wrap and break when necessary */
+.detalle-card .chat-message a {
+    word-break: break-all;
+    overflow-wrap: anywhere;
+}
+
+/* Reply button must not push width */
+.detalle-card .reply-btn {
+    flex-shrink: 0;
+}
+
+/* Compose textarea full width and box-sizing */
+.detalle-card .compose-panel textarea {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Neutralize any width: fit-content in this scoped area */
+.detalle-card .chat-message[style],
+.detalle-card .chat-message {
+    width: auto !important;
+}
+
+/* end robust scoped fixes for detalle-card mini chat */
+
+/* ===== Align mini-chat behavior with main buzón chat (flex layout) ===== */
+/* Scoped to .detalle-card to avoid affecting other views */
+.detalle-card .chat-panel {
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* allow children to shrink properly */
+}
+
+.detalle-card .chat-messages {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto; /* fill available space but allow shrink */
+    min-height: 0; /* critical for nested flex scrolling */
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.detalle-card .compose-panel {
+    flex-shrink: 0; /* keep composer visible and not shrink chat area */
+}
+
+/* Ensure the overall detalle-card doesn't push beyond viewport due to chat */
+.detalle-card {
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+/* End alignment with buzón behavior */
+
+/* ===== Limit heights so chat doesn't expand the page ===== */
+/* Scoped to .detalle-card only */
+.detalle-card .chat-panel {
+    /* Leave some room for header/other content; adjust as needed */
+    max-height: calc(100vh - 180px);
+}
+
+.detalle-card .chat-messages {
+    /* Ensure messages area never grows beyond viewport and scrolls internally */
+    max-height: calc(60vh);
+    min-height: 80px;
+    overflow-y: auto;
+}
+
+/* Mobile: give more vertical space to messages but still limit */
+@media (max-width: 600px) {
+    .detalle-card .chat-panel {
+        max-height: calc(100vh - 140px);
+    }
+    .detalle-card .chat-messages {
+        max-height: calc(55vh);
+    }
+}
+
+@media (max-width: 400px) {
+    .detalle-card .chat-messages {
+        max-height: calc(50vh);
+    }
+}
+
+/* Ensure composer sits below messages and doesn't cause page scroll */
+.detalle-card .compose-panel {
+    width: 100%;
+}
+
+/* End height limits */
+
+
+@media (max-width:900px){
+
+.header{
+    display:block !important;
+    text-align:left;
+}
+
+.header h1{
+    display:block;
+    margin:0 0 8px 0;
+}
+
 }

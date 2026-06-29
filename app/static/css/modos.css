@@ -66,10 +66,56 @@ body.modo-oscuro .card,
 body.modo-oscuro .form-card,
 body.modo-oscuro .photo-card,
 body.modo-oscuro .activity-box,
-body.modo-oscuro .config-section {
+body.modo-oscuro .config-section,
+body.modo-oscuro .top-card,
+body.modo-oscuro .info-card,
+body.modo-oscuro .settings-card,
+body.modo-oscuro .section-card,
+body.modo-oscuro .modal-card {
     background: #2d3748 !important;
     color: #ffffff !important;
     border: 1px solid #3f4a5c !important;
+}
+
+body.modo-oscuro .info-row,
+body.modo-oscuro .settings-row {
+    background: #232a36 !important;
+    border: 1px solid #3f4a5c !important;
+    color: #e2e8f0 !important;
+}
+
+body.modo-oscuro .info-row:hover,
+body.modo-oscuro .settings-row:hover {
+    box-shadow: 0 12px 30px rgba(224, 197, 143, 0.08) !important;
+}
+
+body.modo-oscuro .info-icon,
+body.modo-oscuro .settings-icon {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #E0C58F !important;
+    border-color: transparent !important;
+}
+
+body.modo-oscuro .badge {
+    background: #1e2532 !important;
+    border-color: #3f4a5c !important;
+}
+
+body.modo-oscuro .badge-title,
+body.modo-oscuro .badge strong {
+    color: #ffffff !important;
+}
+
+body.modo-oscuro .photo-frame {
+    background: #2d3748 !important;
+    border-color: #dbc37e !important;
+    border-radius: 50% !important;
+    overflow: hidden !important;
+}
+
+body.modo-oscuro .photo-button {
+    background: linear-gradient(135deg, #E0C58F, #d4b77b) !important;
+    color: #0f1419 !important;
 }
 
 body.modo-oscuro .card::before,
@@ -77,10 +123,47 @@ body.modo-oscuro .config-section h3 {
     border-color: #E0C58F !important;
 }
 
-body.modo-oscuro .card h3,
+body.modo-oscuro .page-header h1,
+body.modo-oscuro .card-header h3,
 body.modo-oscuro .config-section h3,
-body.modo-oscuro .title {
+body.modo-oscuro .title,
+body.modo-oscuro .profile-summary h2,
+body.modo-oscuro .modal-header h3,
+body.modo-oscuro .settings-title {
     color: #E0C58F !important;
+}
+
+body.modo-oscuro .subtitle,
+body.modo-oscuro .member-info,
+body.modo-oscuro .info-title,
+body.modo-oscuro .info-value,
+body.modo-oscuro .settings-subtitle,
+body.modo-oscuro .modal-eyebrow,
+body.modo-oscuro .form-group label,
+body.modo-oscuro .privacy-option strong,
+body.modo-oscuro .privacy-option p {
+    color: #d1d5db !important;
+}
+
+body.modo-oscuro .select-input,
+body.modo-oscuro .form-group input,
+body.modo-oscuro .privacy-option,
+body.modo-oscuro .password-rules,
+body.modo-oscuro .modal-close {
+    background: #1a1f2e !important;
+    border-color: #3f4a5c !important;
+    color: #e2e8f0 !important;
+}
+
+body.modo-oscuro .select-input,
+body.modo-oscuro .form-group input,
+body.modo-oscuro .privacy-option input {
+    color: #ffffff !important;
+}
+
+body.modo-oscuro .select-input option {
+    background: #1a1f2e !important;
+    color: #ffffff !important;
 }
 
 body.modo-oscuro .card span,
@@ -211,8 +294,14 @@ body.modo-oscuro .header h1 {
 }
 
 body.modo-oscuro .header p,
-body.modo-oscuro .subtitle {
+body.modo-oscuro .subtitle,
+body.modo-oscuro .dashboard-title h1,
+body.modo-oscuro .dashboard-greeting {
     color: #ffffff !important;
+}
+
+body.modo-oscuro .dashboard-title h1 {
+    color: #E0C58F !important;
 }
 
 /* MODO OSCURO - Grid de tarjetas */
@@ -270,6 +359,107 @@ body.modo-oscuro .filter-select:hover,
 body.modo-oscuro .filter-select:focus {
     border-color: #E0C58F !important;
     box-shadow: 0 0 2px rgba(224, 197, 143, 0.1) !important;
+}
+
+body.modo-oscuro .filter-pill {
+    background: #1a1f2e !important;
+    border: 1px solid #3f4a5c !important;
+    color: #e2e8f0 !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+body.modo-oscuro .filter-pill i {
+    color: #E0C58F !important;
+}
+
+body.modo-oscuro .search-bar i {
+    color: #e2e8f0 !important;
+}
+
+body.modo-oscuro .report-card,
+body.modo-oscuro .tarjeta-resultado {
+    background: #1f2430 !important;
+    border: 1px solid #3f4a5c !important;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35) !important;
+}
+
+body.modo-oscuro .report-card:hover,
+body.modo-oscuro .tarjeta-resultado:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 16px 34px rgba(224, 197, 143, 0.2) !important;
+}
+
+body.modo-oscuro .report-card-header,
+body.modo-oscuro .report-card-footer {
+    border-color: #334155 !important;
+}
+
+body.modo-oscuro .report-card-title,
+body.modo-oscuro .tarjeta-titulo,
+body.modo-oscuro .report-card-location,
+body.modo-oscuro .tarjeta-categoria,
+body.modo-oscuro .tarjeta-color {
+    color: #ffffff !important;
+}
+
+body.modo-oscuro .report-card-image {
+    background-color: #141a26 !important;
+}
+
+body.modo-oscuro .user-chip,
+body.modo-oscuro .report-status,
+body.modo-oscuro .status-found,
+body.modo-oscuro .status-lost {
+    background: rgba(224, 197, 143, 0.12) !important;
+    color: #E0C58F !important;
+    border-color: transparent !important;
+}
+
+body.modo-oscuro .status-lost {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #cbd5e1 !important;
+}
+
+body.modo-oscuro .refresh-btn,
+body.modo-oscuro .report-card-delete,
+body.modo-oscuro .btn-outline {
+    background: #1a1f2e !important;
+    color: #e2e8f0 !important;
+    border: 1px solid #3f4a5c !important;
+}
+
+body.modo-oscuro .refresh-btn:hover,
+body.modo-oscuro .report-card-delete:hover,
+body.modo-oscuro .btn-outline:hover {
+    background: rgba(224, 197, 143, 0.08) !important;
+}
+
+body.modo-oscuro .section-header h2,
+body.modo-oscuro .see-all {
+    color: #e2e8f0 !important;
+}
+
+body.modo-oscuro .section-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    padding-bottom: 8px;
+}
+
+body.modo-oscuro .bottom-nav {
+    background: linear-gradient(180deg, rgba(15,20,25,0.98), rgba(15,20,25,0.9)) !important;
+}
+
+body.modo-oscuro .bottom-nav .nav-item,
+body.modo-oscuro .bottom-nav .center-btn {
+    color: #e2e8f0 !important;
+}
+
+body.modo-oscuro .bottom-nav .nav-item.active,
+body.modo-oscuro .bottom-nav .nav-item:hover {
+    color: #E0C58F !important;
+}
+
+body.modo-oscuro .bottom-nav .center-btn {
+    background: linear-gradient(135deg, #E0C58F, #d4b77b) !important;
 }
 
 /* MODO OSCURO - Toggle switch */
@@ -427,6 +617,158 @@ body.modo-oscuro .buzon-actions .btn:hover {
 body.modo-oscuro .buzon-actions button.secondary {
     background: #2d3748 !important;
     color: #E0C58F !important;
+}
+
+/* MODO OSCURO - Detalles de reportes */
+body.modo-oscuro .detalle-container {
+    background: #0f141e !important;
+}
+
+body.modo-oscuro .detalle-card {
+    background: #111827 !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45) !important;
+}
+
+body.modo-oscuro .imagen-placeholder {
+    background: #1f2937 !important;
+    color: #cbd5e1 !important;
+}
+
+body.modo-oscuro .detalle-info {
+    color: #eff3f8 !important;
+}
+
+body.modo-oscuro .detalle-badge {
+    background: rgba(224, 197, 143, 0.18) !important;
+    color: #E0C58F !important;
+}
+
+body.modo-oscuro .detalle-info h1 {
+    color: #f8fafc !important;
+}
+
+body.modo-oscuro .detalle-meta-item {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+body.modo-oscuro .detalle-meta-item i {
+    color: #E0C58F !important;
+    background: rgba(224, 197, 143, 0.12) !important;
+}
+
+body.modo-oscuro .detalle-meta-item .label {
+    color: #94a3b8 !important;
+}
+
+body.modo-oscuro .detalle-meta-item .value {
+    color: #f8fafc !important;
+}
+
+body.modo-oscuro .observaciones-card {
+    background: #16202f !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.modo-oscuro .observaciones-title {
+    color: #f8fafc !important;
+}
+
+body.modo-oscuro .observaciones-card p {
+    color: #c8d1de !important;
+}
+
+body.modo-oscuro .btn-volver {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.modo-oscuro .btn-volver:hover {
+    background: rgba(224, 197, 143, 0.12) !important;
+    color: #eff3f8 !important;
+}
+
+body.modo-oscuro .btn-chat {
+    background: #e0c58f !important;
+    color: #0f1419 !important;
+    border-color: #cbb36b !important;
+}
+
+body.modo-oscuro .btn-chat:hover {
+    background: #d4b56e !important;
+}
+
+body.modo-oscuro .notifications-panel-overlay {
+    background: rgba(0, 0, 0, 0.55) !important;
+}
+
+body.modo-oscuro .notifications-panel {
+    background: #141a26 !important;
+    border: 1px solid rgba(224, 197, 143, 0.1) !important;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.55) !important;
+}
+
+body.modo-oscuro .notifications-panel-header {
+    background: rgba(18, 24, 38, 0.95) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+body.modo-oscuro .notifications-panel-header h3,
+body.modo-oscuro .notifications-panel-header p {
+    color: #f5f7fa !important;
+}
+
+body.modo-oscuro .notifications-close {
+    background: #1f2430 !important;
+    color: #f5f7fa !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.modo-oscuro .notifications-panel-list {
+    background: #141a26 !important;
+}
+
+body.modo-oscuro .notification-item {
+    background: #1d2434 !important;
+    color: #f5f7fa !important;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2) !important;
+}
+
+body.modo-oscuro .notification-item:hover {
+    background: rgba(224, 197, 143, 0.08) !important;
+}
+
+body.modo-oscuro .notification-item.is-unread {
+    background: rgba(224, 197, 143, 0.14) !important;
+}
+
+body.modo-oscuro .notification-title-row strong,
+body.modo-oscuro .notification-content p,
+body.modo-oscuro .notification-author,
+body.modo-oscuro .notification-time {
+    color: #d7e0f0 !important;
+}
+
+body.modo-oscuro .notification-title-row strong {
+    color: #f5f7fa !important;
+}
+
+body.modo-oscuro .notification-author {
+    color: #aab8d8 !important;
+}
+
+body.modo-oscuro .notification-time {
+    color: #94a3b8 !important;
+}
+
+body.modo-oscuro .notification-content p {
+    color: #c8d1de !important;
+}
+
+body.modo-oscuro .notification-media {
+    background: linear-gradient(135deg, #2c3a58, #162034) !important;
 }
 
 body.modo-oscuro .btn-back-mobile {

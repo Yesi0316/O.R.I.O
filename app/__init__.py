@@ -10,7 +10,7 @@ por ejemplo: from .database import conectar_db
 """
 
 import os
-from flask import Flask
+from flask import Flask, request, session
 from flask_cors import CORS #importar la librería de CORS
 from dotenv import load_dotenv
 
@@ -18,7 +18,8 @@ from dotenv import load_dotenv
 from .user_routes import init_user_routes
 from .admin_routes import init_admin_routes
 from .decorators import login_required, admin_required
-from .database import crear_tablas, inicializar_datos_default, aplicar_migraciones
+from .database import conectar_db, crear_tablas, inicializar_datos_default, aplicar_migraciones
+from psycopg2.extras import RealDictCursor
 
 
 
@@ -57,6 +58,30 @@ def create_app():
     # registrar todas las rutas del sistema
     init_user_routes(app)
     init_admin_routes(app)
+
+    @app.before_request
+    def load_tema_preference():
+        if 'id_usuario' in session and 'tema' not in session:
+            try:
+                db = conectar_db()
+                cursor = db.cursor(cursor_factory=RealDictCursor)
+                cursor.execute(
+                    'SELECT "TEMA_PREFERENCIA" FROM "Usuarios" WHERE "ID_USUARIO" = %s',
+                    (session['id_usuario'],)
+                )
+                usuario = cursor.fetchone()
+                cursor.close()
+                db.close()
+                if usuario and usuario.get('TEMA_PREFERENCIA'):
+                    session['tema'] = usuario['TEMA_PREFERENCIA']
+                else:
+                    session['tema'] = request.cookies.get('orio_tema', 'claro')
+            except Exception:
+                session['tema'] = request.cookies.get('orio_tema', 'claro')
+
+    @app.context_processor
+    def inject_tema():
+        return {'theme': session.get('tema', request.cookies.get('orio_tema', 'claro'))}
 
     # inicializar estructura de base de datos y datos por defecto
     # se usa el contexto de aplicacion porque algunas extensiones lo requieren
