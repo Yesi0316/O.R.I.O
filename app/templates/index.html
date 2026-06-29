@@ -5,8 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>O.R.I.O - Objetos Perdidos</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&family=Playfair+Display:wght@500;700&display=swap" rel="stylesheet">
 
+<script>
+(function(){
+    const tema = sessionStorage.getItem('tema_actual');
+    if (tema && tema !== 'claro') {
+        document.documentElement.classList.add('modo-' + tema);
+        document.addEventListener('DOMContentLoaded', function(){
+            document.body.classList.add('modo-' + tema);
+        });
+    }
+})();
+</script>
 
 </head>
 

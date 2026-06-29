@@ -5,6 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Reportar cuenta | O.R.I.O</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='css/reporte_problemas.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
+<script>
+(function(){
+    const tema = sessionStorage.getItem('tema_actual');
+    if (tema && tema !== 'claro') {
+        document.documentElement.classList.add('modo-' + tema);
+        document.addEventListener('DOMContentLoaded', function(){
+            document.body.classList.add('modo-' + tema);
+        });
+    }
+})();
+</script>
 </head>
 
 <body>

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -10,29 +11,37 @@
 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_base.css') }}">
 
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 
- <link rel="stylesheet"
-href="{{ url_for('static', filename='css/modos.css') }}"> 
-
 <script>
-window.addEventListener('DOMContentLoaded', async function() {
+(async function () {
     try {
         const response = await fetch('/api/tema/obtener');
         const data = await response.json();
 
         if (data.ok) {
-            const tema = data.tema;
-            document.body.classList.remove('modo-oscuro', 'modo-alto-contraste');
-            if (tema && tema !== 'claro') {
-                document.body.classList.add('modo-' + tema);
+            document.documentElement.classList.remove(
+                'modo-oscuro',
+                'modo-alto-contraste'
+            );
+
+            document.body.classList.remove(
+                'modo-oscuro',
+                'modo-alto-contraste'
+            );
+
+            if (data.tema && data.tema !== 'claro') {
+                document.documentElement.classList.add('modo-' + data.tema);
+                document.body.classList.add('modo-' + data.tema);
             }
         }
     } catch (e) {
-        console.error('Error cargando tema:', e);
+        console.error(e);
     }
-});
+})();
 </script>
 
 {% block extra_css %}{% endblock %}
@@ -103,6 +112,11 @@ window.addEventListener('DOMContentLoaded', async function() {
             <span>Configuración</span>
 
         </a>
+
+        <a href="#" onclick="abrirModal(event)" >
+         <i class="fas fa-right-from-bracket"></i><span>Cerrar sesión</span>
+        </a>
+
 
     </div>
 

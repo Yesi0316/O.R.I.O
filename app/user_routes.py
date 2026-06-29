@@ -305,22 +305,26 @@ def init_user_routes(app):
 
         if tipo == "perdido":
             query = f'''
-                SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", 
-                o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
-                o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA", 'perdido' AS tipo, r."ID_REPORTE" AS id_reporte
+                SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN",
+                    o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
+                    o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA",
+                    'perdido' AS tipo, r."ID_REPORTE" AS id_reporte
                 FROM "Objetos" o
                 JOIN "Reportes_perdidos" r ON o."ID_OBJETO" = r."ID_OBJETO"
                 LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
                 WHERE {where}
+                AND r."STATUS" = 'perdido'
                 ORDER BY r."FECHA" DESC
             '''
             print(f"[BUSQUEDAS] SQL PERDIDO: {query.strip()} params={params}")
             cursor.execute(query, params)
+
         elif tipo == "encontrado":
             query = f'''
-                SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", 
-                o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
-                o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA", 'encontrado' AS tipo, r."ID_REPORTE_ENC" AS id_reporte
+                SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN",
+                    o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
+                    o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA",
+                    'encontrado' AS tipo, r."ID_REPORTE_ENC" AS id_reporte
                 FROM "Objetos" o
                 JOIN "Reportes_encontrados" r ON o."ID_OBJETO" = r."ID_OBJETO"
                 LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
@@ -329,24 +333,31 @@ def init_user_routes(app):
             '''
             print(f"[BUSQUEDAS] SQL ENCONTRADO: {query.strip()} params={params}")
             cursor.execute(query, params)
+
         else:
             params_union = params + params
             query = f'''
-                SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", 
-                o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
-                o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA", 'perdido' AS tipo, r."ID_REPORTE" AS id_reporte
+                SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN",
+                    o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
+                    o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA",
+                    'perdido' AS tipo, r."ID_REPORTE" AS id_reporte
                 FROM "Objetos" o
                 JOIN "Reportes_perdidos" r ON o."ID_OBJETO" = r."ID_OBJETO"
                 LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
                 WHERE {where}
+                AND r."STATUS" = 'perdido'
+
                 UNION ALL
-                SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN", 
-                o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
-                o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA", 'encontrado' AS tipo, r."ID_REPORTE_ENC" AS id_reporte
+
+                SELECT o."NOMBRE", o."ID_OBJETO", o."COLOR", o."IMAGEN",
+                    o."ID_CATEGORIA" AS CATEGORIA, c."NOMBRE" AS nombre_categoria,
+                    o."LUGAR_ENCONTRADO" AS "LUGAR", r."FECHA",
+                    'encontrado' AS tipo, r."ID_REPORTE_ENC" AS id_reporte
                 FROM "Objetos" o
                 JOIN "Reportes_encontrados" r ON o."ID_OBJETO" = r."ID_OBJETO"
                 LEFT JOIN "Categorias" c ON o."ID_CATEGORIA" = c."ID_CATEGORIA"
                 WHERE {where}
+
                 ORDER BY "FECHA" DESC
             '''
             print(f"[BUSQUEDAS] SQL UNION: {query.strip()} params={params_union}")
@@ -354,6 +365,7 @@ def init_user_routes(app):
 
         objetos = cursor.fetchall()
         print(f"[BUSQUEDAS] resultados={len(objetos)}")
+
         cursor.close()
         db.close()
 
@@ -367,9 +379,8 @@ def init_user_routes(app):
 
         if not objetos:
             return jsonify({"datos": [], "mensaje": "No se encontraron resultados"})
-        return jsonify({"ok": True, "datos": objetos})
-    
 
+        return jsonify({"ok": True, "datos": objetos})
     # -------------------------------------
     # RUTA INICIO DE SESIÓN
     # -------------------------------------

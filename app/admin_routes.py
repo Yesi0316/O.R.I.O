@@ -209,12 +209,12 @@ def init_admin_routes(app):
                 for fila in cursor.fetchall()
             }
 
-            # Reportes perdidos
+            # Reportes perdidos 
             cursor.execute("""
-                SELECT DATE("FECHA") AS fecha, COUNT(*) AS total
+                SELECT DATE("FECHA_REGISTRO") AS fecha, COUNT(*) AS total
                 FROM "Reportes_perdidos"
-                WHERE "FECHA" >= CURRENT_DATE - INTERVAL '6 days'
-                GROUP BY DATE("FECHA")
+                WHERE "FECHA_REGISTRO" >= CURRENT_DATE - INTERVAL '6 days'
+                GROUP BY DATE("FECHA_REGISTRO")
             """)
             perdidos = {
                 fila["fecha"]: fila["total"]
@@ -253,8 +253,7 @@ def init_admin_routes(app):
 
         except Exception as e:
             print(f"Error estadísticas 7 días: {e}")
-            return jsonify([]), 
-        500
+            return jsonify([]), 500
 
 
     # ---------------------------------------------
@@ -763,21 +762,23 @@ def init_admin_routes(app):
             traceback.print_exc()
             return jsonify({"ok": False, "error": str(e)}), 500
         
-    #-----------------------------------------
-    # RUTA PARA ELIMINAR USUARIOS (ADMIN)
-    #-----------------------------------------
+    #--------------------------
+    #borrar usuario admin
+    #--------------------------
+            
     @app.route('/api/admin_borrar_usuario', methods=['POST'])
     @admin_required
     def borrar_usuarios():
         db = None
         cursor = None
+
         try:
             payload = request.get_json() or {}
             id_usuario_borrar = payload.get('id_usuario')
 
             if not id_usuario_borrar:
                 return jsonify({'ok': False, 'error': 'ID de usuario requerido'}), 400
-            
+
             if id_usuario_borrar == session.get("id_usuario"):
                 return jsonify({'ok': False, 'error': 'No puedes eliminar tu propio usuario desde esta vista'}), 400
 
@@ -787,75 +788,63 @@ def init_admin_routes(app):
 
             cursor = db.cursor()
 
-            cursor.execute('SELECT * FROM "Usuarios" WHERE "ID_USUARIO" = %s', (id_usuario_borrar,))
-            row = cursor.fetchone()
-            if not row:
+            # Verificar que exista el usuario
+            cursor.execute(
+                'SELECT 1 FROM "Usuarios" WHERE "ID_USUARIO" = %s',
+                (id_usuario_borrar,)
+            )
+
+            if cursor.fetchone() is None:
                 cursor.close()
                 db.close()
                 return jsonify({'ok': False, 'error': 'Usuario no encontrado'}), 404
 
-            cursor.execute('DELETE FROM "Usuarios" WHERE "ID_USUARIO" = %s', (id_usuario_borrar,))
+            # Eliminar reportes encontrados del usuario
+            cursor.execute(
+                'DELETE FROM "Reportes_encontrados" WHERE "ID_USUARIO" = %s',
+                (id_usuario_borrar,)
+            )
+
+            # Eliminar reportes perdidos del usuario
+            cursor.execute(
+                'DELETE FROM "Reportes_perdidos" WHERE "ID_USUARIO" = %s',
+                (id_usuario_borrar,)
+            )
+
+            # Eliminar el usuario
+            cursor.execute(
+                'DELETE FROM "Usuarios" WHERE "ID_USUARIO" = %s',
+                (id_usuario_borrar,)
+            )
+
+            afectadas = cursor.rowcount
+
             db.commit()
-            afectadas = cursor.rowcount if hasattr(cursor, 'rowcount') else None
+
             cursor.close()
             db.close()
 
-            return jsonify({'ok': True, 'deleted': bool(afectadas)}), 200
+            return jsonify({
+                'ok': True,
+                'deleted': afectadas > 0
+            }), 200
 
         except Exception as e:
             if db:
                 db.rollback()
+
             try:
-                cursor.close()
-                db.close()
+                if cursor:
+                    cursor.close()
+                if db:
+                    db.close()
             except:
                 pass
-            return jsonify({'ok': False, 'error': str(e)}), 500
-    
-    #-------------------------------------
-    #ADMIN MARCAR COMO FALSO
-    #-------------------------------------
 
-    @app.route("/api/admin_marcar_falso", methods=["POST"])
-    @admin_required
-    def admin_marcar_falso():
-        try:
-            payload = request.get_json() or {}
-            id_reporte = payload.get("id_reporte")
-            tipo = payload.get("tipo")
-
-            if not id_reporte :
-                return jsonify({"ok": False, "error": "Parámetros inválidos"}), 400
-
-            db = conectar_db()
-            cursor = db.cursor()
-
-            if tipo == "perdido":
-                cursor.execute(
-                    'UPDATE "Reportes_perdidos" SET "STATUS" = %s WHERE "ID_REPORTE" = %s',
-                    ("falso", id_reporte),
-                )
-            else:  # encontrado
-                cursor.execute(
-                    'UPDATE "Reportes_encontrados" SET "STATUS" = %s WHERE "ID_REPORTE_ENC" = %s',
-                    ("falso", id_reporte),
-                )
-
-            db.commit()
-            afectadas = cursor.rowcount if hasattr(cursor, "rowcount") else None
-            cursor.close()
-            db.close()
-
-            return jsonify({"ok": True, "updated": bool(afectadas)}), 200
-
-        except Exception as e:
-            try:
-                cursor.close()
-                db.close()
-            except:
-                pass
-            return jsonify({"ok": False, "error": str(e)}), 500
-        
+            return jsonify({
+                'ok': False,
+                'error': str(e)
+            }), 500
 
     #-------------------------------------
     #ADMIN MARCAR COMO ENCONTRADO

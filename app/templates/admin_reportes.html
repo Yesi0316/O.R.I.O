@@ -10,7 +10,7 @@
 
 <div class="header">
   <center><h1>Reportes</h1></center>
-  <p style="color: #666; margin-top: 8px;">Ve todo los reportes y puede eliminar los que considere necesarios.</p>
+  <center><p style="color: #666; margin-top: 8px;">Ve todo los reportes y puede eliminar los que considere necesarios.</p></center>
 </div>
 
 <div class="search-section">
@@ -145,8 +145,8 @@ function renderizar(){
             <div class="tarjeta-acciones">
             <a class="tarjeta-btn" href="/detalles/${r.ID_OBJETO}">Ver</a>
             <button class="tarjeta-btn tarjeta-borrar" onclick="borrarReporte('${(r.id_reporte||r.ID_REPORTE||r.ID_REPORTE_ENC)}','${r.tipo}')" style="background:#e74c3c;border:none;color:#fff;padding:6px 8px;border-radius:4px;cursor:pointer;">Borrar</button>
-            <button class= "tarjeta-btn marcar-falso" onclick="marcarFalso('${(r.id_reporte||r.ID_REPORTE||r.ID_REPORTE_ENC)}','${r.tipo}')" style="background:#3498db;border:none;color:#fff;padding:6px 8px;border-radius:4px;cursor:pointer;">falso</button>
-            <button class= "tarjeta-btn marcar-encontrado" onclick="marcarEncontrado('${(r.id_reporte||r.ID_REPORTE||r.ID_REPORTE_ENC)}','${r.tipo}')" style="background:#27ae60;border:none;color:#fff;padding:6px 8px;border-radius:4px;cursor:pointer;">encontrado</button>
+            <button class= "tarjeta-btn marcar-falso" onclick="marcarFalso('${(r.id_reporte||r.ID_REPORTE||r.ID_REPORTE_ENC)}','${r.tipo}')" style="background:#3498db;border:none;color:#fff;padding:6px 8px;border-radius:4px;cursor:pointer;">Falso</button>
+            <button class= "tarjeta-btn marcar-encontrado" onclick="marcarEncontrado('${(r.id_reporte||r.ID_REPORTE||r.ID_REPORTE_ENC)}','${r.tipo}')" style="background:#27ae60;border:none;color:#fff;padding:6px 8px;border-radius:4px;cursor:pointer;">Encontrado</button>
           </div>
         </div>
       </div> 

@@ -6,6 +6,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="stylesheet" href="../static/css/recuperar.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
+
+<script>
+(function(){
+    const tema = sessionStorage.getItem('tema_actual');
+    if (tema && tema !== 'claro') {
+        document.documentElement.classList.add('modo-' + tema);
+        document.addEventListener('DOMContentLoaded', function(){
+            document.body.classList.add('modo-' + tema);
+        });
+    }
+})();
+</script>
 
 </head>
 

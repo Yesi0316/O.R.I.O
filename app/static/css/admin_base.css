@@ -69,7 +69,7 @@ width:85px;
 
 /* ICONO ACTIVO */
 .menu a.active i{
-    color: var(--royal);
+    color: var(--gold);
     transform: scale(1.15);
 }
 
@@ -522,16 +522,16 @@ color:#ffffff !important;
    Indica la página actual del menú
    ========================================================= */
 .menu a.active{
-background:linear-gradient(135deg,#ffffff,#e9eef8);
-color:var(--royal);
-font-weight:700;
-box-shadow:0 8px 18px rgba(17,34,80,.12);
-opacity:1;
+    background:linear-gradient(135deg,var(--gold),#f2d9a6);
+    color:var(--royal);
+    font-weight:700;
+    box-shadow:0 8px 18px rgba(17,34,80,.18);
+    opacity:1;
 }
 
 .menu a.active i,
-.menu a.active span {
-color:var(--royal) !important;
+.menu a.active span{
+    color:var(--royal) !important;
 }
 
 /* Oculta texto del menú cuando el sidebar está colapsado */

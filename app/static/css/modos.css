@@ -520,6 +520,27 @@ html body.modo-alto-contraste .conversation-item i{
     filter:brightness(0) invert(1);
 }
 
+html body.modo-alto-contraste .settings-icon{
+    width:46px !important;
+    height:46px !important;
+    display:grid !important;
+    place-items:center !important;
+
+    background:#FFF !important;
+    color:#000 !important;
+    border-radius:16px !important;
+}
+
+html body.modo-alto-contraste .select-input{
+    width:230px !important;
+
+    background:#000 !important;
+    color:#FFF !important;
+
+    border:2px solid #FFF !important;
+    border-radius:16px !important;
+}
+
 /* Hover y activo */
 html body.modo-alto-contraste .menu a:hover,
 html body.modo-alto-contraste .menu a.active,
@@ -902,4 +923,278 @@ html body.modo-alto-contraste .profile-name,
 html body.modo-alto-contraste .profile-role,
 html body.modo-alto-contraste .form-card label{
     color:#FFF !important;
+}
+
+html body.modo-alto-contraste .chat-empty i,
+html body.modo-alto-contraste .chat-placeholder i,
+html body.modo-alto-contraste .empty-icon,
+html body.modo-alto-contraste .fa-comments,
+html body.modo-alto-contraste .fa-comment-dots,
+html body.modo-alto-contraste .fas.fa-comments,
+html body.modo-alto-contraste .fas.fa-comment-dots{
+    color:#FFF !important;
+}
+
+html body.modo-alto-contraste .chat-message,
+html body.modo-alto-contraste .message-card{
+    background:#111 !important;
+    color:#FFF !important;
+    border:2px solid #FFF !important;
+}
+
+html body.modo-alto-contraste .message-author,
+html body.modo-alto-contraste .message-date,
+html body.modo-alto-contraste .message-content,
+html body.modo-alto-contraste .message-text{
+    color:#FFF !important;
+}
+
+html body.modo-alto-contraste .reply-btn,
+html body.modo-alto-contraste .btn-reply{
+    background:#000 !important;
+    color:#FFF !important;
+    border:2px solid #FFF !important;
+}
+
+html body.modo-alto-contraste .reply-btn:hover,
+html body.modo-alto-contraste .btn-reply:hover{
+    background:#FFF !important;
+    color:#000 !important;
+}
+
+/* =====================================================
+   CONFIGURACIÓN - ALTO CONTRASTE
+===================================================== */
+
+html body.modo-alto-contraste .config-section{
+    background:#000 !important;
+    border:2px solid #FFF !important;
+    border-radius:28px !important;
+    box-shadow:none !important;
+}
+
+html body.modo-alto-contraste .config-card,
+html body.modo-alto-contraste .config-item{
+    background:#111 !important;
+    border:2px solid #FFF !important;
+    color:#FFF !important;
+}
+
+html body.modo-alto-contraste .config-icon{
+    background:#FFF !important;
+    color:#000 !important;
+}
+
+html body.modo-alto-contraste .config-icon i,
+html body.modo-alto-contraste .config-icon svg{
+    color:#000 !important;
+    fill:#000 !important;
+}
+
+html body.modo-alto-contraste .config-title,
+html body.modo-alto-contraste .config-label,
+html body.modo-alto-contraste .config-label h3{
+    color:#FFF !important;
+}
+
+html body.modo-alto-contraste .config-label p,
+html body.modo-alto-contraste .config-description,
+html body.modo-alto-contraste .config-subtitle{
+    color:#CCC !important;
+}
+
+html body.modo-alto-contraste select{
+    background:#000 !important;
+    color:#FFF !important;
+    border:2px solid #FFF !important;
+}
+
+html body.modo-alto-contraste option{
+    background:#000 !important;
+    color:#FFF !important;
+}
+
+html body.modo-alto-contraste .btn-config,
+html body.modo-alto-contraste .config-btn{
+    background:#FFF !important;
+    color:#000 !important;
+    border:2px solid #FFF !important;
+}
+
+html body.modo-alto-contraste .btn-config:hover,
+html body.modo-alto-contraste .config-btn:hover{
+    background:#000 !important;
+    color:#FFF !important;
+}
+
+html body.modo-alto-contraste .settings-title,
+html body.modo-alto-contraste .settings-subtitle{
+    color:#FFF !important;
+}
+
+html body.modo-alto-contraste .section-card{
+    background:#000 !important;
+    border:2px solid #FFF !important;
+    border-radius:32px !important;
+    padding:28px !important;
+    box-shadow:none !important;
+}
+html body.modo-alto-contraste .settings-row{
+    display:flex !important;
+    justify-content:space-between !important;
+    align-items:center !important;
+    gap:18px !important;
+
+    background:#111 !important;
+    border:1px solid #FFF !important;
+    border-radius:22px !important;
+    padding:18px 22px !important;
+}
+
+html body.modo-alto-contraste .tarjeta-categoria{
+    color: #000 !important;
+}
+
+html body.modo-alto-contraste .refresh-btn:hover {
+    background: var(--bg) !important;
+    color: var(--text) !important;
+}
+
+
+/* Inputs de filtros como los que muestras */
+html body.modo-alto-contraste .filter,
+html body.modo-alto-contraste .search-bar {
+    background: #0f0f0f !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text) !important;
+}
+
+html body.modo-alto-contraste .filter-reset-button{
+    color: #000 !important
+}
+
+/* ==========================================
+   NAVBAR MÓVIL - ALTO CONTRASTE
+========================================== */
+@media (max-width:900px){
+
+html body.modo-alto-contraste .sidebar{
+    height:70px !important;
+    padding:0 10px !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-around !important;
+}
+
+html body.modo-alto-contraste .menu{
+    display:flex !important;
+    width:100% !important;
+    justify-content:space-between !important;
+    align-items:center !important;
+}
+
+html body.modo-alto-contraste .menu a{
+    flex:1 !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    justify-content:center !important;
+
+    padding:6px 4px !important;
+    margin:0 !important;
+
+    border:none !important;
+    background:transparent !important;
+}
+
+html body.modo-alto-contraste .menu a i{
+    font-size:20px !important;
+    margin-bottom:4px !important;
+    color:#FFF !important;
+    filter:none !important;
+}
+
+html body.modo-alto-contraste .menu a span{
+    font-size:10px !important;
+    color:#FFF !important;
+}
+
+html body.modo-alto-contraste .menu a.active{
+    background:#FFF !important;
+    color:#000 !important;
+    border-radius:14px !important;
+}
+
+html body.modo-alto-contraste .menu a.active i,
+html body.modo-alto-contraste .menu a.active span{
+    color:#000 !important;
+}
+
+}
+
+html body.modo-alto-contraste .filtro-btn button {
+    color: #000 !important;
+} 
+
+html body.modo-alto-contraste .filtro-btn button {
+    color: #000 !important;
+}
+
+html body.modo-alto-contraste .refresh-btn{
+    background: #000 !important;
+    color: #FFF !important;
+    border: 2px solid #FFF !important;
+}
+
+html body.modo-alto-contraste .fa-bell{
+    color: #000 !important;
+}
+
+html body.modo-alto-contraste .fa-crown{
+    color: #000 !important;
+}
+
+/* ==========================================
+   MODAL CERRAR SESIÓN - ALTO CONTRASTE
+========================================== */
+
+html body.modo-alto-contraste .modal{
+    background: rgba(0,0,0,.85) !important;
+    backdrop-filter: blur(6px);
+}
+
+html body.modo-alto-contraste .modal-content{
+    background: #000 !important;
+    border: 2px solid #FFF !important;
+    box-shadow: none !important;
+}
+
+html body.modo-alto-contraste .modal-content h2{
+    color: #FFF !important;
+}
+
+html body.modo-alto-contraste .modal-content p{
+    color: #FFF !important;
+}
+
+html body.modo-alto-contraste .btn-danger{
+    background: #FFF !important;
+    color: #000 !important;
+    border: 2px solid #FFF !important;
+}
+
+html body.modo-alto-contraste .btn-danger:hover{
+    background: #000 !important;
+    color: #FFF !important;
+}
+
+html body.modo-alto-contraste .btn-cancel{
+    background: #000 !important;
+    color: #FFF !important;
+    border: 2px solid #FFF !important;
+}
+
+html body.modo-alto-contraste .btn-cancel:hover{
+    background: #FFF !important;
+    color: #000 !important;
 }

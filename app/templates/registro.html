@@ -51,7 +51,14 @@
                     <div class="input-group">
                         <input type="text" name="nombre" placeholder="Nombre visible" required>
                     </div>
-                    
+
+<br>
+                    <div class="input-group">
+                        <label for="telefono">Número de teléfono</label>
+                        <input type="tel" name="telefono" id="telefono" placeholder="Ej: +34123456789" required>
+                    </div>
+<br>
+
                     <div class="input-group">
                         <label>Género</label>
 
@@ -114,10 +121,6 @@
 
                     </div>
 
-                    <div class="input-group">
-                        <label for="telefono">Número de teléfono</label>
-                        <input type="tel" name="telefono" id="telefono" placeholder="Ej: +34123456789" required>
-                    </div>
 
                     <button type="submit">Crear Cuenta</button>
 
@@ -238,7 +241,19 @@ passwordInput.addEventListener("input", () => {
     validarPassword(passwordInput.value)
 })
 
-formRegistro.addEventListener("submit", async (e) => {
+let datosPendientes = null
+
+function bloquearCamposParaConfirmacion(bloquear) {
+    const campos = formRegistro.querySelectorAll("input, button, textarea, select")
+
+    campos.forEach(campo => {
+        if (campo.id !== "acepto-politicas" && campo.id !== "btn-politicas") {
+            campo.disabled = bloquear
+        }
+    })
+}
+
+formRegistro.addEventListener("submit", (e) => {
     e.preventDefault()
 
     const pass = passwordInput.value
@@ -256,49 +271,63 @@ formRegistro.addEventListener("submit", async (e) => {
         return
     }
 
-    mensaje.innerText = "Creando cuenta..."
+    datosPendientes = new FormData(formRegistro)
+    mensaje.innerText = "Revisa y acepta la política para continuar"
     mensaje.style.color = "#112250"
 
-    const datos = new FormData(formRegistro)
-
-    const res = await fetch("/guardar_usuario", {
-        method:"POST",
-        body:datos
-    })
-
-   const data = await res.json();
-
-    console.log(data);
-
-mensaje.innerText = data.mensaje;
-mensaje.style.color = data.ok ? "#1e7e4f" : "#b23b3b";
-
-if(data.ok){
-    console.log("ABRIENDO MODAL");
-    document.getElementById("modal-politicas").style.display = "flex";
-}
+    checkPoliticas.checked = false
+    btnPoliticas.disabled = true
+    btnPoliticas.classList.remove("activo")
+    bloquearCamposParaConfirmacion(true)
+    document.getElementById("modal-politicas").style.display = "flex"
 })
 
 const modalPoliticas = document.getElementById("modal-politicas");
 const checkPoliticas = document.getElementById("acepto-politicas");
 const btnPoliticas = document.getElementById("btn-politicas");
 
-
 checkPoliticas.addEventListener("change", () => {
-    btnPoliticas.classList.toggle(
-        "activo",
-        checkPoliticas.checked
-    );
-});
+    btnPoliticas.disabled = !checkPoliticas.checked
+    btnPoliticas.classList.toggle("activo", checkPoliticas.checked)
+})
 
-btnPoliticas.addEventListener("click", () => {
-
-    if(!checkPoliticas.checked){
-        return;
+btnPoliticas.addEventListener("click", async () => {
+    if(!checkPoliticas.checked || !datosPendientes){
+        return
     }
 
-    window.location.href = "/menu";
-});
+    mensaje.innerText = "Creando cuenta..."
+    mensaje.style.color = "#112250"
+
+    try {
+        const res = await fetch("/guardar_usuario", {
+            method: "POST",
+            body: datosPendientes
+        })
+
+        const data = await res.json()
+
+        mensaje.innerText = data.mensaje || "Usuario creado correctamente"
+        mensaje.style.color = data.ok ? "#1e7e4f" : "#b23b3b"
+
+        if(data.ok){
+            modalPoliticas.style.display = "none"
+            window.location.href = "/menu"
+        } else {
+            bloquearCamposParaConfirmacion(false)
+            checkPoliticas.checked = false
+            btnPoliticas.disabled = true
+            btnPoliticas.classList.remove("activo")
+        }
+    } catch (error) {
+        mensaje.innerText = "No se pudo crear la cuenta"
+        mensaje.style.color = "#b23b3b"
+        bloquearCamposParaConfirmacion(false)
+        checkPoliticas.checked = false
+        btnPoliticas.disabled = true
+        btnPoliticas.classList.remove("activo")
+    }
+})
 
 
 

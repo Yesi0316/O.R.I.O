@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -8,29 +9,40 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@400;600&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modos.css') }}">
 
 <script>
-// Cargar y aplicar el tema del usuario desde la BD
-window.addEventListener('DOMContentLoaded', async function() {
+(async function () {
     try {
         const response = await fetch('/api/tema/obtener');
         const data = await response.json();
-        
+
         if (data.ok) {
-            const tema = data.tema;
-            if (tema && tema !== 'claro') {
-                document.body.classList.add('modo-' + tema);
+            document.documentElement.classList.remove(
+                'modo-oscuro',
+                'modo-alto-contraste'
+            );
+
+            document.body.classList.remove(
+                'modo-oscuro',
+                'modo-alto-contraste'
+            );
+
+            if (data.tema && data.tema !== 'claro') {
+                document.documentElement.classList.add('modo-' + data.tema);
+                document.body.classList.add('modo-' + data.tema);
             }
-            // Guardar en sessionStorage como respaldo (será reemplazado en próxima sesión)
-            sessionStorage.setItem('tema_actual', tema);
+
+            sessionStorage.setItem('tema_actual', data.tema || 'claro');
         }
     } catch (e) {
         console.error('Error cargando tema:', e);
-        // Fallback a claro por defecto
     }
-});
+})();
 </script>
 
 <!-- CSS ESTATICOS -->
